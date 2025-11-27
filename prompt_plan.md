@@ -32,7 +32,7 @@ This plan breaks down the Rackarr v0.1 MVP into 29 incremental, test-driven prom
 
 ### Prompt 0.1 — Project Scaffolding and Tooling
 
-**Status:** ⬜ Not started  
+**Status:** ✅ Complete
 **Dependencies:** None
 
 ```text

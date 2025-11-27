@@ -15,19 +15,19 @@ Progress tracker for prompt_plan.md execution.
 
 ### Prompt 0.1 — Project Scaffolding and Tooling
 
-- [ ] Initialize Svelte 5 + Vite project with TypeScript
-- [ ] Install testing dependencies (vitest, @testing-library/svelte, jsdom, playwright)
-- [ ] Install linting dependencies (eslint, prettier, eslint-plugin-svelte)
-- [ ] Install pre-commit hooks (husky, lint-staged)
-- [ ] Configure vitest.config.ts for Svelte component testing
-- [ ] Configure pre-commit hooks (lint, format, test)
-- [ ] Configure TypeScript strict mode
-- [ ] Create directory structure (components, stores, types, utils, data)
-- [ ] Add CSS custom properties to app.css
-- [ ] Write smoke test verifying setup
-- [ ] Create CLAUDE.md with project conventions
-- [ ] Verify: dev server, tests, build, pre-commit hooks all work
-- [ ] **Commit:** `chore: project scaffolding with Svelte 5, Vite, and testing infrastructure`
+- [x] Initialize Svelte 5 + Vite project with TypeScript
+- [x] Install testing dependencies (vitest, @testing-library/svelte, jsdom, playwright)
+- [x] Install linting dependencies (eslint, prettier, eslint-plugin-svelte)
+- [x] Install pre-commit hooks (husky, lint-staged)
+- [x] Configure vitest.config.ts for Svelte component testing
+- [x] Configure pre-commit hooks (lint, format, test)
+- [x] Configure TypeScript strict mode
+- [x] Create directory structure (components, stores, types, utils, data)
+- [x] Add CSS custom properties to app.css
+- [x] Write smoke test verifying setup
+- [x] Create CLAUDE.md with project conventions
+- [x] Verify: dev server, tests, build, pre-commit hooks all work
+- [x] **Commit:** `chore: project scaffolding with Svelte 5, Vite, and testing infrastructure`
 
 ### Prompt 0.2 — TypeScript Types Foundation
 
