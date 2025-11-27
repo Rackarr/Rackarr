@@ -4,17 +4,32 @@
 -->
 <script lang="ts">
 	import type { Rack as RackType, Device } from '$lib/types';
+	import RackDevice from './RackDevice.svelte';
 
 	interface Props {
 		rack: RackType;
 		deviceLibrary: Device[];
 		selected: boolean;
 		zoom: number;
+		selectedDeviceId?: string | null;
 		onselect?: (event: CustomEvent<{ rackId: string }>) => void;
+		ondeviceselect?: (event: CustomEvent<{ libraryId: string; position: number }>) => void;
 	}
 
-	// deviceLibrary will be used in a future PR for rendering devices
-	let { rack, deviceLibrary: _deviceLibrary, selected, zoom, onselect }: Props = $props();
+	let {
+		rack,
+		deviceLibrary,
+		selected,
+		zoom,
+		selectedDeviceId = null,
+		onselect,
+		ondeviceselect
+	}: Props = $props();
+
+	// Look up device by libraryId
+	function getDeviceById(libraryId: string): Device | undefined {
+		return deviceLibrary.find((d) => d.id === libraryId);
+	}
 
 	// CSS custom property values (fallbacks match app.css)
 	const U_HEIGHT = 22;
@@ -124,6 +139,24 @@
 				class="rack-selection"
 			/>
 		{/if}
+
+		<!-- Devices -->
+		<g transform="translate(0, {RACK_PADDING})">
+			{#each rack.devices as placedDevice (placedDevice.libraryId + '-' + placedDevice.position)}
+				{@const device = getDeviceById(placedDevice.libraryId)}
+				{#if device}
+					<RackDevice
+						{device}
+						position={placedDevice.position}
+						rackHeight={rack.height}
+						selected={selectedDeviceId === placedDevice.libraryId}
+						uHeight={U_HEIGHT}
+						rackWidth={RACK_WIDTH}
+						onselect={ondeviceselect}
+					/>
+				{/if}
+			{/each}
+		</g>
 
 		<!-- Rack name below -->
 		<text x={RACK_WIDTH / 2} y={totalHeight + RACK_PADDING + NAME_HEIGHT / 2 + 4} class="rack-name">
