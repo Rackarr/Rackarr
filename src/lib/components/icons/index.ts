@@ -1,0 +1,12 @@
+// Icon components barrel export
+export { default as IconPlus } from './IconPlus.svelte';
+export { default as IconPalette } from './IconPalette.svelte';
+export { default as IconSave } from './IconSave.svelte';
+export { default as IconLoad } from './IconLoad.svelte';
+export { default as IconExport } from './IconExport.svelte';
+export { default as IconTrash } from './IconTrash.svelte';
+export { default as IconZoomIn } from './IconZoomIn.svelte';
+export { default as IconZoomOut } from './IconZoomOut.svelte';
+export { default as IconSun } from './IconSun.svelte';
+export { default as IconMoon } from './IconMoon.svelte';
+export { default as IconHelp } from './IconHelp.svelte';
