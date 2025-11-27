@@ -73,15 +73,15 @@ Progress tracker for prompt_plan.md execution.
 
 ### Prompt 1.3 — Collision Detection System
 
-- [ ] Write tests for getDeviceURange()
-- [ ] Write tests for doRangesOverlap()
-- [ ] Write tests for canPlaceDevice()
-- [ ] Write tests for findCollisions()
-- [ ] Write tests for findValidDropPositions()
-- [ ] Write tests for snapToNearestValidPosition()
-- [ ] Implement all collision detection functions
-- [ ] All tests pass
-- [ ] **Commit:** `feat(collision): add collision detection system`
+- [x] Write tests for getDeviceURange()
+- [x] Write tests for doRangesOverlap()
+- [x] Write tests for canPlaceDevice()
+- [x] Write tests for findCollisions()
+- [x] Write tests for findValidDropPositions()
+- [x] Write tests for snapToNearestValidPosition()
+- [x] Implement all collision detection functions
+- [x] All tests pass
+- [x] **Commit:** `feat(collision): add collision detection system`
 
 ### Prompt 1.4 — Layout Persistence Logic
 
