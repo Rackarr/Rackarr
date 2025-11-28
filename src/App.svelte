@@ -11,6 +11,7 @@
 	import EditPanel from '$lib/components/EditPanel.svelte';
 	import NewRackForm from '$lib/components/NewRackForm.svelte';
 	import AddDeviceForm from '$lib/components/AddDeviceForm.svelte';
+	import ConfirmDialog from '$lib/components/ConfirmDialog.svelte';
 	import { getLayoutStore } from '$lib/stores/layout.svelte';
 	import { getSelectionStore } from '$lib/stores/selection.svelte';
 	import { getUIStore } from '$lib/stores/ui.svelte';
@@ -22,6 +23,8 @@
 	// Dialog state
 	let newRackFormOpen = $state(false);
 	let addDeviceFormOpen = $state(false);
+	let confirmDeleteOpen = $state(false);
+	let deleteTarget: { type: 'rack' | 'device'; name: string } | null = $state(null);
 
 	// Toolbar event handlers
 	function handleNewRack() {
@@ -58,9 +61,29 @@
 
 	function handleDelete() {
 		if (selectionStore.isRackSelected && selectionStore.selectedId) {
+			const rack = layoutStore.racks.find((r) => r.id === selectionStore.selectedId);
+			if (rack) {
+				deleteTarget = { type: 'rack', name: rack.name };
+				confirmDeleteOpen = true;
+			}
+		} else if (selectionStore.isDeviceSelected) {
+			if (selectionStore.selectedRackId !== null && selectionStore.selectedDeviceIndex !== null) {
+				const rack = layoutStore.racks.find((r) => r.id === selectionStore.selectedRackId);
+				if (rack && rack.devices[selectionStore.selectedDeviceIndex]) {
+					const device = rack.devices[selectionStore.selectedDeviceIndex];
+					const deviceDef = layoutStore.deviceLibrary.find((d) => d.id === device?.deviceId);
+					deleteTarget = { type: 'device', name: deviceDef?.name || 'Device' };
+					confirmDeleteOpen = true;
+				}
+			}
+		}
+	}
+
+	function handleConfirmDelete() {
+		if (deleteTarget?.type === 'rack' && selectionStore.selectedId) {
 			layoutStore.deleteRack(selectionStore.selectedId);
 			selectionStore.clearSelection();
-		} else if (selectionStore.isDeviceSelected) {
+		} else if (deleteTarget?.type === 'device') {
 			if (selectionStore.selectedRackId !== null && selectionStore.selectedDeviceIndex !== null) {
 				layoutStore.removeDeviceFromRack(
 					selectionStore.selectedRackId,
@@ -69,6 +92,13 @@
 				selectionStore.clearSelection();
 			}
 		}
+		confirmDeleteOpen = false;
+		deleteTarget = null;
+	}
+
+	function handleCancelDelete() {
+		confirmDeleteOpen = false;
+		deleteTarget = null;
 	}
 
 	function handleZoomIn() {
@@ -178,6 +208,17 @@
 		open={addDeviceFormOpen}
 		onadd={handleAddDeviceCreate}
 		oncancel={handleAddDeviceCancel}
+	/>
+
+	<ConfirmDialog
+		open={confirmDeleteOpen}
+		title={deleteTarget?.type === 'rack' ? 'Delete Rack' : 'Remove Device'}
+		message={deleteTarget?.type === 'rack'
+			? `Are you sure you want to delete "${deleteTarget?.name}"? All devices in this rack will be removed.`
+			: `Are you sure you want to remove "${deleteTarget?.name}" from this rack?`}
+		confirmLabel={deleteTarget?.type === 'rack' ? 'Delete Rack' : 'Remove'}
+		onconfirm={handleConfirmDelete}
+		oncancel={handleCancelDelete}
 	/>
 </div>
 

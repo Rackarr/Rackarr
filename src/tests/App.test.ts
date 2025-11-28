@@ -246,7 +246,7 @@ describe('App Component', () => {
 	});
 
 	describe('Delete Action', () => {
-		it('delete button removes selected rack', async () => {
+		it('delete button opens confirmation dialog', async () => {
 			const layoutStore = getLayoutStore();
 			const selectionStore = getSelectionStore();
 
@@ -259,13 +259,43 @@ describe('App Component', () => {
 
 			expect(layoutStore.rackCount).toBe(1);
 
-			// Click delete button in toolbar (not in edit panel)
-			// The toolbar button has aria-label="Delete" while edit panel has "Delete rack"
+			// Click delete button in toolbar
 			const toolbarDeleteBtn = document.querySelector(
 				'.toolbar-center button[aria-label="Delete"]'
 			) as HTMLButtonElement;
 			expect(toolbarDeleteBtn).toBeInTheDocument();
 			await fireEvent.click(toolbarDeleteBtn);
+
+			// Confirmation dialog should open
+			const dialog = screen.getByRole('dialog');
+			expect(dialog).toBeInTheDocument();
+			expect(dialog.querySelector('.dialog-title')).toHaveTextContent('Delete Rack');
+		});
+
+		it('delete confirmation removes selected rack', async () => {
+			const layoutStore = getLayoutStore();
+			const selectionStore = getSelectionStore();
+
+			// Add a rack
+			layoutStore.addRack('Test Rack', 42);
+			const rack = layoutStore.racks[0];
+			selectionStore.selectRack(rack!.id);
+
+			render(App);
+
+			expect(layoutStore.rackCount).toBe(1);
+
+			// Click delete button in toolbar
+			const toolbarDeleteBtn = document.querySelector(
+				'.toolbar-center button[aria-label="Delete"]'
+			) as HTMLButtonElement;
+			await fireEvent.click(toolbarDeleteBtn);
+
+			// Confirm the deletion - find the button within the dialog
+			const dialog = screen.getByRole('dialog');
+			const confirmBtn = dialog.querySelector('.btn-destructive') as HTMLButtonElement;
+			expect(confirmBtn).toBeInTheDocument();
+			await fireEvent.click(confirmBtn);
 
 			// Rack should be deleted
 			expect(layoutStore.rackCount).toBe(0);
