@@ -12,14 +12,17 @@
 	import NewRackForm from '$lib/components/NewRackForm.svelte';
 	import AddDeviceForm from '$lib/components/AddDeviceForm.svelte';
 	import ConfirmDialog from '$lib/components/ConfirmDialog.svelte';
+	import ToastContainer from '$lib/components/ToastContainer.svelte';
 	import { getLayoutStore } from '$lib/stores/layout.svelte';
 	import { getSelectionStore } from '$lib/stores/selection.svelte';
 	import { getUIStore } from '$lib/stores/ui.svelte';
+	import { getToastStore } from '$lib/stores/toast.svelte';
 	import { downloadLayout, openFilePicker, readLayoutFile } from '$lib/utils/file';
 
 	const layoutStore = getLayoutStore();
 	const selectionStore = getSelectionStore();
 	const uiStore = getUIStore();
+	const toastStore = getToastStore();
 
 	// Dialog state
 	let newRackFormOpen = $state(false);
@@ -48,6 +51,7 @@
 	function handleSave() {
 		downloadLayout(layoutStore.layout);
 		layoutStore.markClean();
+		toastStore.showToast('Layout saved', 'success', 3000);
 	}
 
 	async function handleLoad() {
@@ -62,10 +66,13 @@
 			layoutStore.loadLayout(loadedLayout);
 			layoutStore.markClean();
 			selectionStore.clearSelection();
+			toastStore.showToast('Layout loaded successfully', 'success');
 		} catch (error) {
-			// TODO: Show toast notification in Phase 8
 			console.error('Failed to load layout:', error);
-			alert(error instanceof Error ? error.message : 'Failed to load layout file');
+			toastStore.showToast(
+				error instanceof Error ? error.message : 'Failed to load layout file',
+				'error'
+			);
 		}
 	}
 
@@ -235,6 +242,8 @@
 		onconfirm={handleConfirmDelete}
 		oncancel={handleCancelDelete}
 	/>
+
+	<ToastContainer />
 </div>
 
 <style>
