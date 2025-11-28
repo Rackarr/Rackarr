@@ -1,0 +1,174 @@
+<!--
+  Dialog Component
+  Modal dialog with backdrop, focus trap, and accessibility
+-->
+<script lang="ts">
+	import type { Snippet } from 'svelte';
+	import { onMount } from 'svelte';
+
+	interface Props {
+		open: boolean;
+		title: string;
+		width?: string;
+		onclose?: () => void;
+		children?: Snippet;
+	}
+
+	let { open, title, width = '400px', onclose, children }: Props = $props();
+
+	let dialogElement: HTMLDivElement | null = $state(null);
+	let previousActiveElement: HTMLElement | null = null;
+	const titleId = `dialog-title-${Math.random().toString(36).slice(2, 11)}`;
+
+	// Handle escape key
+	function handleKeyDown(event: KeyboardEvent) {
+		if (event.key === 'Escape' && open) {
+			onclose?.();
+		}
+	}
+
+	// Handle backdrop click
+	function handleBackdropClick(event: MouseEvent) {
+		if (event.target === event.currentTarget) {
+			onclose?.();
+		}
+	}
+
+	// Focus management
+	$effect(() => {
+		if (open) {
+			// Store current focus
+			previousActiveElement = document.activeElement as HTMLElement;
+			// Focus the dialog
+			setTimeout(() => {
+				const focusable = dialogElement?.querySelector<HTMLElement>(
+					'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+				);
+				focusable?.focus();
+			}, 0);
+		} else if (previousActiveElement) {
+			// Return focus on close
+			previousActiveElement.focus();
+			previousActiveElement = null;
+		}
+	});
+
+	// Add document keydown listener
+	onMount(() => {
+		document.addEventListener('keydown', handleKeyDown);
+		return () => {
+			document.removeEventListener('keydown', handleKeyDown);
+		};
+	});
+</script>
+
+{#if open}
+	<div
+		class="dialog-backdrop"
+		data-testid="dialog-backdrop"
+		onclick={handleBackdropClick}
+		onkeydown={handleKeyDown}
+		role="presentation"
+	>
+		<div
+			bind:this={dialogElement}
+			class="dialog"
+			role="dialog"
+			aria-modal="true"
+			aria-labelledby={titleId}
+			style:width
+		>
+			<div class="dialog-header">
+				<h2 id={titleId} class="dialog-title">{title}</h2>
+				<button
+					type="button"
+					class="dialog-close"
+					onclick={() => onclose?.()}
+					aria-label="Close dialog"
+				>
+					<svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+						<path
+							d="M15 5L5 15M5 5L15 15"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+						/>
+					</svg>
+				</button>
+			</div>
+			<div class="dialog-content">
+				{#if children}
+					{@render children()}
+				{/if}
+			</div>
+		</div>
+	</div>
+{/if}
+
+<style>
+	.dialog-backdrop {
+		position: fixed;
+		inset: 0;
+		background: rgba(0, 0, 0, 0.5);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		z-index: 200;
+	}
+
+	.dialog {
+		background: var(--colour-dialog-bg, var(--colour-bg));
+		border: 1px solid var(--colour-border);
+		border-radius: 8px;
+		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+		max-width: 90vw;
+		max-height: 90vh;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.dialog-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 16px 20px;
+		border-bottom: 1px solid var(--colour-border);
+	}
+
+	.dialog-title {
+		margin: 0;
+		font-size: 18px;
+		font-weight: 600;
+		color: var(--colour-text);
+	}
+
+	.dialog-close {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 32px;
+		height: 32px;
+		padding: 0;
+		background: transparent;
+		border: none;
+		border-radius: 4px;
+		color: var(--colour-text-muted);
+		cursor: pointer;
+		transition: all var(--transition-fast);
+	}
+
+	.dialog-close:hover {
+		background: var(--colour-button-hover);
+		color: var(--colour-text);
+	}
+
+	.dialog-close:focus-visible {
+		outline: 2px solid var(--colour-selection);
+		outline-offset: 2px;
+	}
+
+	.dialog-content {
+		padding: 20px;
+		overflow-y: auto;
+	}
+</style>
