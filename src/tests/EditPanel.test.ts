@@ -1,0 +1,292 @@
+import { describe, it, expect, beforeEach } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/svelte';
+import EditPanel from '$lib/components/EditPanel.svelte';
+import ColourSwatch from '$lib/components/ColourSwatch.svelte';
+import { resetLayoutStore, getLayoutStore } from '$lib/stores/layout.svelte';
+import { resetSelectionStore, getSelectionStore } from '$lib/stores/selection.svelte';
+import { resetUIStore } from '$lib/stores/ui.svelte';
+
+describe('EditPanel Component', () => {
+	beforeEach(() => {
+		resetLayoutStore();
+		resetSelectionStore();
+		resetUIStore();
+	});
+
+	describe('Visibility', () => {
+		it('is hidden when nothing is selected', () => {
+			render(EditPanel);
+			const panel = screen.queryByRole('complementary');
+			// When no selection, right drawer should not have 'open' class
+			expect(panel).not.toHaveClass('open');
+		});
+
+		it('shows when a rack is selected', () => {
+			const layoutStore = getLayoutStore();
+			const selectionStore = getSelectionStore();
+
+			// Add a rack
+			const rack = layoutStore.addRack('Test Rack', 42);
+			expect(rack).not.toBeNull();
+
+			// Select it
+			selectionStore.selectRack(rack!.id);
+
+			render(EditPanel);
+			// The panel should be open
+			const panel = screen.getByRole('complementary');
+			expect(panel).toHaveClass('open');
+		});
+
+		it('shows when a device is selected', () => {
+			const layoutStore = getLayoutStore();
+			const selectionStore = getSelectionStore();
+
+			// Add a rack
+			const rack = layoutStore.addRack('Test Rack', 42);
+			expect(rack).not.toBeNull();
+
+			// Add a device to library and place it
+			const device = layoutStore.addDeviceToLibrary({
+				name: 'Test Server',
+				height: 2,
+				category: 'server',
+				colour: '#4A90D9'
+			});
+			layoutStore.placeDevice(rack!.id, device.id, 1);
+
+			// Select the device
+			selectionStore.selectDevice(rack!.id, 0, device.id);
+
+			render(EditPanel);
+			const panel = screen.getByRole('complementary');
+			expect(panel).toHaveClass('open');
+		});
+	});
+
+	describe('Rack Editing', () => {
+		it('shows rack fields when rack is selected', () => {
+			const layoutStore = getLayoutStore();
+			const selectionStore = getSelectionStore();
+
+			const rack = layoutStore.addRack('My Rack', 24);
+			selectionStore.selectRack(rack!.id);
+
+			render(EditPanel);
+
+			// Should show name field
+			expect(screen.getByLabelText(/name/i)).toBeInTheDocument();
+			// Should show height field
+			expect(screen.getByLabelText(/height/i)).toBeInTheDocument();
+		});
+
+		it('rack name field is editable', async () => {
+			const layoutStore = getLayoutStore();
+			const selectionStore = getSelectionStore();
+
+			const rack = layoutStore.addRack('My Rack', 24);
+			selectionStore.selectRack(rack!.id);
+
+			render(EditPanel);
+
+			const nameInput = screen.getByLabelText(/name/i) as HTMLInputElement;
+			expect(nameInput.value).toBe('My Rack');
+
+			await fireEvent.input(nameInput, { target: { value: 'New Name' } });
+			await fireEvent.blur(nameInput);
+
+			// Check store was updated
+			const updatedRack = layoutStore.racks.find((r) => r.id === rack!.id);
+			expect(updatedRack?.name).toBe('New Name');
+		});
+
+		it('rack height is editable when no devices present', async () => {
+			const layoutStore = getLayoutStore();
+			const selectionStore = getSelectionStore();
+
+			const rack = layoutStore.addRack('My Rack', 24);
+			selectionStore.selectRack(rack!.id);
+
+			render(EditPanel);
+
+			const heightInput = screen.getByLabelText(/height/i) as HTMLInputElement;
+			expect(heightInput).not.toBeDisabled();
+		});
+
+		it('rack height shows message when devices present', () => {
+			const layoutStore = getLayoutStore();
+			const selectionStore = getSelectionStore();
+
+			const rack = layoutStore.addRack('My Rack', 24);
+			const device = layoutStore.addDeviceToLibrary({
+				name: 'Server',
+				height: 2,
+				category: 'server',
+				colour: '#4A90D9'
+			});
+			layoutStore.placeDevice(rack!.id, device.id, 1);
+			selectionStore.selectRack(rack!.id);
+
+			render(EditPanel);
+
+			expect(screen.getByText(/remove all devices to resize/i)).toBeInTheDocument();
+		});
+
+		it('name change updates layout store', async () => {
+			const layoutStore = getLayoutStore();
+			const selectionStore = getSelectionStore();
+
+			const rack = layoutStore.addRack('My Rack', 24);
+			selectionStore.selectRack(rack!.id);
+
+			render(EditPanel);
+
+			const nameInput = screen.getByLabelText(/name/i);
+			await fireEvent.input(nameInput, { target: { value: 'Updated Rack' } });
+			await fireEvent.blur(nameInput);
+
+			const updatedRack = layoutStore.racks.find((r) => r.id === rack!.id);
+			expect(updatedRack?.name).toBe('Updated Rack');
+		});
+
+		it('delete button is present for rack', () => {
+			const layoutStore = getLayoutStore();
+			const selectionStore = getSelectionStore();
+
+			const rack = layoutStore.addRack('My Rack', 24);
+			selectionStore.selectRack(rack!.id);
+
+			render(EditPanel);
+
+			expect(screen.getByRole('button', { name: /delete rack/i })).toBeInTheDocument();
+		});
+
+		it('shows device count for rack', () => {
+			const layoutStore = getLayoutStore();
+			const selectionStore = getSelectionStore();
+
+			const rack = layoutStore.addRack('My Rack', 24);
+			const device = layoutStore.addDeviceToLibrary({
+				name: 'Server',
+				height: 2,
+				category: 'server',
+				colour: '#4A90D9'
+			});
+			layoutStore.placeDevice(rack!.id, device.id, 1);
+			selectionStore.selectRack(rack!.id);
+
+			const { container } = render(EditPanel);
+
+			// Find the info row with "Devices" label and verify it shows 1
+			expect(screen.getByText('Devices')).toBeInTheDocument();
+			// Look for the Devices row specifically
+			const infoRows = container.querySelectorAll('.info-row');
+			const devicesRow = Array.from(infoRows).find((row) => row.textContent?.includes('Devices'));
+			expect(devicesRow?.textContent).toContain('1');
+		});
+	});
+
+	describe('Device Display', () => {
+		it('shows device fields when device is selected', () => {
+			const layoutStore = getLayoutStore();
+			const selectionStore = getSelectionStore();
+
+			const rack = layoutStore.addRack('My Rack', 24);
+			const device = layoutStore.addDeviceToLibrary({
+				name: 'Test Server',
+				height: 2,
+				category: 'server',
+				colour: '#4A90D9',
+				notes: 'Some notes'
+			});
+			layoutStore.placeDevice(rack!.id, device.id, 5);
+			selectionStore.selectDevice(rack!.id, 0, device.id);
+
+			render(EditPanel);
+
+			// Should show device name (read-only)
+			expect(screen.getByText('Test Server')).toBeInTheDocument();
+			// Should show height
+			expect(screen.getByText('2U')).toBeInTheDocument();
+			// Should show category (capitalized)
+			expect(screen.getByText('Server')).toBeInTheDocument();
+			// Should show position
+			expect(screen.getByText('U5')).toBeInTheDocument();
+		});
+
+		it('shows notes when present', () => {
+			const layoutStore = getLayoutStore();
+			const selectionStore = getSelectionStore();
+
+			const rack = layoutStore.addRack('My Rack', 24);
+			const device = layoutStore.addDeviceToLibrary({
+				name: 'Test Server',
+				height: 2,
+				category: 'server',
+				colour: '#4A90D9',
+				notes: 'Important server notes'
+			});
+			layoutStore.placeDevice(rack!.id, device.id, 1);
+			selectionStore.selectDevice(rack!.id, 0, device.id);
+
+			render(EditPanel);
+
+			expect(screen.getByText('Important server notes')).toBeInTheDocument();
+		});
+
+		it('remove button is present for device', () => {
+			const layoutStore = getLayoutStore();
+			const selectionStore = getSelectionStore();
+
+			const rack = layoutStore.addRack('My Rack', 24);
+			const device = layoutStore.addDeviceToLibrary({
+				name: 'Test Server',
+				height: 2,
+				category: 'server',
+				colour: '#4A90D9'
+			});
+			layoutStore.placeDevice(rack!.id, device.id, 1);
+			selectionStore.selectDevice(rack!.id, 0, device.id);
+
+			render(EditPanel);
+
+			expect(screen.getByRole('button', { name: /remove from rack/i })).toBeInTheDocument();
+		});
+	});
+});
+
+describe('ColourSwatch Component', () => {
+	it('renders a colour swatch', () => {
+		const { container } = render(ColourSwatch, { props: { colour: '#FF0000' } });
+		const swatch = container.querySelector('.colour-swatch');
+		expect(swatch).toBeInTheDocument();
+	});
+
+	it('applies the correct colour', () => {
+		const { container } = render(ColourSwatch, { props: { colour: '#4A90D9' } });
+		const swatch = container.querySelector('.colour-swatch') as HTMLElement;
+		expect(swatch.style.backgroundColor).toBe('rgb(74, 144, 217)');
+	});
+
+	it('uses default size when not specified', () => {
+		const { container } = render(ColourSwatch, { props: { colour: '#FF0000' } });
+		const swatch = container.querySelector('.colour-swatch') as HTMLElement;
+		// Default size is 16px
+		expect(swatch.style.width).toBe('16px');
+		expect(swatch.style.height).toBe('16px');
+	});
+
+	it('uses custom size when specified', () => {
+		const { container } = render(ColourSwatch, { props: { colour: '#FF0000', size: 24 } });
+		const swatch = container.querySelector('.colour-swatch') as HTMLElement;
+		expect(swatch.style.width).toBe('24px');
+		expect(swatch.style.height).toBe('24px');
+	});
+
+	it('has a border for visibility', () => {
+		const { container } = render(ColourSwatch, { props: { colour: '#FFFFFF' } });
+		const swatch = container.querySelector('.colour-swatch');
+		expect(swatch).toHaveClass('colour-swatch');
+		// Border is applied via CSS, just verify the class is present
+	});
+});
