@@ -1,30 +1,154 @@
+<!--
+  Rackarr - Rack Layout Designer
+  Main application component
+-->
 <script lang="ts">
-	// Rackarr - Rack Layout Designer
-	// Main application component
+	import { onMount } from 'svelte';
+	import Toolbar from '$lib/components/Toolbar.svelte';
+	import Canvas from '$lib/components/Canvas.svelte';
+	import Drawer from '$lib/components/Drawer.svelte';
+	import DevicePalette from '$lib/components/DevicePalette.svelte';
+	import EditPanel from '$lib/components/EditPanel.svelte';
+	import { getLayoutStore } from '$lib/stores/layout.svelte';
+	import { getSelectionStore } from '$lib/stores/selection.svelte';
+	import { getUIStore } from '$lib/stores/ui.svelte';
+
+	const layoutStore = getLayoutStore();
+	const selectionStore = getSelectionStore();
+	const uiStore = getUIStore();
+
+	// Toolbar event handlers
+	function handleNewRack() {
+		// Create a new rack with default values
+		// TODO: In Phase 6, this will open a dialog
+		const rackNumber = layoutStore.rackCount + 1;
+		layoutStore.addRack(`Rack ${rackNumber}`, 42);
+	}
+
+	function handleTogglePalette() {
+		uiStore.toggleLeftDrawer();
+	}
+
+	function handleSave() {
+		// TODO: Implement in Phase 7
+		console.log('Save clicked');
+	}
+
+	function handleLoad() {
+		// TODO: Implement in Phase 7
+		console.log('Load clicked');
+	}
+
+	function handleExport() {
+		// TODO: Implement in Phase 9
+		console.log('Export clicked');
+	}
+
+	function handleDelete() {
+		if (selectionStore.isRackSelected && selectionStore.selectedId) {
+			layoutStore.deleteRack(selectionStore.selectedId);
+			selectionStore.clearSelection();
+		} else if (selectionStore.isDeviceSelected) {
+			if (selectionStore.selectedRackId !== null && selectionStore.selectedDeviceIndex !== null) {
+				layoutStore.removeDeviceFromRack(
+					selectionStore.selectedRackId,
+					selectionStore.selectedDeviceIndex
+				);
+				selectionStore.clearSelection();
+			}
+		}
+	}
+
+	function handleZoomIn() {
+		uiStore.zoomIn();
+	}
+
+	function handleZoomOut() {
+		uiStore.zoomOut();
+	}
+
+	function handleToggleTheme() {
+		uiStore.toggleTheme();
+	}
+
+	function handleHelp() {
+		// TODO: Implement in Phase 10
+		console.log('Help clicked');
+	}
+
+	function handleClosePalette() {
+		uiStore.closeLeftDrawer();
+	}
+
+	function handleAddDevice() {
+		// TODO: Implement in Phase 6 (Add Device Form)
+		console.log('Add device clicked');
+	}
+
+	// Beforeunload handler for unsaved changes
+	function handleBeforeUnload(event: BeforeUnloadEvent) {
+		if (layoutStore.isDirty) {
+			event.preventDefault();
+			// Modern browsers ignore custom messages, but we set it for legacy support
+			event.returnValue = 'You have unsaved changes. Leave anyway?';
+			return event.returnValue;
+		}
+	}
+
+	onMount(() => {
+		// Apply theme from storage (already done in ui store init)
+		// Session restore will be implemented in a later phase
+	});
 </script>
 
-<main>
-	<h1>Rackarr</h1>
-	<p>Rack Layout Designer for Homelabbers</p>
-</main>
+<svelte:window onbeforeunload={handleBeforeUnload} />
+
+<div class="app-layout">
+	<Toolbar
+		hasSelection={selectionStore.hasSelection}
+		paletteOpen={uiStore.leftDrawerOpen}
+		theme={uiStore.theme}
+		zoom={uiStore.zoom}
+		onnewrack={handleNewRack}
+		ontogglepalette={handleTogglePalette}
+		onsave={handleSave}
+		onload={handleLoad}
+		onexport={handleExport}
+		ondelete={handleDelete}
+		onzoomin={handleZoomIn}
+		onzoomout={handleZoomOut}
+		ontoggletheme={handleToggleTheme}
+		onhelp={handleHelp}
+	/>
+
+	<main class="app-main">
+		<Drawer
+			side="left"
+			open={uiStore.leftDrawerOpen}
+			title="Device Palette"
+			onclose={handleClosePalette}
+		>
+			<DevicePalette onadddevice={handleAddDevice} />
+		</Drawer>
+
+		<Canvas onnewrack={handleNewRack} />
+
+		<EditPanel />
+	</main>
+</div>
 
 <style>
-	main {
+	.app-layout {
 		display: flex;
 		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		min-height: 100vh;
-		background: var(--colour-bg);
-		color: var(--colour-text);
+		height: 100vh;
+		overflow: hidden;
 	}
 
-	h1 {
-		font-size: 2rem;
-		margin-bottom: 0.5rem;
-	}
-
-	p {
-		color: var(--colour-text-secondary);
+	.app-main {
+		display: flex;
+		flex: 1;
+		position: relative;
+		overflow: hidden;
 	}
 </style>
