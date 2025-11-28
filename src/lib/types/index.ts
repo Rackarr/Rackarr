@@ -93,3 +93,34 @@ export interface Layout {
 	/** Racks in this layout */
 	racks: Rack[];
 }
+
+/**
+ * Export format options
+ */
+export type ExportFormat = 'png' | 'jpeg' | 'svg' | 'pdf';
+
+/**
+ * Export scope options
+ */
+export type ExportScope = 'all' | 'selected';
+
+/**
+ * Export background options
+ */
+export type ExportBackground = 'dark' | 'light' | 'transparent';
+
+/**
+ * Export options for generating images/files
+ */
+export interface ExportOptions {
+	/** Output format */
+	format: ExportFormat;
+	/** Which racks to include */
+	scope: ExportScope;
+	/** Include rack names in export */
+	includeNames: boolean;
+	/** Include device legend */
+	includeLegend: boolean;
+	/** Background style */
+	background: ExportBackground;
+}
