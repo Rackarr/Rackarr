@@ -126,7 +126,7 @@ describe('AddDeviceForm Component', () => {
 			await fireEvent.click(submitBtn);
 
 			expect(onAdd).toHaveBeenCalledTimes(1);
-			const callArg = onAdd.mock.calls[0][0];
+			const callArg = onAdd.mock.calls[0]![0];
 			expect(callArg.name).toBe('My Server');
 			expect(callArg.height).toBe(2);
 			expect(callArg.category).toBe('server');

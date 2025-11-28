@@ -88,7 +88,7 @@
 	aria-label={ariaLabel}
 	aria-pressed={selected}
 	tabindex="0"
-	draggable="true"
+	{...{ draggable: 'true' } as unknown as Record}
 	onclick={handleClick}
 	onkeydown={handleKeyDown}
 	ondragstart={handleDragStart}

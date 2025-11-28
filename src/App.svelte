@@ -154,7 +154,7 @@
 				const rack = layoutStore.racks.find((r) => r.id === selectionStore.selectedRackId);
 				if (rack && rack.devices[selectionStore.selectedDeviceIndex]) {
 					const device = rack.devices[selectionStore.selectedDeviceIndex];
-					const deviceDef = layoutStore.deviceLibrary.find((d) => d.id === device?.deviceId);
+					const deviceDef = layoutStore.deviceLibrary.find((d) => d.id === device?.libraryId);
 					deleteTarget = { type: 'device', name: deviceDef?.name || 'Device' };
 					confirmDeleteOpen = true;
 				}

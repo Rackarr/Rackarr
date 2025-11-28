@@ -168,7 +168,7 @@ describe('KeyboardHandler Component', () => {
 			layoutStore.placeDevice(rackId, deviceId, 5);
 
 			// Select the device
-			selectionStore.selectDevice(rackId, 0);
+			selectionStore.selectDevice(rackId, 0, deviceId);
 
 			render(KeyboardHandler);
 
@@ -196,7 +196,7 @@ describe('KeyboardHandler Component', () => {
 			layoutStore.placeDevice(rackId, deviceId, 5);
 
 			// Select the device
-			selectionStore.selectDevice(rackId, 0);
+			selectionStore.selectDevice(rackId, 0, deviceId);
 
 			render(KeyboardHandler);
 
@@ -224,7 +224,7 @@ describe('KeyboardHandler Component', () => {
 			layoutStore.placeDevice(rackId, deviceId, 1);
 
 			// Select the device
-			selectionStore.selectDevice(rackId, 0);
+			selectionStore.selectDevice(rackId, 0, deviceId);
 
 			render(KeyboardHandler);
 
