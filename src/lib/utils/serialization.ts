@@ -6,13 +6,14 @@
 import type { Layout, Device, Rack } from '$lib/types';
 import { CURRENT_VERSION } from '$lib/types/constants';
 import { getDeviceURange, doRangesOverlap } from './collision';
+import { getStarterLibrary } from '$lib/data/starterLibrary';
 
 /**
  * Create a new empty layout
- * @param name - Layout name
- * @returns New Layout object
+ * @param name - Layout name (default: "Untitled Layout")
+ * @returns New Layout object with starter device library
  */
-export function createLayout(name: string): Layout {
+export function createLayout(name: string = 'Untitled Layout'): Layout {
 	const now = new Date().toISOString();
 
 	return {
@@ -23,7 +24,7 @@ export function createLayout(name: string): Layout {
 		settings: {
 			theme: 'dark'
 		},
-		deviceLibrary: [],
+		deviceLibrary: getStarterLibrary(),
 		racks: []
 	};
 }

@@ -15,7 +15,8 @@ describe('Layout Store', () => {
 			expect(store.layout.name).toBe('Untitled');
 			expect(store.layout.version).toBe(CURRENT_VERSION);
 			expect(store.layout.racks).toEqual([]);
-			expect(store.layout.deviceLibrary).toEqual([]);
+			// Now includes starter library (22 devices)
+			expect(store.layout.deviceLibrary.length).toBe(22);
 		});
 
 		it('initializes isDirty as false', () => {
@@ -48,11 +49,12 @@ describe('Layout Store', () => {
 			expect(store.racks).toEqual([]);
 		});
 
-		it('resets deviceLibrary to empty array', () => {
+		it('resets deviceLibrary to starter library', () => {
 			const store = getLayoutStore();
 			store.addDeviceToLibrary({ name: 'Test', height: 1, category: 'server', colour: '#4A90D9' });
 			store.createNewLayout('New Layout');
-			expect(store.deviceLibrary).toEqual([]);
+			// Starter library has 22 devices
+			expect(store.deviceLibrary.length).toBe(22);
 		});
 
 		it('sets isDirty to false', () => {
@@ -229,6 +231,7 @@ describe('Layout Store', () => {
 	describe('addDeviceToLibrary', () => {
 		it('generates ID and adds device', () => {
 			const store = getLayoutStore();
+			const initialCount = store.deviceLibrary.length; // 22 from starter library
 			const device = store.addDeviceToLibrary({
 				name: 'Test Server',
 				height: 2,
@@ -236,8 +239,10 @@ describe('Layout Store', () => {
 				colour: '#4A90D9'
 			});
 			expect(device.id).toMatch(/^[0-9a-f-]{36}$/);
-			expect(store.deviceLibrary).toHaveLength(1);
-			expect(store.deviceLibrary[0]!.name).toBe('Test Server');
+			expect(store.deviceLibrary).toHaveLength(initialCount + 1);
+			// New device is added at the end
+			const addedDevice = store.deviceLibrary.find((d) => d.id === device.id);
+			expect(addedDevice?.name).toBe('Test Server');
 		});
 
 		it('preserves all provided properties', () => {
@@ -275,8 +280,9 @@ describe('Layout Store', () => {
 				colour: '#4A90D9'
 			});
 			store.updateDeviceInLibrary(device.id, { name: 'Updated', height: 2 });
-			expect(store.deviceLibrary[0]!.name).toBe('Updated');
-			expect(store.deviceLibrary[0]!.height).toBe(2);
+			const updatedDevice = store.deviceLibrary.find((d) => d.id === device.id);
+			expect(updatedDevice?.name).toBe('Updated');
+			expect(updatedDevice?.height).toBe(2);
 		});
 
 		it('sets isDirty to true', () => {
@@ -296,15 +302,16 @@ describe('Layout Store', () => {
 	describe('deleteDeviceFromLibrary', () => {
 		it('removes device from library', () => {
 			const store = getLayoutStore();
+			const initialCount = store.deviceLibrary.length; // 22 from starter library
 			const device = store.addDeviceToLibrary({
 				name: 'To Delete',
 				height: 1,
 				category: 'server',
 				colour: '#4A90D9'
 			});
-			expect(store.deviceLibrary).toHaveLength(1);
+			expect(store.deviceLibrary).toHaveLength(initialCount + 1);
 			store.deleteDeviceFromLibrary(device.id);
-			expect(store.deviceLibrary).toHaveLength(0);
+			expect(store.deviceLibrary).toHaveLength(initialCount);
 		});
 
 		it('sets isDirty to true', () => {
@@ -556,7 +563,8 @@ describe('Layout Store', () => {
 
 			expect(freshStore.layout.name).toBe('Untitled');
 			expect(freshStore.racks).toEqual([]);
-			expect(freshStore.deviceLibrary).toEqual([]);
+			// Starter library has 22 devices
+			expect(freshStore.deviceLibrary.length).toBe(22);
 			expect(freshStore.isDirty).toBe(false);
 		});
 	});

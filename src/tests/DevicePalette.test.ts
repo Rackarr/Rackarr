@@ -32,10 +32,12 @@ describe('DevicePalette Component', () => {
 			expect(screen.getByText('Switch 1')).toBeInTheDocument();
 		});
 
-		it('shows empty state when no devices', () => {
+		it('shows starter library devices on initial load', () => {
 			render(DevicePalette);
 
-			expect(screen.getByText(/no devices/i)).toBeInTheDocument();
+			// Starter library includes common devices
+			expect(screen.getByText('1U Server')).toBeInTheDocument();
+			expect(screen.getByText('1U Switch')).toBeInTheDocument();
 		});
 	});
 
@@ -108,31 +110,12 @@ describe('DevicePalette Component', () => {
 
 	describe('Category Grouping', () => {
 		it('groups devices by category', () => {
-			const layoutStore = getLayoutStore();
-			layoutStore.addDeviceToLibrary({
-				name: 'Server 1',
-				height: 1,
-				category: 'server',
-				colour: CATEGORY_COLOURS.server
-			});
-			layoutStore.addDeviceToLibrary({
-				name: 'Server 2',
-				height: 2,
-				category: 'server',
-				colour: CATEGORY_COLOURS.server
-			});
-			layoutStore.addDeviceToLibrary({
-				name: 'Switch 1',
-				height: 1,
-				category: 'network',
-				colour: CATEGORY_COLOURS.network
-			});
-
+			// Starter library already has devices in all 10 categories
 			const { container } = render(DevicePalette);
 
-			// Should show category headers
+			// Should show category headers for all 10 categories
 			const categoryHeaders = container.querySelectorAll('.category-header');
-			expect(categoryHeaders.length).toBe(2);
+			expect(categoryHeaders.length).toBe(10);
 			// Servers and Network headers should exist
 			expect(screen.getByText('Servers')).toBeInTheDocument();
 			expect(screen.getByText('Network')).toBeInTheDocument();

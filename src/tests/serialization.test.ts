@@ -43,9 +43,10 @@ describe('Layout Serialization', () => {
 			expect(layout.racks).toEqual([]);
 		});
 
-		it('initializes with empty deviceLibrary', () => {
+		it('initializes with starter device library', () => {
 			const layout = createLayout('My Layout');
-			expect(layout.deviceLibrary).toEqual([]);
+			expect(layout.deviceLibrary.length).toBe(22);
+			expect(layout.deviceLibrary[0]?.id).toMatch(/^starter-/);
 		});
 
 		it('uses provided name', () => {
