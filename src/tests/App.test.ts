@@ -204,7 +204,22 @@ describe('App Component', () => {
 	});
 
 	describe('New Rack Action', () => {
-		it('new rack button creates a rack via empty state', async () => {
+		it('new rack button opens form dialog', async () => {
+			render(App);
+
+			// Click the "New Rack" button in empty state
+			const emptyStateBtn = document.querySelector('.empty-state-button') as HTMLButtonElement;
+			expect(emptyStateBtn).toBeInTheDocument();
+			await fireEvent.click(emptyStateBtn);
+
+			// Should open the new rack form dialog
+			const dialog = screen.getByRole('dialog');
+			expect(dialog).toBeInTheDocument();
+			// The dialog title should be "New Rack"
+			expect(dialog.querySelector('.dialog-title')).toHaveTextContent('New Rack');
+		});
+
+		it('new rack form creates a rack when submitted', async () => {
 			const layoutStore = getLayoutStore();
 
 			render(App);
@@ -212,13 +227,21 @@ describe('App Component', () => {
 			// Initially no racks
 			expect(layoutStore.rackCount).toBe(0);
 
-			// Click the "New Rack" button in empty state (there are 2, use the one in empty state)
+			// Click the "New Rack" button in empty state
 			const emptyStateBtn = document.querySelector('.empty-state-button') as HTMLButtonElement;
-			expect(emptyStateBtn).toBeInTheDocument();
 			await fireEvent.click(emptyStateBtn);
+
+			// Fill out the form
+			const nameInput = screen.getByLabelText(/name/i);
+			await fireEvent.input(nameInput, { target: { value: 'Test Rack' } });
+
+			// Submit the form
+			const createBtn = screen.getByRole('button', { name: /create/i });
+			await fireEvent.click(createBtn);
 
 			// Should have created a rack
 			expect(layoutStore.rackCount).toBe(1);
+			expect(layoutStore.racks[0]?.name).toBe('Test Rack');
 		});
 	});
 

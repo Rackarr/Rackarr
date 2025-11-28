@@ -9,6 +9,7 @@
 	import Drawer from '$lib/components/Drawer.svelte';
 	import DevicePalette from '$lib/components/DevicePalette.svelte';
 	import EditPanel from '$lib/components/EditPanel.svelte';
+	import NewRackForm from '$lib/components/NewRackForm.svelte';
 	import { getLayoutStore } from '$lib/stores/layout.svelte';
 	import { getSelectionStore } from '$lib/stores/selection.svelte';
 	import { getUIStore } from '$lib/stores/ui.svelte';
@@ -17,12 +18,21 @@
 	const selectionStore = getSelectionStore();
 	const uiStore = getUIStore();
 
+	// Dialog state
+	let newRackFormOpen = $state(false);
+
 	// Toolbar event handlers
 	function handleNewRack() {
-		// Create a new rack with default values
-		// TODO: In Phase 6, this will open a dialog
-		const rackNumber = layoutStore.rackCount + 1;
-		layoutStore.addRack(`Rack ${rackNumber}`, 42);
+		newRackFormOpen = true;
+	}
+
+	function handleNewRackCreate(data: { name: string; height: number }) {
+		layoutStore.addRack(data.name, data.height);
+		newRackFormOpen = false;
+	}
+
+	function handleNewRackCancel() {
+		newRackFormOpen = false;
 	}
 
 	function handleTogglePalette() {
@@ -135,6 +145,12 @@
 
 		<EditPanel />
 	</main>
+
+	<NewRackForm
+		open={newRackFormOpen}
+		oncreate={handleNewRackCreate}
+		oncancel={handleNewRackCancel}
+	/>
 </div>
 
 <style>
