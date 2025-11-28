@@ -7,7 +7,7 @@ import type { Rack, Device, ExportOptions, ExportFormat } from '$lib/types';
 // Constants matching Rack.svelte dimensions
 const U_HEIGHT = 22;
 const RACK_WIDTH = 220;
-const RAIL_WIDTH = 24;
+const RAIL_WIDTH = 17;
 const RACK_PADDING = 4;
 const NAME_HEIGHT = 28;
 const RACK_GAP = 40;
@@ -149,6 +149,22 @@ export function generateExportSVG(
 			line.setAttribute('stroke', gridColor);
 			line.setAttribute('stroke-width', '1');
 			rackGroup.appendChild(line);
+		}
+
+		// Mounting holes on right rail (3 per U)
+		const holeColor = isDark ? '#505050' : '#a0a0a0';
+		for (let i = 0; i < rack.height; i++) {
+			const baseY = i * U_HEIGHT + RACK_PADDING + 4;
+			const holeX = RACK_WIDTH - RAIL_WIDTH / 2;
+
+			for (const offsetY of [0, 7, 14]) {
+				const hole = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+				hole.setAttribute('cx', String(holeX));
+				hole.setAttribute('cy', String(baseY + offsetY));
+				hole.setAttribute('r', '2');
+				hole.setAttribute('fill', holeColor);
+				rackGroup.appendChild(hole);
+			}
 		}
 
 		// U labels on left rail

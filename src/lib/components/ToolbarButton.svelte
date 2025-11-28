@@ -9,11 +9,12 @@
 		label: string;
 		disabled?: boolean;
 		active?: boolean;
+		expanded?: boolean;
 		onclick?: () => void;
 		children?: Snippet;
 	}
 
-	let { label, disabled = false, active = false, onclick, children }: Props = $props();
+	let { label, disabled = false, active = false, expanded, onclick, children }: Props = $props();
 
 	function handleClick() {
 		if (!disabled && onclick) {
@@ -27,7 +28,8 @@
 	class="toolbar-button"
 	class:active
 	aria-label={label}
-	aria-pressed={active !== undefined ? active : undefined}
+	aria-pressed={active !== undefined && expanded === undefined ? active : undefined}
+	aria-expanded={expanded !== undefined ? expanded : undefined}
 	{disabled}
 	onclick={handleClick}
 >

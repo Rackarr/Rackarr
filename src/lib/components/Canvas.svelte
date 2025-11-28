@@ -154,8 +154,8 @@
 
 <svelte:window onkeydown={handleKeyDown} />
 
-<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-<div class="canvas" onclick={handleCanvasClick}>
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<div class="canvas" role="application" onclick={handleCanvasClick}>
 	{#if hasRacks}
 		<div class="rack-row">
 			{#each sortedRacks as rack (rack.id)}
@@ -184,8 +184,8 @@
 	.canvas {
 		flex: 1;
 		display: flex;
-		align-items: flex-end;
-		justify-content: flex-start;
+		align-items: center;
+		justify-content: center;
 		overflow-x: auto;
 		overflow-y: auto;
 		padding: 24px;
@@ -198,6 +198,6 @@
 		flex-direction: row;
 		align-items: flex-end;
 		gap: 24px;
-		padding-bottom: 16px;
+		padding: 16px;
 	}
 </style>

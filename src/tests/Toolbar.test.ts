@@ -56,16 +56,16 @@ describe('Toolbar Component', () => {
 	});
 
 	describe('Palette toggle', () => {
-		it('palette toggle shows active state when drawer open', () => {
+		it('palette toggle shows expanded state when drawer open', () => {
 			render(Toolbar, { props: { paletteOpen: true } });
 			const paletteBtn = screen.getByRole('button', { name: /device palette/i });
-			expect(paletteBtn).toHaveAttribute('aria-pressed', 'true');
+			expect(paletteBtn).toHaveAttribute('aria-expanded', 'true');
 		});
 
-		it('palette toggle shows inactive state when drawer closed', () => {
+		it('palette toggle shows collapsed state when drawer closed', () => {
 			render(Toolbar, { props: { paletteOpen: false } });
 			const paletteBtn = screen.getByRole('button', { name: /device palette/i });
-			expect(paletteBtn).toHaveAttribute('aria-pressed', 'false');
+			expect(paletteBtn).toHaveAttribute('aria-expanded', 'false');
 		});
 	});
 

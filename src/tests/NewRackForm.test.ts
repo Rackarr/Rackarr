@@ -63,6 +63,9 @@ describe('NewRackForm Component', () => {
 	describe('Validation', () => {
 		it('shows error for empty name on submit', async () => {
 			render(NewRackForm, { props: { open: true } });
+			// Clear the pre-filled name
+			const nameInput = screen.getByLabelText(/name/i);
+			await fireEvent.input(nameInput, { target: { value: '' } });
 			const submitBtn = screen.getByRole('button', { name: /create/i });
 			await fireEvent.click(submitBtn);
 			expect(screen.getByText(/name is required/i)).toBeInTheDocument();
@@ -180,19 +183,19 @@ describe('NewRackForm Component', () => {
 
 	describe('Form reset', () => {
 		it('resets form when closed and reopened', async () => {
-			const { rerender } = render(NewRackForm, { props: { open: true } });
+			const { rerender } = render(NewRackForm, { props: { open: true, rackCount: 0 } });
 
 			// Enter some data
 			const nameInput = screen.getByLabelText(/name/i);
-			await fireEvent.input(nameInput, { target: { value: 'Test' } });
+			await fireEvent.input(nameInput, { target: { value: 'Custom Name' } });
 
 			// Close and reopen
-			await rerender({ open: false });
-			await rerender({ open: true });
+			await rerender({ open: false, rackCount: 0 });
+			await rerender({ open: true, rackCount: 0 });
 
-			// Check form is reset
+			// Check form is reset to default name
 			const newNameInput = screen.getByLabelText(/name/i);
-			expect(newNameInput).toHaveValue('');
+			expect(newNameInput).toHaveValue('Rack 1');
 		});
 	});
 });

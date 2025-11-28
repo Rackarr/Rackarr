@@ -240,7 +240,7 @@ describe('Rack SVG Component', () => {
 			expect(svg).toHaveAttribute('aria-label', 'Test Rack, 12U rack');
 		});
 
-		it('has tabindex for keyboard focus', () => {
+		it('container has tabindex for keyboard focus', () => {
 			const { container } = render(Rack, {
 				props: {
 					rack: mockRack,
@@ -250,11 +250,11 @@ describe('Rack SVG Component', () => {
 				}
 			});
 
-			const svg = container.querySelector('svg');
-			expect(svg).toHaveAttribute('tabindex', '0');
+			const rackContainer = container.querySelector('.rack-container');
+			expect(rackContainer).toHaveAttribute('tabindex', '0');
 		});
 
-		it('has role="img"', () => {
+		it('SVG has role="img" for accessible description', () => {
 			const { container } = render(Rack, {
 				props: {
 					rack: mockRack,

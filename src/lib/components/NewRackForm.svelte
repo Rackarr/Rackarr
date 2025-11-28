@@ -8,11 +8,12 @@
 
 	interface Props {
 		open: boolean;
+		rackCount?: number;
 		oncreate?: (data: { name: string; height: number }) => void;
 		oncancel?: () => void;
 	}
 
-	let { open, oncreate, oncancel }: Props = $props();
+	let { open, rackCount = 0, oncreate, oncancel }: Props = $props();
 
 	// Form state
 	let name = $state('');
@@ -27,7 +28,7 @@
 	// Reset form when dialog opens
 	$effect(() => {
 		if (open) {
-			name = '';
+			name = `Rack ${rackCount + 1}`;
 			selectedHeight = 42;
 			isCustomHeight = false;
 			customHeight = 42;

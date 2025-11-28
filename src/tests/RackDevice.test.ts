@@ -6,7 +6,7 @@ import type { Device } from '$lib/types';
 describe('RackDevice SVG Component', () => {
 	const U_HEIGHT = 22;
 	const RACK_WIDTH = 220;
-	const RAIL_WIDTH = 24;
+	const RAIL_WIDTH = 17;
 
 	const mockDevice: Device = {
 		id: 'device-1',

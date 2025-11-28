@@ -119,9 +119,11 @@ describe('Rack Reordering', () => {
 	});
 
 	describe('Drag Handle Area', () => {
-		it('rack has drag handle element', () => {
+		it('rack has drag handle element when selected', () => {
 			const layoutStore = getLayoutStore();
-			layoutStore.addRack('Test Rack', 42);
+			const selectionStore = getSelectionStore();
+			const rack = layoutStore.addRack('Test Rack', 42);
+			selectionStore.selectRack(rack!.id);
 
 			const { container } = render(Canvas);
 
@@ -129,22 +131,24 @@ describe('Rack Reordering', () => {
 			expect(dragHandle).toBeInTheDocument();
 		});
 
-		it('drag handle is in header area', () => {
+		it('drag handle is hidden when rack not selected', () => {
 			const layoutStore = getLayoutStore();
 			layoutStore.addRack('Test Rack', 42);
 
 			const { container } = render(Canvas);
 
 			const dragHandle = container.querySelector('.rack-drag-handle');
-			// Drag handle should exist at top of rack
-			expect(dragHandle).toBeInTheDocument();
+			// Drag handle should not exist when rack is not selected
+			expect(dragHandle).not.toBeInTheDocument();
 		});
 	});
 
 	describe('Drag and Drop Reordering', () => {
 		it('dragging rack header sets correct drag data', () => {
 			const layoutStore = getLayoutStore();
-			layoutStore.addRack('Test Rack', 42);
+			const selectionStore = getSelectionStore();
+			const rack = layoutStore.addRack('Test Rack', 42);
+			selectionStore.selectRack(rack!.id);
 
 			const { container } = render(Canvas);
 

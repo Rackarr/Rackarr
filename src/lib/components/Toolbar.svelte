@@ -76,7 +76,12 @@
 			<IconPlus />
 		</ToolbarButton>
 
-		<ToolbarButton label="Device Palette" active={paletteOpen} onclick={ontogglepalette}>
+		<ToolbarButton
+			label="Device Palette"
+			active={paletteOpen}
+			expanded={paletteOpen}
+			onclick={ontogglepalette}
+		>
 			<IconPalette />
 		</ToolbarButton>
 

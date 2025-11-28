@@ -1,4 +1,86 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
+
+/**
+ * Helper to fill the rack creation form
+ * Uses #rack-name for name and height preset buttons or custom input
+ */
+async function fillRackForm(page: Page, name: string, height: number) {
+	await page.fill('#rack-name', name);
+
+	const presetHeights = [12, 18, 24, 42];
+	if (presetHeights.includes(height)) {
+		// Click the preset button
+		await page.click(`.height-btn:has-text("${height}U")`);
+	} else {
+		// Click Custom and fill the input
+		await page.click('.height-btn:has-text("Custom")');
+		await page.fill('#custom-height', String(height));
+	}
+}
+
+/**
+ * Helper to drag a device from palette to rack using manual events
+ * Manually dispatches HTML5 drag events for more reliable DnD testing
+ */
+async function dragDeviceToRack(page: Page) {
+	// Open palette if not already open
+	const paletteOpen = await page.locator('.drawer-left.open').count();
+	if (!paletteOpen) {
+		await page.click('button[aria-label="Device Palette"]');
+		await expect(page.locator('.drawer-left.open')).toBeVisible();
+	}
+
+	// Wait for palette content to be stable
+	await page.waitForTimeout(200);
+
+	// Use evaluate to simulate drag and drop via JavaScript
+	await page.evaluate(() => {
+		const deviceItem = document.querySelector('.device-palette-item');
+		const rack = document.querySelector('.rack-container svg');
+
+		if (!deviceItem || !rack) {
+			throw new Error('Could not find device item or rack');
+		}
+
+		// Create a DataTransfer object
+		const dataTransfer = new DataTransfer();
+
+		// Create and dispatch dragstart
+		const dragStartEvent = new DragEvent('dragstart', {
+			bubbles: true,
+			cancelable: true,
+			dataTransfer
+		});
+		deviceItem.dispatchEvent(dragStartEvent);
+
+		// Now dispatch dragover on the rack
+		const dragOverEvent = new DragEvent('dragover', {
+			bubbles: true,
+			cancelable: true,
+			dataTransfer
+		});
+		rack.dispatchEvent(dragOverEvent);
+
+		// Finally dispatch drop
+		const dropEvent = new DragEvent('drop', {
+			bubbles: true,
+			cancelable: true,
+			dataTransfer
+		});
+		rack.dispatchEvent(dropEvent);
+
+		// Dispatch dragend
+		const dragEndEvent = new DragEvent('dragend', {
+			bubbles: true,
+			cancelable: true,
+			dataTransfer
+		});
+		deviceItem.dispatchEvent(dragEndEvent);
+	});
+
+	// Wait a bit for state to update
+	await page.waitForTimeout(100);
+}
 
 test.describe('Keyboard Shortcuts', () => {
 	test.beforeEach(async ({ page }) => {
@@ -8,8 +90,7 @@ test.describe('Keyboard Shortcuts', () => {
 
 		// Create a rack for testing
 		await page.click('.btn-primary:has-text("New Rack")');
-		await page.fill('input[name="name"]', 'Test Rack');
-		await page.fill('input[name="height"]', '12');
+		await fillRackForm(page, 'Test Rack', 12);
 		await page.click('button:has-text("Create")');
 	});
 
@@ -70,12 +151,13 @@ test.describe('Keyboard Shortcuts', () => {
 		await expect(page.locator('.drawer-left.open')).not.toBeVisible();
 	});
 
-	test('? key opens help panel', async ({ page }) => {
-		// Press ?
-		await page.keyboard.press('Shift+/');
+	test('? key opens help dialog', async ({ page }) => {
+		// Press ? using keyboard.type which handles shift automatically
+		await page.keyboard.type('?');
 
-		// Help panel should open
-		await expect(page.locator('.help-panel.open')).toBeVisible();
+		// Help dialog should open (HelpPanel uses Dialog component)
+		await expect(page.locator('.dialog')).toBeVisible({ timeout: 2000 });
+		await expect(page.locator('.dialog-title')).toHaveText('Help');
 	});
 
 	test('Ctrl+S triggers save', async ({ page }) => {
@@ -106,10 +188,13 @@ test.describe('Keyboard Shortcuts', () => {
 
 	test('Arrow keys move device in rack', async ({ page }) => {
 		// Add a device to the rack
-		await page.click('button[aria-label="Device Palette"]');
-		const deviceItem = page.locator('.device-palette-item').first();
-		const rack = page.locator('.rack-container svg');
-		await deviceItem.dragTo(rack);
+		await dragDeviceToRack(page);
+
+		// Wait for device
+		await expect(page.locator('.rack-device')).toBeVisible();
+
+		// Close palette first
+		await page.keyboard.press('d');
 
 		// Select the device
 		await page.locator('.rack-device').click();

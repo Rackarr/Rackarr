@@ -1,4 +1,87 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
+
+/**
+ * Helper to fill the rack creation form
+ * Uses #rack-name for name and height preset buttons or custom input
+ */
+async function fillRackForm(page: Page, name: string, height: number) {
+	await page.fill('#rack-name', name);
+
+	const presetHeights = [12, 18, 24, 42];
+	if (presetHeights.includes(height)) {
+		// Click the preset button
+		await page.click(`.height-btn:has-text("${height}U")`);
+	} else {
+		// Click Custom and fill the input
+		await page.click('.height-btn:has-text("Custom")');
+		await page.fill('#custom-height', String(height));
+	}
+}
+
+/**
+ * Helper to drag a device from palette to rack using manual events
+ * Manually dispatches HTML5 drag events for more reliable DnD testing
+ */
+async function dragDeviceToRack(page: Page) {
+	// Open palette if not already open
+	const paletteOpen = await page.locator('.drawer-left.open').count();
+	if (!paletteOpen) {
+		await page.click('button[aria-label="Device Palette"]');
+		await expect(page.locator('.drawer-left.open')).toBeVisible();
+	}
+
+	// Wait for palette content to be stable
+	await page.waitForTimeout(200);
+
+	// Use evaluate to simulate drag and drop via JavaScript
+	await page.evaluate(() => {
+		const deviceItem = document.querySelector('.device-palette-item');
+		const rack = document.querySelector('.rack-container svg');
+
+		if (!deviceItem || !rack) {
+			throw new Error('Could not find device item or rack');
+		}
+
+		// Create a DataTransfer object
+		const dataTransfer = new DataTransfer();
+
+		// Create and dispatch dragstart
+		const dragStartEvent = new DragEvent('dragstart', {
+			bubbles: true,
+			cancelable: true,
+			dataTransfer
+		});
+		deviceItem.dispatchEvent(dragStartEvent);
+
+		// The dragstart handler should have set data on dataTransfer
+		// Now dispatch dragover on the rack
+		const dragOverEvent = new DragEvent('dragover', {
+			bubbles: true,
+			cancelable: true,
+			dataTransfer
+		});
+		rack.dispatchEvent(dragOverEvent);
+
+		// Finally dispatch drop
+		const dropEvent = new DragEvent('drop', {
+			bubbles: true,
+			cancelable: true,
+			dataTransfer
+		});
+		rack.dispatchEvent(dropEvent);
+
+		// Dispatch dragend
+		const dragEndEvent = new DragEvent('dragend', {
+			bubbles: true,
+			cancelable: true,
+			dataTransfer
+		});
+		deviceItem.dispatchEvent(dragEndEvent);
+	});
+
+	// Wait a bit for state to update
+	await page.waitForTimeout(100);
+}
 
 test.describe('Basic Workflow', () => {
 	test.beforeEach(async ({ page }) => {
@@ -13,8 +96,7 @@ test.describe('Basic Workflow', () => {
 		await page.click('.btn-primary:has-text("New Rack")');
 
 		// Fill out the rack form
-		await page.fill('input[name="name"]', 'Main Rack');
-		await page.fill('input[name="height"]', '18');
+		await fillRackForm(page, 'Main Rack', 18);
 
 		// Create the rack
 		await page.click('button:has-text("Create")');
@@ -27,8 +109,7 @@ test.describe('Basic Workflow', () => {
 	test('rack appears on canvas after creation', async ({ page }) => {
 		// Create a rack
 		await page.click('.btn-primary:has-text("New Rack")');
-		await page.fill('input[name="name"]', 'Test Rack');
-		await page.fill('input[name="height"]', '24');
+		await fillRackForm(page, 'Test Rack', 24);
 		await page.click('button:has-text("Create")');
 
 		// Verify the rack is visible
@@ -42,39 +123,24 @@ test.describe('Basic Workflow', () => {
 	test('can drag device from palette to rack', async ({ page }) => {
 		// First create a rack
 		await page.click('.btn-primary:has-text("New Rack")');
-		await page.fill('input[name="name"]', 'My Rack');
-		await page.fill('input[name="height"]', '20');
+		await fillRackForm(page, 'My Rack', 24);
 		await page.click('button:has-text("Create")');
 
-		// Open the device palette
-		await page.click('button[aria-label="Device Palette"]');
-		await expect(page.locator('.drawer-left.open')).toBeVisible();
+		// Drag device using helper
+		await dragDeviceToRack(page);
 
-		// Find a device in the palette and drag it to the rack
-		const deviceItem = page.locator('.device-palette-item').first();
-		const rack = page.locator('.rack-container svg');
-
-		// Perform drag and drop
-		await deviceItem.dragTo(rack);
-
-		// Verify device appears in rack (check for device rect inside rack)
+		// Verify device appears in rack
 		await expect(page.locator('.rack-device')).toBeVisible({ timeout: 5000 });
 	});
 
 	test('device appears at correct position in rack', async ({ page }) => {
 		// Create a rack
 		await page.click('.btn-primary:has-text("New Rack")');
-		await page.fill('input[name="name"]', 'Position Test');
-		await page.fill('input[name="height"]', '12');
+		await fillRackForm(page, 'Position Test', 12);
 		await page.click('button:has-text("Create")');
 
-		// Open palette
-		await page.click('button[aria-label="Device Palette"]');
-
-		// Drag device to rack
-		const deviceItem = page.locator('.device-palette-item').first();
-		const rack = page.locator('.rack-container svg');
-		await deviceItem.dragTo(rack);
+		// Drag device
+		await dragDeviceToRack(page);
 
 		// Verify device is in the rack
 		await expect(page.locator('.rack-device')).toBeVisible();
@@ -83,29 +149,23 @@ test.describe('Basic Workflow', () => {
 	test('can move device within rack', async ({ page }) => {
 		// Create rack and add device
 		await page.click('.btn-primary:has-text("New Rack")');
-		await page.fill('input[name="name"]', 'Move Test');
-		await page.fill('input[name="height"]', '20');
+		await fillRackForm(page, 'Move Test', 24);
 		await page.click('button:has-text("Create")');
 
-		// Open palette and drag device
-		await page.click('button[aria-label="Device Palette"]');
-		const deviceItem = page.locator('.device-palette-item').first();
-		const rack = page.locator('.rack-container svg');
-		await deviceItem.dragTo(rack);
+		// Drag device
+		await dragDeviceToRack(page);
 
 		// Wait for device to appear
 		await expect(page.locator('.rack-device')).toBeVisible();
 
-		// Now move the device within the rack (drag to a different position)
-		const device = page.locator('.rack-device');
-		const rackBbox = await rack.boundingBox();
+		// Close palette first
+		await page.keyboard.press('d');
+		await expect(page.locator('.drawer-left.open')).not.toBeVisible();
 
-		if (rackBbox) {
-			// Drag to top of rack
-			await device.dragTo(rack, {
-				targetPosition: { x: rackBbox.width / 2, y: 50 }
-			});
-		}
+		// Now move the device within the rack using arrow keys
+		const device = page.locator('.rack-device');
+		await device.click();
+		await page.keyboard.press('ArrowUp');
 
 		// Device should still be visible
 		await expect(page.locator('.rack-device')).toBeVisible();
@@ -114,17 +174,17 @@ test.describe('Basic Workflow', () => {
 	test('can delete device from rack', async ({ page }) => {
 		// Create rack and add device
 		await page.click('.btn-primary:has-text("New Rack")');
-		await page.fill('input[name="name"]', 'Delete Test');
-		await page.fill('input[name="height"]', '12');
+		await fillRackForm(page, 'Delete Test', 12);
 		await page.click('button:has-text("Create")');
 
-		await page.click('button[aria-label="Device Palette"]');
-		const deviceItem = page.locator('.device-palette-item').first();
-		const rack = page.locator('.rack-container svg');
-		await deviceItem.dragTo(rack);
+		// Drag device
+		await dragDeviceToRack(page);
 
 		// Wait for device
 		await expect(page.locator('.rack-device')).toBeVisible();
+
+		// Close palette first
+		await page.keyboard.press('d');
 
 		// Click on device to select it
 		await page.locator('.rack-device').click();
@@ -142,8 +202,7 @@ test.describe('Basic Workflow', () => {
 	test('can delete rack', async ({ page }) => {
 		// Create a rack
 		await page.click('.btn-primary:has-text("New Rack")');
-		await page.fill('input[name="name"]', 'Delete Rack Test');
-		await page.fill('input[name="height"]', '12');
+		await fillRackForm(page, 'Delete Rack Test', 12);
 		await page.click('button:has-text("Create")');
 
 		await expect(page.locator('.rack-container')).toBeVisible();

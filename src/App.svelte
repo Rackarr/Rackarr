@@ -286,6 +286,7 @@
 
 	<NewRackForm
 		open={newRackFormOpen}
+		rackCount={layoutStore.rackCount}
 		oncreate={handleNewRackCreate}
 		oncancel={handleNewRackCancel}
 	/>

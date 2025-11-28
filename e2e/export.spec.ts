@@ -1,4 +1,86 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
+
+/**
+ * Helper to fill the rack creation form
+ * Uses #rack-name for name and height preset buttons or custom input
+ */
+async function fillRackForm(page: Page, name: string, height: number) {
+	await page.fill('#rack-name', name);
+
+	const presetHeights = [12, 18, 24, 42];
+	if (presetHeights.includes(height)) {
+		// Click the preset button
+		await page.click(`.height-btn:has-text("${height}U")`);
+	} else {
+		// Click Custom and fill the input
+		await page.click('.height-btn:has-text("Custom")');
+		await page.fill('#custom-height', String(height));
+	}
+}
+
+/**
+ * Helper to drag a device from palette to rack using manual events
+ * Manually dispatches HTML5 drag events for more reliable DnD testing
+ */
+async function dragDeviceToRack(page: Page) {
+	// Open palette if not already open
+	const paletteOpen = await page.locator('.drawer-left.open').count();
+	if (!paletteOpen) {
+		await page.click('button[aria-label="Device Palette"]');
+		await expect(page.locator('.drawer-left.open')).toBeVisible();
+	}
+
+	// Wait for palette content to be stable
+	await page.waitForTimeout(200);
+
+	// Use evaluate to simulate drag and drop via JavaScript
+	await page.evaluate(() => {
+		const deviceItem = document.querySelector('.device-palette-item');
+		const rack = document.querySelector('.rack-container svg');
+
+		if (!deviceItem || !rack) {
+			throw new Error('Could not find device item or rack');
+		}
+
+		// Create a DataTransfer object
+		const dataTransfer = new DataTransfer();
+
+		// Create and dispatch dragstart
+		const dragStartEvent = new DragEvent('dragstart', {
+			bubbles: true,
+			cancelable: true,
+			dataTransfer
+		});
+		deviceItem.dispatchEvent(dragStartEvent);
+
+		// Now dispatch dragover on the rack
+		const dragOverEvent = new DragEvent('dragover', {
+			bubbles: true,
+			cancelable: true,
+			dataTransfer
+		});
+		rack.dispatchEvent(dragOverEvent);
+
+		// Finally dispatch drop
+		const dropEvent = new DragEvent('drop', {
+			bubbles: true,
+			cancelable: true,
+			dataTransfer
+		});
+		rack.dispatchEvent(dropEvent);
+
+		// Dispatch dragend
+		const dragEndEvent = new DragEvent('dragend', {
+			bubbles: true,
+			cancelable: true,
+			dataTransfer
+		});
+		deviceItem.dispatchEvent(dragEndEvent);
+	});
+
+	// Wait a bit for state to update
+	await page.waitForTimeout(100);
+}
 
 test.describe('Export Functionality', () => {
 	test.beforeEach(async ({ page }) => {
@@ -8,16 +90,15 @@ test.describe('Export Functionality', () => {
 
 		// Create a rack for testing
 		await page.click('.btn-primary:has-text("New Rack")');
-		await page.fill('input[name="name"]', 'Export Test Rack');
-		await page.fill('input[name="height"]', '12');
+		await fillRackForm(page, 'Export Test Rack', 12);
 		await page.click('button:has-text("Create")');
 
 		// Add a device
-		await page.click('button[aria-label="Device Palette"]');
-		const deviceItem = page.locator('.device-palette-item').first();
-		const rack = page.locator('.rack-container svg');
-		await deviceItem.dragTo(rack);
+		await dragDeviceToRack(page);
 		await expect(page.locator('.rack-device')).toBeVisible();
+
+		// Close palette
+		await page.keyboard.press('d');
 	});
 
 	test('export dialog opens', async ({ page }) => {
@@ -32,17 +113,21 @@ test.describe('Export Functionality', () => {
 	test('export dialog has format options', async ({ page }) => {
 		await page.click('button[aria-label="Export"]');
 
-		// Should have format radio buttons
-		await expect(page.locator('input[value="png"]')).toBeVisible();
-		await expect(page.locator('input[value="jpeg"]')).toBeVisible();
-		await expect(page.locator('input[value="svg"]')).toBeVisible();
+		// Should have format select dropdown with options
+		const formatSelect = page.locator('#export-format');
+		await expect(formatSelect).toBeVisible();
+
+		// Verify options exist
+		await expect(formatSelect.locator('option[value="png"]')).toBeAttached();
+		await expect(formatSelect.locator('option[value="jpeg"]')).toBeAttached();
+		await expect(formatSelect.locator('option[value="svg"]')).toBeAttached();
 	});
 
 	test('export PNG downloads file', async ({ page }) => {
 		await page.click('button[aria-label="Export"]');
 
-		// Select PNG format
-		await page.click('input[value="png"]');
+		// Select PNG format (default, but be explicit)
+		await page.selectOption('#export-format', 'png');
 
 		// Set up download listener
 		const downloadPromise = page.waitForEvent('download');
@@ -59,7 +144,7 @@ test.describe('Export Functionality', () => {
 		await page.click('button[aria-label="Export"]');
 
 		// Select SVG format
-		await page.click('input[value="svg"]');
+		await page.selectOption('#export-format', 'svg');
 
 		// Set up download listener
 		const downloadPromise = page.waitForEvent('download');
@@ -76,7 +161,7 @@ test.describe('Export Functionality', () => {
 		await page.click('button[aria-label="Export"]');
 
 		// Select JPEG format
-		await page.click('input[value="jpeg"]');
+		await page.selectOption('#export-format', 'jpeg');
 
 		// Set up download listener
 		const downloadPromise = page.waitForEvent('download');
@@ -92,11 +177,10 @@ test.describe('Export Functionality', () => {
 	test('export with legend option', async ({ page }) => {
 		await page.click('button[aria-label="Export"]');
 
-		// Check include legend checkbox
-		const legendCheckbox = page.locator('input[type="checkbox"]').filter({ hasText: /legend/i });
-		if ((await legendCheckbox.count()) > 0) {
-			await legendCheckbox.check();
-		}
+		// Check include legend checkbox - the label contains the text
+		const legendCheckbox = page.locator('label:has-text("Include legend") input[type="checkbox"]');
+		await expect(legendCheckbox).toBeVisible();
+		await legendCheckbox.check();
 
 		// Set up download listener
 		const downloadPromise = page.waitForEvent('download');
@@ -111,8 +195,7 @@ test.describe('Export Functionality', () => {
 	test('export selected rack only', async ({ page }) => {
 		// Create a second rack
 		await page.click('button[aria-label="New Rack"]');
-		await page.fill('input[name="name"]', 'Second Rack');
-		await page.fill('input[name="height"]', '12');
+		await fillRackForm(page, 'Second Rack', 12);
 		await page.click('button:has-text("Create")');
 
 		// Select first rack
@@ -121,11 +204,8 @@ test.describe('Export Functionality', () => {
 		// Open export dialog
 		await page.click('button[aria-label="Export"]');
 
-		// Select "Selected" scope if available
-		const selectedOption = page.locator('input[value="selected"]');
-		if ((await selectedOption.count()) > 0) {
-			await selectedOption.click();
-		}
+		// Select "Selected" scope using the dropdown
+		await page.selectOption('#export-scope', 'selected');
 
 		// Set up download listener
 		const downloadPromise = page.waitForEvent('download');

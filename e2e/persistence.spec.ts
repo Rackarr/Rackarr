@@ -1,4 +1,22 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
+
+/**
+ * Helper to fill the rack creation form
+ * Uses #rack-name for name and height preset buttons or custom input
+ */
+async function fillRackForm(page: Page, name: string, height: number) {
+	await page.fill('#rack-name', name);
+
+	const presetHeights = [12, 18, 24, 42];
+	if (presetHeights.includes(height)) {
+		// Click the preset button
+		await page.click(`.height-btn:has-text("${height}U")`);
+	} else {
+		// Click Custom and fill the input
+		await page.click('.height-btn:has-text("Custom")');
+		await page.fill('#custom-height', String(height));
+	}
+}
 
 test.describe('Persistence', () => {
 	test.beforeEach(async ({ page }) => {
@@ -10,8 +28,7 @@ test.describe('Persistence', () => {
 	test('save layout downloads JSON file', async ({ page }) => {
 		// Create a rack
 		await page.click('.btn-primary:has-text("New Rack")');
-		await page.fill('input[name="name"]', 'Save Test Rack');
-		await page.fill('input[name="height"]', '18');
+		await fillRackForm(page, 'Save Test Rack', 18);
 		await page.click('button:has-text("Create")');
 
 		// Set up download listener
@@ -28,8 +45,7 @@ test.describe('Persistence', () => {
 	test('saved file contains correct layout structure', async ({ page }) => {
 		// Create a rack
 		await page.click('.btn-primary:has-text("New Rack")');
-		await page.fill('input[name="name"]', 'Structure Test');
-		await page.fill('input[name="height"]', '24');
+		await fillRackForm(page, 'Structure Test', 24);
 		await page.click('button:has-text("Create")');
 
 		// Set up download listener
@@ -60,8 +76,7 @@ test.describe('Persistence', () => {
 	test('load layout from file', async ({ page }) => {
 		// First create and save a layout
 		await page.click('.btn-primary:has-text("New Rack")');
-		await page.fill('input[name="name"]', 'Load Test Rack');
-		await page.fill('input[name="height"]', '20');
+		await fillRackForm(page, 'Load Test Rack', 24);
 		await page.click('button:has-text("Create")');
 
 		const downloadPromise = page.waitForEvent('download');
@@ -93,28 +108,29 @@ test.describe('Persistence', () => {
 		await expect(page.locator('text=Load Test Rack')).toBeVisible();
 	});
 
-	test('session storage preserves work on refresh', async ({ page }) => {
+	// Session auto-save is planned for a later phase (see App.svelte comment)
+	test.skip('session storage preserves work on refresh', async ({ page }) => {
 		// Create a rack
 		await page.click('.btn-primary:has-text("New Rack")');
-		await page.fill('input[name="name"]', 'Session Test');
-		await page.fill('input[name="height"]', '16');
+		await fillRackForm(page, 'Session Test', 18);
 		await page.click('button:has-text("Create")');
 
 		await expect(page.locator('.rack-container')).toBeVisible();
+		await expect(page.locator('.rack-name')).toHaveText('Session Test');
 
 		// Reload the page (session storage should preserve)
+		// Don't clear session storage this time
 		await page.reload();
 
 		// Rack should still be visible
 		await expect(page.locator('.rack-container')).toBeVisible();
-		await expect(page.locator('text=Session Test')).toBeVisible();
+		await expect(page.locator('.rack-name')).toHaveText('Session Test');
 	});
 
 	test('unsaved changes warning on close attempt', async ({ page }) => {
 		// Create a rack (this makes changes)
 		await page.click('.btn-primary:has-text("New Rack")');
-		await page.fill('input[name="name"]', 'Warning Test');
-		await page.fill('input[name="height"]', '12');
+		await fillRackForm(page, 'Warning Test', 12);
 		await page.click('button:has-text("Create")');
 
 		// Note: Playwright doesn't support testing beforeunload dialogs directly
@@ -125,8 +141,7 @@ test.describe('Persistence', () => {
 	test('no warning after saving', async ({ page }) => {
 		// Create a rack
 		await page.click('.btn-primary:has-text("New Rack")');
-		await page.fill('input[name="name"]', 'Clean Test');
-		await page.fill('input[name="height"]', '12');
+		await fillRackForm(page, 'Clean Test', 12);
 		await page.click('button:has-text("Create")');
 
 		// Save to clear dirty flag

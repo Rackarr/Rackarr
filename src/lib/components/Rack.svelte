@@ -63,7 +63,7 @@
 	// CSS custom property values (fallbacks match app.css)
 	const U_HEIGHT = 22;
 	const RACK_WIDTH = 220;
-	const RAIL_WIDTH = 24;
+	const RAIL_WIDTH = 17;
 	const RACK_PADDING = 4;
 	const NAME_HEIGHT = 28;
 
@@ -273,28 +273,35 @@
 	}
 </script>
 
-<div class="rack-container" style="transform: scale({zoomScale}); transform-origin: top left;">
-	<!-- Drag handle for rack reordering -->
-	<div
-		class="rack-drag-handle"
-		draggable="true"
-		ondragstart={handleRackDragStart}
-		role="button"
-		aria-label="Drag to reorder {rack.name}"
-		tabindex="-1"
-	>
-		<span class="drag-handle-icon">&#x2630;</span>
-	</div>
-	<!-- svelte-ignore a11y_no_noninteractive_tabindex a11y_no_noninteractive_element_interactions -->
+<div
+	class="rack-container"
+	style="transform: scale({zoomScale}); transform-origin: top left;"
+	tabindex="0"
+	aria-selected={selected}
+	role="option"
+	onclick={handleClick}
+	onkeydown={handleKeyDown}
+>
+	<!-- Drag handle for rack reordering - only shown when selected -->
+	{#if selected}
+		<div
+			class="rack-drag-handle"
+			draggable="true"
+			ondragstart={handleRackDragStart}
+			role="button"
+			aria-label="Drag to reorder {rack.name}"
+			tabindex="-1"
+		>
+			<span class="drag-handle-icon">&#x2630;</span>
+		</div>
+	{/if}
 	<svg
+		class="rack-svg"
 		width={RACK_WIDTH}
 		height={viewBoxHeight}
 		viewBox="0 0 {RACK_WIDTH} {viewBoxHeight}"
 		role="img"
 		aria-label="{rack.name}, {rack.height}U rack{selected ? ', selected' : ''}"
-		tabindex="0"
-		onclick={handleClick}
-		onkeydown={handleKeyDown}
 		ondragover={handleDragOver}
 		ondragenter={handleDragEnter}
 		ondragleave={handleDragLeave}
@@ -332,24 +339,20 @@
 			/>
 		{/each}
 
-		<!-- U labels on left rail -->
+		<!-- Rail mounting holes (3 per U on each rail) - rendered first so labels appear on top -->
+		{#each Array(rack.height).fill(null) as _hole, i (i)}
+			{@const baseY = i * U_HEIGHT + RACK_PADDING + 4}
+			<!-- Right rail holes only - left rail has labels -->
+			<circle cx={RACK_WIDTH - RAIL_WIDTH / 2} cy={baseY} r="1.8" class="rack-hole" />
+			<circle cx={RACK_WIDTH - RAIL_WIDTH / 2} cy={baseY + 7} r="1.8" class="rack-hole" />
+			<circle cx={RACK_WIDTH - RAIL_WIDTH / 2} cy={baseY + 14} r="1.8" class="rack-hole" />
+		{/each}
+
+		<!-- U labels on left rail (rendered after holes for better visibility) -->
 		{#each uLabels as { uNumber, yPosition } (uNumber)}
 			<text x={RAIL_WIDTH / 2} y={yPosition} class="u-label" dominant-baseline="middle">
 				{uNumber}
 			</text>
-		{/each}
-
-		<!-- Rail mounting holes (3 per U on each rail) -->
-		{#each Array(rack.height).fill(null) as _hole, i (i)}
-			{@const baseY = i * U_HEIGHT + RACK_PADDING + 4}
-			<!-- Left rail holes -->
-			<circle cx={RAIL_WIDTH / 2} cy={baseY} r="2" class="rack-hole" />
-			<circle cx={RAIL_WIDTH / 2} cy={baseY + 7} r="2" class="rack-hole" />
-			<circle cx={RAIL_WIDTH / 2} cy={baseY + 14} r="2" class="rack-hole" />
-			<!-- Right rail holes -->
-			<circle cx={RACK_WIDTH - RAIL_WIDTH / 2} cy={baseY} r="2" class="rack-hole" />
-			<circle cx={RACK_WIDTH - RAIL_WIDTH / 2} cy={baseY + 7} r="2" class="rack-hole" />
-			<circle cx={RACK_WIDTH - RAIL_WIDTH / 2} cy={baseY + 14} r="2" class="rack-hole" />
 		{/each}
 
 		<!-- Selection outline -->
@@ -412,6 +415,12 @@
 	.rack-container {
 		display: inline-block;
 		position: relative;
+		cursor: pointer;
+	}
+
+	.rack-container:focus {
+		outline: 2px solid var(--colour-selection, #0066ff);
+		outline-offset: 2px;
 	}
 
 	.rack-drag-handle {
@@ -449,12 +458,7 @@
 	}
 
 	svg {
-		cursor: pointer;
-	}
-
-	svg:focus {
-		outline: 2px solid var(--colour-selection, #0066ff);
-		outline-offset: 2px;
+		pointer-events: auto;
 	}
 
 	.rack-interior {

@@ -39,7 +39,7 @@
 	let isDragging = $state(false);
 
 	// Rail width (matches Rack.svelte)
-	const RAIL_WIDTH = 24;
+	const RAIL_WIDTH = 17;
 
 	// Type for draggable attribute spread
 	type DraggableAttr = Record<string, unknown>;
