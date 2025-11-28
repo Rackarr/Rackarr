@@ -1,38 +1,119 @@
-# sv
+# Rackarr
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+**Rack Layout Designer for Homelabbers**
 
-## Creating a project
+A browser-based visual tool for planning and documenting server rack layouts. Design your homelab rack configurations with an intuitive drag-and-drop interface, then export them for documentation.
 
-If you're seeing this, you've probably already done this step. Congrats!
+## Features
 
-```sh
-# create a new project in the current directory
-npx sv create
+- **Visual Rack Editor**: Create and manage up to 6 racks with heights from 1U to 100U
+- **Drag-and-Drop**: Intuitive device placement from palette to rack
+- **Device Library**: Starter library with common devices, plus custom device creation
+- **Smart Collision Detection**: Prevents device overlap with visual feedback
+- **Multi-Rack Support**: Move devices between racks seamlessly
+- **Export Options**: PNG, JPEG, SVG, and PDF export with customizable options
+- **Dark/Light Themes**: Full theme support with system preference detection
+- **Keyboard Shortcuts**: Full keyboard navigation for power users
+- **Session Persistence**: Auto-saves work to browser storage
+- **Offline Ready**: Runs entirely in the browser, no server required
 
-# create a new project in my-app
-npx sv create my-app
-```
+## Quick Start
 
-## Developing
+### Development
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+```bash
+# Install dependencies
+npm install
 
-```sh
+# Start development server
 npm run dev
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
+# Run tests
+npm run test
 
-## Building
+# Run E2E tests
+npm run test:e2e
 
-To create a production version of your app:
-
-```sh
+# Build for production
 npm run build
 ```
 
-You can preview the production build with `npm run preview`.
+### Docker
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+```bash
+# Build and run with Docker Compose
+docker-compose up
+
+# Or build and run manually
+docker build -t rackarr .
+docker run -p 8080:80 rackarr
+```
+
+Access the app at `http://localhost:8080`
+
+## Keyboard Shortcuts
+
+| Key                    | Action                          |
+| ---------------------- | ------------------------------- |
+| `Delete` / `Backspace` | Delete selected item            |
+| `Arrow Up`             | Move device up 1U               |
+| `Arrow Down`           | Move device down 1U             |
+| `Arrow Left`           | Reorder rack left               |
+| `Arrow Right`          | Reorder rack right              |
+| `Escape`               | Clear selection / Close drawers |
+| `D`                    | Toggle device palette           |
+| `Ctrl/Cmd + S`         | Save layout                     |
+| `Ctrl/Cmd + O`         | Load layout                     |
+| `Ctrl/Cmd + E`         | Export dialog                   |
+| `?`                    | Show help                       |
+
+## Tech Stack
+
+- **Framework**: Svelte 5 with runes (`$state`, `$derived`, `$effect`)
+- **Language**: TypeScript (strict mode)
+- **Build Tool**: Vite
+- **Testing**: Vitest + @testing-library/svelte + Playwright
+- **Styling**: CSS custom properties (no external CSS frameworks)
+- **Rendering**: SVG for rack visualization
+
+## Project Structure
+
+```
+src/
+├── lib/
+│   ├── components/     # Svelte components
+│   ├── stores/         # State management (Svelte 5 runes)
+│   ├── types/          # TypeScript type definitions
+│   ├── utils/          # Utility functions
+│   └── data/           # Starter device library
+├── tests/              # Unit and component tests
+└── App.svelte          # Main application component
+
+e2e/                    # Playwright E2E tests
+```
+
+## File Format
+
+Rackarr saves layouts as JSON files with the `.rackarr.json` extension:
+
+```json
+{
+  "version": "1.0",
+  "name": "My Homelab",
+  "racks": [...],
+  "deviceLibrary": [...]
+}
+```
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and guidelines.
+
+## License
+
+[MIT License](LICENSE) - Copyright (c) 2025 gvns
+
+## Repository
+
+- **Primary**: https://git.falcon-wahoe.ts.net/ggfevans/rackarr
+- **Mirror**: https://github.com/ggfevans/rackarr
