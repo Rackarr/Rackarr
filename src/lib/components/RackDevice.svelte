@@ -5,6 +5,7 @@
 <script lang="ts">
 	import type { Device } from '$lib/types';
 	import { createRackDeviceDragData, serializeDragData } from '$lib/utils/dragdrop';
+	import CategoryIcon from './CategoryIcon.svelte';
 
 	interface Props {
 		device: Device;
@@ -130,6 +131,15 @@
 	>
 		{device.name}
 	</text>
+
+	<!-- Category icon (top-left corner) -->
+	{#if deviceHeight >= 22}
+		<foreignObject x="4" y="2" width="14" height="14" class="category-icon-wrapper">
+			<div class="icon-container">
+				<CategoryIcon category={device.category} size={12} />
+			</div>
+		</foreignObject>
+	{/if}
 </g>
 
 <style>
@@ -173,5 +183,15 @@
 		text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 		pointer-events: none;
 		user-select: none;
+	}
+
+	.category-icon-wrapper {
+		pointer-events: none;
+		overflow: visible;
+	}
+
+	.icon-container {
+		color: rgba(255, 255, 255, 0.8);
+		filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.5));
 	}
 </style>

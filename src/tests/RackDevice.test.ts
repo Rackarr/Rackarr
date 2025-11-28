@@ -20,6 +20,8 @@ describe('RackDevice SVG Component', () => {
 		device: mockDevice,
 		position: 1,
 		rackHeight: 12,
+		rackId: 'rack-1',
+		deviceIndex: 0,
 		selected: false,
 		uHeight: U_HEIGHT,
 		rackWidth: RACK_WIDTH
@@ -117,6 +119,32 @@ describe('RackDevice SVG Component', () => {
 
 			const rect = container.querySelector('rect.device-rect');
 			expect(rect?.getAttribute('fill')).toBe('#DC143C');
+		});
+
+		it('displays category icon for devices', () => {
+			const { container } = render(RackDevice, { props: defaultProps });
+
+			// Category icon is rendered via foreignObject
+			const foreignObject = container.querySelector('foreignObject');
+			expect(foreignObject).toBeInTheDocument();
+
+			// Icon container should have the icon
+			const iconContainer = foreignObject?.querySelector('.icon-container');
+			expect(iconContainer).toBeInTheDocument();
+
+			// The CategoryIcon SVG should be present
+			const iconSvg = iconContainer?.querySelector('svg.category-icon');
+			expect(iconSvg).toBeInTheDocument();
+		});
+
+		it('displays category icon for multi-U devices', () => {
+			const device2U: Device = { ...mockDevice, height: 2 };
+			const { container } = render(RackDevice, {
+				props: { ...defaultProps, device: device2U }
+			});
+
+			const foreignObject = container.querySelector('foreignObject');
+			expect(foreignObject).toBeInTheDocument();
 		});
 	});
 
