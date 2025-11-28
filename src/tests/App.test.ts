@@ -20,17 +20,19 @@ describe('App Component', () => {
 	describe('Layout Structure', () => {
 		it('renders toolbar', () => {
 			render(App);
-			// Toolbar should have the logo
-			expect(screen.getByText('Rackarr')).toBeInTheDocument();
-			// And main action buttons - use getAllByRole since there's also a button in empty state
+			// Toolbar should exist with action buttons
+			// 'Rackarr' text appears in both toolbar and welcome screen
+			const rackarrElements = screen.getAllByText('Rackarr');
+			expect(rackarrElements.length).toBeGreaterThanOrEqual(1);
+			// And main action buttons - use getAllByRole since there's also a button in welcome screen
 			const newRackButtons = screen.getAllByRole('button', { name: /new rack/i });
 			expect(newRackButtons.length).toBeGreaterThanOrEqual(1);
 		});
 
-		it('renders canvas', () => {
+		it('renders canvas with welcome screen when no racks', () => {
 			render(App);
-			// Canvas shows empty state when no racks
-			expect(screen.getByText('No racks yet')).toBeInTheDocument();
+			// Canvas shows welcome screen when no racks
+			expect(screen.getByText(/rack layout designer/i)).toBeInTheDocument();
 		});
 
 		it('renders with correct layout structure', () => {
@@ -205,12 +207,14 @@ describe('App Component', () => {
 
 	describe('New Rack Action', () => {
 		it('new rack button opens form dialog', async () => {
-			render(App);
+			const { container } = render(App);
 
-			// Click the "New Rack" button in empty state
-			const emptyStateBtn = document.querySelector('.empty-state-button') as HTMLButtonElement;
-			expect(emptyStateBtn).toBeInTheDocument();
-			await fireEvent.click(emptyStateBtn);
+			// Click the "New Rack" button in welcome screen (primary button with btn-primary class)
+			const welcomeScreen = container.querySelector('.welcome-screen');
+			expect(welcomeScreen).toBeInTheDocument();
+			const newRackBtn = welcomeScreen?.querySelector('.btn-primary') as HTMLButtonElement;
+			expect(newRackBtn).toBeInTheDocument();
+			await fireEvent.click(newRackBtn);
 
 			// Should open the new rack form dialog
 			const dialog = screen.getByRole('dialog');
@@ -222,14 +226,15 @@ describe('App Component', () => {
 		it('new rack form creates a rack when submitted', async () => {
 			const layoutStore = getLayoutStore();
 
-			render(App);
+			const { container } = render(App);
 
 			// Initially no racks
 			expect(layoutStore.rackCount).toBe(0);
 
-			// Click the "New Rack" button in empty state
-			const emptyStateBtn = document.querySelector('.empty-state-button') as HTMLButtonElement;
-			await fireEvent.click(emptyStateBtn);
+			// Click the "New Rack" button in welcome screen
+			const welcomeScreen = container.querySelector('.welcome-screen');
+			const newRackBtn = welcomeScreen?.querySelector('.btn-primary') as HTMLButtonElement;
+			await fireEvent.click(newRackBtn);
 
 			// Fill out the form
 			const nameInput = screen.getByLabelText(/name/i);

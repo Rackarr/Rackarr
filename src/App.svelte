@@ -279,7 +279,7 @@
 			<DevicePalette onadddevice={handleAddDevice} />
 		</Drawer>
 
-		<Canvas onnewrack={handleNewRack} />
+		<Canvas onnewrack={handleNewRack} onload={handleLoad} />
 
 		<EditPanel />
 	</main>

@@ -8,10 +8,11 @@
 	import { getUIStore } from '$lib/stores/ui.svelte';
 	import { getDropFeedback } from '$lib/utils/dragdrop';
 	import Rack from './Rack.svelte';
-	import EmptyState from './EmptyState.svelte';
+	import WelcomeScreen from './WelcomeScreen.svelte';
 
 	interface Props {
 		onnewrack?: () => void;
+		onload?: () => void;
 		onrackselect?: (event: CustomEvent<{ rackId: string }>) => void;
 		ondeviceselect?: (event: CustomEvent<{ libraryId: string; position: number }>) => void;
 		ondevicedrop?: (
@@ -32,6 +33,7 @@
 
 	let {
 		onnewrack,
+		onload,
 		onrackselect,
 		ondeviceselect,
 		ondevicedrop,
@@ -174,7 +176,7 @@
 			{/each}
 		</div>
 	{:else}
-		<EmptyState onnewrack={handleNewRack} />
+		<WelcomeScreen onnewrack={handleNewRack} {onload} />
 	{/if}
 </div>
 

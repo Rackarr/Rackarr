@@ -13,21 +13,22 @@ describe('Canvas Component', () => {
 	});
 
 	describe('Empty State', () => {
-		it('shows EmptyState when no racks exist', () => {
+		it('shows WelcomeScreen when no racks exist', () => {
 			render(Canvas);
 
-			expect(screen.getByText('No racks yet')).toBeInTheDocument();
-			expect(screen.getByText(/Create your first rack/i)).toBeInTheDocument();
+			// WelcomeScreen shows app name and description
+			expect(screen.getByRole('heading', { name: /rackarr/i })).toBeInTheDocument();
+			expect(screen.getByText(/visualize.*rack.*layout/i)).toBeInTheDocument();
 		});
 
-		it('EmptyState has New Rack button', () => {
+		it('WelcomeScreen has New Rack button', () => {
 			render(Canvas);
 
 			const newRackButton = screen.getByRole('button', { name: /new rack/i });
 			expect(newRackButton).toBeInTheDocument();
 		});
 
-		it('EmptyState New Rack button dispatches newRack event', async () => {
+		it('WelcomeScreen New Rack button dispatches newRack event', async () => {
 			const handleNewRack = vi.fn();
 
 			render(Canvas, { props: { onnewrack: handleNewRack } });
@@ -68,13 +69,14 @@ describe('Canvas Component', () => {
 			expect(rackNames[2]).toHaveTextContent('Third Rack');
 		});
 
-		it('hides EmptyState when racks exist', () => {
+		it('hides WelcomeScreen when racks exist', () => {
 			const layoutStore = getLayoutStore();
 			layoutStore.addRack('Test Rack', 12);
 
 			render(Canvas);
 
-			expect(screen.queryByText('No racks yet')).not.toBeInTheDocument();
+			// WelcomeScreen should not be visible
+			expect(screen.queryByText(/rack layout designer/i)).not.toBeInTheDocument();
 		});
 	});
 
