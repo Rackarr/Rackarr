@@ -13,6 +13,7 @@
 	import AddDeviceForm from '$lib/components/AddDeviceForm.svelte';
 	import ConfirmDialog from '$lib/components/ConfirmDialog.svelte';
 	import ToastContainer from '$lib/components/ToastContainer.svelte';
+	import KeyboardHandler from '$lib/components/KeyboardHandler.svelte';
 	import { getLayoutStore } from '$lib/stores/layout.svelte';
 	import { getSelectionStore } from '$lib/stores/selection.svelte';
 	import { getUIStore } from '$lib/stores/ui.svelte';
@@ -244,6 +245,14 @@
 	/>
 
 	<ToastContainer />
+
+	<KeyboardHandler
+		onsave={handleSave}
+		onload={handleLoad}
+		onexport={handleExport}
+		ondelete={handleDelete}
+		onhelp={handleHelp}
+	/>
 </div>
 
 <style>
