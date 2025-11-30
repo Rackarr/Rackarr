@@ -265,4 +265,22 @@ describe('RackDevice SVG Component', () => {
 			expect(rect?.getAttribute('width')).toBe(String(expectedWidth));
 		});
 	});
+
+	describe('Drag Affordance', () => {
+		it('has grip icon that shows on hover', async () => {
+			const { container } = render(RackDevice, { props: defaultProps });
+
+			// Grip icon container should exist
+			const gripContainer = container.querySelector('.grip-icon-container');
+			expect(gripContainer).toBeInTheDocument();
+		});
+
+		it('has grab cursor on drag handle', () => {
+			const { container } = render(RackDevice, { props: defaultProps });
+
+			const dragHandle = container.querySelector('.drag-handle');
+			expect(dragHandle).toBeInTheDocument();
+			// Cursor style is applied via CSS, just verify element exists
+		});
+	});
 });

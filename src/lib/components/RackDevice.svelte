@@ -6,6 +6,7 @@
 	import type { Device } from '$lib/types';
 	import { createRackDeviceDragData, serializeDragData } from '$lib/utils/dragdrop';
 	import CategoryIcon from './CategoryIcon.svelte';
+	import { IconGrip } from './icons';
 
 	interface Props {
 		device: Device;
@@ -101,7 +102,12 @@
 			onkeydown={handleKeyDown}
 			ondragstart={handleDragStart}
 			ondragend={handleDragEnd}
-		></div>
+		>
+			<!-- Grip icon for drag affordance -->
+			<div class="grip-icon-container">
+				<IconGrip size={12} />
+			</div>
+		</div>
 	</foreignObject>
 	<!-- Device rectangle -->
 	<rect
@@ -159,6 +165,7 @@
 	}
 
 	.drag-handle {
+		position: relative;
 		width: 100%;
 		height: 100%;
 		cursor: grab;
@@ -215,5 +222,28 @@
 		height: 100%;
 		color: rgba(255, 255, 255, 0.8);
 		filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.5));
+	}
+
+	.grip-icon-container {
+		position: absolute;
+		right: 4px;
+		top: 50%;
+		transform: translateY(-50%);
+		opacity: 0;
+		transition:
+			opacity var(--duration-fast, 100ms) var(--ease-out, ease-out),
+			transform var(--duration-fast, 100ms) var(--ease-out, ease-out);
+		color: rgba(255, 255, 255, 0.6);
+		pointer-events: none;
+	}
+
+	.drag-handle:hover .grip-icon-container,
+	.drag-handle:focus .grip-icon-container {
+		opacity: 1;
+	}
+
+	.drag-handle:active .grip-icon-container {
+		opacity: 1;
+		transform: translateY(-50%) scale(0.9);
 	}
 </style>
