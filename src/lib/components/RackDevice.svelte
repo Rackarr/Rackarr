@@ -86,6 +86,7 @@
 </script>
 
 <g
+	data-device-id={device.id}
 	transform="translate({RAIL_WIDTH}, {yPosition})"
 	role="button"
 	aria-label={ariaLabel}

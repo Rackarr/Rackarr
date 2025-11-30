@@ -153,6 +153,11 @@
 		ondevicemoverack?.(event);
 	}
 
+	function handleRackViewChange(event: CustomEvent<{ rackId: string; view: 'front' | 'rear' }>) {
+		const { rackId, view } = event.detail;
+		layoutStore.updateRackView(rackId, view);
+	}
+
 	function handleKeyDown(event: KeyboardEvent) {
 		// Only handle arrow keys when a device is selected
 		if (selectionStore.selectedType !== 'device') return;
@@ -215,6 +220,7 @@
 						ondevicedrop={(e) => handleDeviceDrop(e)}
 						ondevicemove={(e) => handleDeviceMove(e)}
 						ondevicemoverack={(e) => handleDeviceMoveRack(e)}
+						onrackviewchange={(e) => handleRackViewChange(e)}
 					/>
 				{/each}
 			</div>

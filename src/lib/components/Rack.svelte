@@ -4,8 +4,9 @@
   Accepts device drops for placement
 -->
 <script lang="ts">
-	import type { Rack as RackType, Device } from '$lib/types';
+	import type { Rack as RackType, Device, RackView } from '$lib/types';
 	import RackDevice from './RackDevice.svelte';
+	import RackViewToggle from './RackViewToggle.svelte';
 	import {
 		parseDragData,
 		calculateDropPosition,
@@ -36,6 +37,7 @@
 			}>
 		) => void;
 		onrackdragstart?: (event: CustomEvent<{ rackId: string }>) => void;
+		onrackviewchange?: (event: CustomEvent<{ rackId: string; view: RackView }>) => void;
 	}
 
 	let {
@@ -48,7 +50,8 @@
 		ondevicedrop,
 		ondevicemove,
 		ondevicemoverack,
-		onrackdragstart
+		onrackdragstart,
+		onrackviewchange
 	}: Props = $props();
 
 	// Track which device is being dragged (for internal moves)
@@ -94,8 +97,25 @@
 			: 0
 	);
 
+	// Filter devices by rack view and device face
+	const visibleDevices = $derived(
+		rack.devices.filter((placedDevice) => {
+			const { face } = placedDevice;
+			if (face === 'both') return true; // Both-face devices visible in all views
+			return face === rack.view; // Show front devices in front view, rear in rear view
+		})
+	);
+
 	function handleClick() {
 		onselect?.(new CustomEvent('select', { detail: { rackId: rack.id } }));
+	}
+
+	function handleViewChange(newView: RackView) {
+		onrackviewchange?.(
+			new CustomEvent('rackviewchange', {
+				detail: { rackId: rack.id, view: newView }
+			})
+		);
 	}
 
 	function handleKeyDown(event: KeyboardEvent) {
@@ -279,6 +299,11 @@
 	onclick={handleClick}
 	onkeydown={handleKeyDown}
 >
+	<!-- Rack view toggle -->
+	<div class="rack-view-toggle-container">
+		<RackViewToggle view={rack.view} onchange={handleViewChange} />
+	</div>
+
 	<!-- Drag handle for rack reordering - only shown when selected -->
 	{#if selected}
 		<div
@@ -365,7 +390,7 @@
 
 		<!-- Devices -->
 		<g transform="translate(0, {RACK_PADDING})">
-			{#each rack.devices as placedDevice, deviceIndex (placedDevice.libraryId + '-' + placedDevice.position)}
+			{#each visibleDevices as placedDevice, deviceIndex (placedDevice.libraryId + '-' + placedDevice.position)}
 				{@const device = getDeviceById(placedDevice.libraryId)}
 				{#if device}
 					<RackDevice
@@ -418,6 +443,12 @@
 	.rack-container:focus {
 		outline: 2px solid var(--colour-selection, #0066ff);
 		outline-offset: 2px;
+	}
+
+	.rack-view-toggle-container {
+		display: flex;
+		justify-content: center;
+		margin-bottom: 8px;
 	}
 
 	.rack-drag-handle {

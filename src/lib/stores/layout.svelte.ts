@@ -65,6 +65,7 @@ export function getLayoutStore() {
 		// Rack actions
 		addRack,
 		updateRack,
+		updateRackView,
 		deleteRack,
 		reorderRacks,
 
@@ -134,6 +135,15 @@ function updateRack(id: string, updates: Partial<Rack>): void {
 
 	layout.racks = layout.racks.map((rack) => (rack.id === id ? { ...rack, ...updates } : rack));
 	isDirty = true;
+}
+
+/**
+ * Update a rack's view (front/rear)
+ * @param id - Rack ID
+ * @param view - New view
+ */
+function updateRackView(id: string, view: 'front' | 'rear'): void {
+	updateRack(id, { view });
 }
 
 /**

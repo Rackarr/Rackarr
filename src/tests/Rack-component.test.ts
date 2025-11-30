@@ -10,6 +10,7 @@ describe('Rack SVG Component', () => {
 		height: 12,
 		width: 19,
 		position: 0,
+		view: 'front',
 		devices: []
 	};
 
@@ -219,6 +220,123 @@ describe('Rack SVG Component', () => {
 
 			const svg = container.querySelector('svg');
 			expect(svg).toHaveAttribute('role', 'img');
+		});
+	});
+
+	describe('Rack View Toggle', () => {
+		it('renders view toggle', () => {
+			const { getByRole } = render(Rack, {
+				props: {
+					rack: { ...mockRack, view: 'front' },
+					deviceLibrary: mockDeviceLibrary,
+					selected: false
+				}
+			});
+			expect(getByRole('group', { name: /rack view/i })).toBeTruthy();
+		});
+
+		it('shows front-face devices in front view', () => {
+			const device: Device = {
+				id: 'dev-1',
+				name: 'Test Device',
+				height: 2,
+				colour: '#4A90D9',
+				category: 'server'
+			};
+
+			const rack: RackType = {
+				...mockRack,
+				view: 'front',
+				devices: [
+					{ libraryId: 'dev-1', position: 1, face: 'front' },
+					{ libraryId: 'dev-2', position: 5, face: 'rear' }
+				]
+			};
+
+			const { container } = render(Rack, {
+				props: {
+					rack,
+					deviceLibrary: [device],
+					selected: false
+				}
+			});
+
+			// Only front-face device should be visible
+			const devices = container.querySelectorAll('[data-device-id]');
+			expect(devices).toHaveLength(1);
+		});
+
+		it('shows rear-face devices in rear view', () => {
+			const device: Device = {
+				id: 'dev-2',
+				name: 'Rear Device',
+				height: 1,
+				colour: '#7B68EE',
+				category: 'network'
+			};
+
+			const rack: RackType = {
+				...mockRack,
+				view: 'rear',
+				devices: [
+					{ libraryId: 'dev-1', position: 1, face: 'front' },
+					{ libraryId: 'dev-2', position: 5, face: 'rear' }
+				]
+			};
+
+			const { container } = render(Rack, {
+				props: {
+					rack,
+					deviceLibrary: [device],
+					selected: false
+				}
+			});
+
+			// Only rear-face device should be visible
+			const devices = container.querySelectorAll('[data-device-id]');
+			expect(devices).toHaveLength(1);
+		});
+
+		it('shows both-face devices in either view', () => {
+			const device: Device = {
+				id: 'dev-1',
+				name: 'Full Depth Device',
+				height: 4,
+				colour: '#50C878',
+				category: 'storage'
+			};
+
+			const rackFront: RackType = {
+				...mockRack,
+				view: 'front',
+				devices: [{ libraryId: 'dev-1', position: 1, face: 'both' }]
+			};
+
+			const { container: containerFront } = render(Rack, {
+				props: {
+					rack: rackFront,
+					deviceLibrary: [device],
+					selected: false
+				}
+			});
+
+			expect(containerFront.querySelectorAll('[data-device-id]')).toHaveLength(1);
+
+			const rackRear: RackType = {
+				...mockRack,
+				view: 'rear',
+				devices: [{ libraryId: 'dev-1', position: 1, face: 'both' }]
+			};
+
+			const { container: containerRear } = render(Rack, {
+				props: {
+					rack: rackRear,
+					deviceLibrary: [device],
+					selected: false
+				}
+			});
+
+			expect(containerRear.querySelectorAll('[data-device-id]')).toHaveLength(1);
 		});
 	});
 });
