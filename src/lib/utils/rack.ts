@@ -3,7 +3,7 @@
  * Pure functions for rack operations
  */
 
-import type { Device, Rack } from '$lib/types';
+import type { Device, Rack, RackView } from '$lib/types';
 import {
 	MIN_RACK_HEIGHT,
 	MAX_RACK_HEIGHT,
@@ -15,14 +15,14 @@ import { generateId } from './device';
 /**
  * Create a new rack with sensible defaults
  */
-export function createRack(name: string, height: number): Rack {
+export function createRack(name: string, height: number, view?: RackView): Rack {
 	return {
 		id: generateId(),
 		name,
 		height,
 		width: STANDARD_RACK_WIDTH,
 		position: 0,
-		view: DEFAULT_RACK_VIEW,
+		view: view ?? DEFAULT_RACK_VIEW,
 		devices: []
 	};
 }

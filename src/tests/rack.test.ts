@@ -42,6 +42,16 @@ describe('Rack Utilities', () => {
 			expect(rack.name).toBe('Main Rack');
 			expect(rack.height).toBe(24);
 		});
+
+		it('creates rack with default front view', () => {
+			const rack = createRack('Test', 42);
+			expect(rack.view).toBe('front');
+		});
+
+		it('creates rack with specified rear view', () => {
+			const rack = createRack('Test', 42, 'rear');
+			expect(rack.view).toBe('rear');
+		});
 	});
 
 	describe('validateRack', () => {
