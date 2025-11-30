@@ -8,6 +8,7 @@ import type { Rack } from '$lib/types';
 // Rack rendering constants (must match Rack.svelte and Canvas.svelte)
 const U_HEIGHT = 22;
 const RACK_WIDTH = 220;
+const RAIL_WIDTH = 17; // Width of rails and top/bottom bars
 const RACK_PADDING = 18; // Space at top for rack name (must match Rack.svelte)
 const RACK_GAP = 24; // Gap between racks in rack-row
 const RACK_ROW_PADDING = 16; // Padding around rack-row
@@ -164,9 +165,9 @@ export function racksToPositions(racks: Rack[]): RackPosition[] {
 	const sorted = [...racks].sort((a, b) => a.position - b.position);
 
 	// Calculate total rendered height
-	// SVG viewBoxHeight = rack.height * U_HEIGHT + RACK_PADDING
-	// View toggle is now inside the SVG, so no additional height needed
-	const getRackHeight = (rack: Rack) => rack.height * U_HEIGHT + RACK_PADDING;
+	// SVG viewBoxHeight = RACK_PADDING + RAIL_WIDTH * 2 + rack.height * U_HEIGHT
+	// (rack name padding + top bar + U slots + bottom bar)
+	const getRackHeight = (rack: Rack) => RACK_PADDING + RAIL_WIDTH * 2 + rack.height * U_HEIGHT;
 
 	// Find max height for vertical alignment (racks align at bottom via CSS)
 	const maxHeight = Math.max(...sorted.map(getRackHeight));

@@ -75,7 +75,8 @@
 
 	// Calculated dimensions
 	const totalHeight = $derived(rack.height * U_HEIGHT);
-	const viewBoxHeight = $derived(totalHeight + RACK_PADDING);
+	// viewBoxHeight includes: rack name padding + top bar + U slots + bottom bar
+	const viewBoxHeight = $derived(RACK_PADDING + RAIL_WIDTH * 2 + totalHeight);
 	const interiorWidth = $derived(RACK_WIDTH - RAIL_WIDTH * 2);
 
 	// Drop preview state
@@ -89,7 +90,7 @@
 	const uLabels = $derived(
 		Array.from({ length: rack.height }, (_, i) => {
 			const uNumber = rack.height - i;
-			const yPosition = i * U_HEIGHT + U_HEIGHT / 2 + RACK_PADDING;
+			const yPosition = i * U_HEIGHT + U_HEIGHT / 2 + RACK_PADDING + RAIL_WIDTH;
 			return { uNumber, yPosition };
 		})
 	);
@@ -97,7 +98,9 @@
 	// Calculate drop preview Y position (SVG coordinate)
 	const dropPreviewY = $derived(
 		dropPreview
-			? (rack.height - dropPreview.position - dropPreview.height + 1) * U_HEIGHT + RACK_PADDING
+			? (rack.height - dropPreview.position - dropPreview.height + 1) * U_HEIGHT +
+					RACK_PADDING +
+					RAIL_WIDTH
 			: 0
 	);
 
@@ -345,19 +348,37 @@
 		<!-- Rack background (interior) -->
 		<rect
 			x={RAIL_WIDTH}
-			y={RACK_PADDING}
+			y={RACK_PADDING + RAIL_WIDTH}
 			width={interiorWidth}
 			height={totalHeight}
 			class="rack-interior"
 		/>
 
-		<!-- Left rail -->
-		<rect x="0" y={RACK_PADDING} width={RAIL_WIDTH} height={totalHeight} class="rack-rail" />
+		<!-- Top bar (horizontal) -->
+		<rect x="0" y={RACK_PADDING} width={RACK_WIDTH} height={RAIL_WIDTH} class="rack-rail" />
 
-		<!-- Right rail -->
+		<!-- Bottom bar (horizontal) -->
+		<rect
+			x="0"
+			y={RACK_PADDING + RAIL_WIDTH + totalHeight}
+			width={RACK_WIDTH}
+			height={RAIL_WIDTH}
+			class="rack-rail"
+		/>
+
+		<!-- Left rail (vertical) -->
+		<rect
+			x="0"
+			y={RACK_PADDING + RAIL_WIDTH}
+			width={RAIL_WIDTH}
+			height={totalHeight}
+			class="rack-rail"
+		/>
+
+		<!-- Right rail (vertical) -->
 		<rect
 			x={RACK_WIDTH - RAIL_WIDTH}
-			y={RACK_PADDING}
+			y={RACK_PADDING + RAIL_WIDTH}
 			width={RAIL_WIDTH}
 			height={totalHeight}
 			class="rack-rail"
@@ -367,16 +388,16 @@
 		{#each Array(rack.height + 1).fill(null) as _gridLine, i (i)}
 			<line
 				x1={RAIL_WIDTH}
-				y1={i * U_HEIGHT + RACK_PADDING}
+				y1={i * U_HEIGHT + RACK_PADDING + RAIL_WIDTH}
 				x2={RACK_WIDTH - RAIL_WIDTH}
-				y2={i * U_HEIGHT + RACK_PADDING}
+				y2={i * U_HEIGHT + RACK_PADDING + RAIL_WIDTH}
 				class="rack-grid-line"
 			/>
 		{/each}
 
 		<!-- Rail mounting holes (3 per U on each rail) - rendered first so labels appear on top -->
 		{#each Array(rack.height).fill(null) as _hole, i (i)}
-			{@const baseY = i * U_HEIGHT + RACK_PADDING + 4}
+			{@const baseY = i * U_HEIGHT + RACK_PADDING + RAIL_WIDTH + 4}
 			<!-- Right rail holes only - left rail has labels -->
 			<circle cx={RACK_WIDTH - RAIL_WIDTH / 2} cy={baseY} r="1.8" class="rack-hole" />
 			<circle cx={RACK_WIDTH - RAIL_WIDTH / 2} cy={baseY + 7} r="1.8" class="rack-hole" />
@@ -391,7 +412,7 @@
 		{/each}
 
 		<!-- Devices -->
-		<g transform="translate(0, {RACK_PADDING})">
+		<g transform="translate(0, {RACK_PADDING + RAIL_WIDTH})">
 			{#each visibleDevices as placedDevice, deviceIndex (placedDevice.libraryId + '-' + placedDevice.position)}
 				{@const device = getDeviceById(placedDevice.libraryId)}
 				{#if device}
@@ -439,12 +460,12 @@
 			{rack.name}
 		</text>
 
-		<!-- View toggle in lower right corner -->
+		<!-- View toggle in top bar on the right -->
 		<foreignObject
-			x={RACK_WIDTH - 60}
-			y={totalHeight + RACK_PADDING - 26}
+			x={RACK_WIDTH - 58}
+			y={RACK_PADDING}
 			width="56"
-			height="22"
+			height={RAIL_WIDTH}
 			class="view-toggle-overlay"
 		>
 			<div class="view-toggle-wrapper">
