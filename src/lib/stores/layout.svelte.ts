@@ -4,6 +4,7 @@
  */
 
 import type { Layout, Rack, Device, DeviceCategory } from '$lib/types';
+import { DEFAULT_DEVICE_FACE } from '$lib/types/constants';
 import { createLayout } from '$lib/utils/serialization';
 import { createRack } from '$lib/utils/rack';
 import { generateId } from '$lib/utils/device';
@@ -262,7 +263,7 @@ function placeDevice(rackId: string, libraryId: string, position: number): boole
 	// Add device to rack
 	const updatedRack = {
 		...rack,
-		devices: [...rack.devices, { libraryId, position }]
+		devices: [...rack.devices, { libraryId, position, face: DEFAULT_DEVICE_FACE }]
 	};
 
 	layout.racks = layout.racks.map((r) => (r.id === rackId ? updatedRack : r));
@@ -355,10 +356,10 @@ function moveDeviceToRack(
 	// Remove from source rack
 	const updatedFromDevices = fromRack.devices.filter((_, idx) => idx !== deviceIndex);
 
-	// Add to target rack
+	// Add to target rack (preserve face from source device)
 	const updatedToDevices = [
 		...toRack.devices,
-		{ libraryId: placedDevice.libraryId, position: newPosition }
+		{ libraryId: placedDevice.libraryId, position: newPosition, face: placedDevice.face }
 	];
 
 	// Update both racks

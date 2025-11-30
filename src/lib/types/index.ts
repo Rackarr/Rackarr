@@ -4,6 +4,16 @@
  */
 
 /**
+ * Rack view types - front or rear view
+ */
+export type RackView = 'front' | 'rear';
+
+/**
+ * Device face types - which face(s) of rack device occupies
+ */
+export type DeviceFace = 'front' | 'rear' | 'both';
+
+/**
  * Device category types - 10 predefined categories
  */
 export type DeviceCategory =
@@ -46,6 +56,8 @@ export interface PlacedDevice {
 	libraryId: string;
 	/** Bottom U position (1-indexed, U1 is at the bottom) */
 	position: number;
+	/** Which face(s) of the rack the device occupies */
+	face: DeviceFace;
 }
 
 /**
@@ -62,6 +74,8 @@ export interface Rack {
 	width: number;
 	/** Order position in row (0-indexed) */
 	position: number;
+	/** Current view mode (front or rear) */
+	view: RackView;
 	/** Devices placed in this rack */
 	devices: PlacedDevice[];
 }

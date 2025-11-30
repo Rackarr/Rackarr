@@ -3,7 +3,7 @@
  * Based on spec.md Section 18.2 and other sections
  */
 
-import type { DeviceCategory } from './index';
+import type { DeviceCategory, RackView, DeviceFace } from './index';
 
 /**
  * Default colours for each device category
@@ -69,3 +69,13 @@ export const CURRENT_VERSION = '1.0';
  * Standard rack width in inches (19" rack)
  */
 export const STANDARD_RACK_WIDTH = 19;
+
+/**
+ * Default rack view (front-facing)
+ */
+export const DEFAULT_RACK_VIEW: RackView = 'front';
+
+/**
+ * Default device face (front-mounted)
+ */
+export const DEFAULT_DEVICE_FACE: DeviceFace = 'front';

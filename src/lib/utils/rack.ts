@@ -4,7 +4,12 @@
  */
 
 import type { Device, Rack } from '$lib/types';
-import { MIN_RACK_HEIGHT, MAX_RACK_HEIGHT, STANDARD_RACK_WIDTH } from '$lib/types/constants';
+import {
+	MIN_RACK_HEIGHT,
+	MAX_RACK_HEIGHT,
+	STANDARD_RACK_WIDTH,
+	DEFAULT_RACK_VIEW
+} from '$lib/types/constants';
 import { generateId } from './device';
 
 /**
@@ -17,6 +22,7 @@ export function createRack(name: string, height: number): Rack {
 		height,
 		width: STANDARD_RACK_WIDTH,
 		position: 0,
+		view: DEFAULT_RACK_VIEW,
 		devices: []
 	};
 }
