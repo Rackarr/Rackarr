@@ -146,6 +146,27 @@ describe('RackDevice SVG Component', () => {
 			const foreignObject = container.querySelector('foreignObject');
 			expect(foreignObject).toBeInTheDocument();
 		});
+
+		it('centers icon vertically by spanning full device height', () => {
+			const device2U: Device = { ...mockDevice, height: 2 };
+			const { container } = render(RackDevice, {
+				props: { ...defaultProps, device: device2U }
+			});
+
+			const foreignObject = container.querySelector('foreignObject');
+			expect(foreignObject).toBeInTheDocument();
+
+			// Foreign object should span full device height (2U * 22px = 44px)
+			const expectedHeight = 2 * U_HEIGHT;
+			expect(foreignObject?.getAttribute('height')).toBe(String(expectedHeight));
+
+			// Y position should be 0 (starts at top of device)
+			expect(foreignObject?.getAttribute('y')).toBe('0');
+
+			// Icon container should have flexbox class (CSS applied)
+			const iconContainer = foreignObject?.querySelector('.icon-container');
+			expect(iconContainer).toBeInTheDocument();
+		});
 	});
 
 	describe('Selection', () => {

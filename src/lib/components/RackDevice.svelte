@@ -136,9 +136,9 @@
 		{device.name}
 	</text>
 
-	<!-- Category icon (top-left corner) -->
+	<!-- Category icon (vertically centered) -->
 	{#if deviceHeight >= 22}
-		<foreignObject x="4" y="2" width="14" height="14" class="category-icon-wrapper">
+		<foreignObject x="4" y="0" width="14" height={deviceHeight} class="category-icon-wrapper">
 			<div class="icon-container">
 				<CategoryIcon category={device.category} size={12} />
 			</div>
@@ -195,6 +195,9 @@
 	}
 
 	.icon-container {
+		display: flex;
+		align-items: center;
+		height: 100%;
 		color: rgba(255, 255, 255, 0.8);
 		filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.5));
 	}
