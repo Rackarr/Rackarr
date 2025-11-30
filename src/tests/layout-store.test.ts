@@ -98,6 +98,69 @@ describe('Layout Store', () => {
 			});
 			expect(store.isDirty).toBe(false);
 		});
+
+		it('migrates v0.1 layout by adding view property to racks', () => {
+			const store = getLayoutStore();
+			const v01Layout = {
+				version: '0.1.0',
+				name: 'Old Layout',
+				created: '2025-01-01T00:00:00.000Z',
+				modified: '2025-01-01T00:00:00.000Z',
+				settings: { theme: 'dark' as const },
+				deviceLibrary: [],
+				racks: [
+					{
+						id: 'rack-1',
+						name: 'Test Rack',
+						height: 42,
+						width: 19,
+						position: 0,
+						devices: []
+					}
+				]
+			} as unknown as Layout;
+			store.loadLayout(v01Layout);
+			expect(store.racks[0].view).toBe('front');
+		});
+
+		it('migrates v0.1 layout by adding face property to placed devices', () => {
+			const store = getLayoutStore();
+			const v01Layout = {
+				version: '0.1.0',
+				name: 'Old Layout',
+				created: '2025-01-01T00:00:00.000Z',
+				modified: '2025-01-01T00:00:00.000Z',
+				settings: { theme: 'dark' as const },
+				deviceLibrary: [],
+				racks: [
+					{
+						id: 'rack-1',
+						name: 'Test Rack',
+						height: 42,
+						width: 19,
+						position: 0,
+						devices: [{ libraryId: 'device-1', position: 5 }]
+					}
+				]
+			} as unknown as Layout;
+			store.loadLayout(v01Layout);
+			expect(store.racks[0].devices[0].face).toBe('front');
+		});
+
+		it('updates version to current version after migration', () => {
+			const store = getLayoutStore();
+			const v01Layout = {
+				version: '0.1.0',
+				name: 'Old Layout',
+				created: '2025-01-01T00:00:00.000Z',
+				modified: '2025-01-01T00:00:00.000Z',
+				settings: { theme: 'dark' as const },
+				deviceLibrary: [],
+				racks: []
+			} as unknown as Layout;
+			store.loadLayout(v01Layout);
+			expect(store.layout.version).toBe(CURRENT_VERSION);
+		});
 	});
 
 	describe('addRack', () => {

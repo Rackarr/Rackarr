@@ -9,6 +9,7 @@ import { createLayout } from '$lib/utils/serialization';
 import { createRack, duplicateRack as duplicateRackUtil } from '$lib/utils/rack';
 import { generateId } from '$lib/utils/device';
 import { canPlaceDevice, findCollisions } from '$lib/utils/collision';
+import { migrateLayout } from '$lib/utils/migration';
 
 // Maximum number of racks allowed
 const MAX_RACKS = 6;
@@ -99,10 +100,11 @@ function createNewLayout(name: string): void {
 
 /**
  * Load an existing layout
+ * Automatically migrates from older versions
  * @param layoutData - Layout to load
  */
 function loadLayout(layoutData: Layout): void {
-	layout = layoutData;
+	layout = migrateLayout(layoutData);
 	isDirty = false;
 }
 
