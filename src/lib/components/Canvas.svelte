@@ -49,8 +49,8 @@
 	const selectionStore = getSelectionStore();
 	const canvasStore = getCanvasStore();
 
-	// Sort racks by position
-	const sortedRacks = $derived([...layoutStore.racks].sort((a, b) => a.position - b.position));
+	// Single-rack mode: direct access to first rack (v0.1.1)
+	const rack = $derived(layoutStore.racks[0]);
 	const hasRacks = $derived(layoutStore.rackCount > 0);
 
 	// Panzoom container reference
@@ -196,26 +196,24 @@
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <div class="canvas" role="application" bind:this={canvasContainer} onclick={handleCanvasClick}>
-	{#if hasRacks}
+	{#if hasRacks && rack}
 		<div class="panzoom-container" bind:this={panzoomContainer}>
-			<div class="rack-row" role="list">
-				{#each sortedRacks as rack (rack.id)}
-					<Rack
-						{rack}
-						deviceLibrary={layoutStore.deviceLibrary}
-						selected={selectionStore.selectedType === 'rack' &&
-							selectionStore.selectedId === rack.id}
-						selectedDeviceId={selectionStore.selectedType === 'device'
-							? selectionStore.selectedId
-							: null}
-						onselect={(e) => handleRackSelect(e)}
-						ondeviceselect={(e) => handleDeviceSelect(e, rack.id)}
-						ondevicedrop={(e) => handleDeviceDrop(e)}
-						ondevicemove={(e) => handleDeviceMove(e)}
-						ondevicemoverack={(e) => handleDeviceMoveRack(e)}
-						onrackviewchange={(e) => handleRackViewChange(e)}
-					/>
-				{/each}
+			<!-- Single-rack mode: direct rack reference (v0.1.1) -->
+			<div class="rack-wrapper">
+				<Rack
+					{rack}
+					deviceLibrary={layoutStore.deviceLibrary}
+					selected={selectionStore.selectedType === 'rack' && selectionStore.selectedId === rack.id}
+					selectedDeviceId={selectionStore.selectedType === 'device'
+						? selectionStore.selectedId
+						: null}
+					onselect={(e) => handleRackSelect(e)}
+					ondeviceselect={(e) => handleDeviceSelect(e, rack.id)}
+					ondevicedrop={(e) => handleDeviceDrop(e)}
+					ondevicemove={(e) => handleDeviceMove(e)}
+					ondevicemoverack={(e) => handleDeviceMoveRack(e)}
+					onrackviewchange={(e) => handleRackViewChange(e)}
+				/>
 			</div>
 		</div>
 	{:else}
@@ -246,7 +244,7 @@
 		cursor: grabbing;
 	}
 
-	.rack-row {
+	.rack-wrapper {
 		/* Single-rack mode: centered layout (v0.1.1) */
 		display: flex;
 		justify-content: center;
