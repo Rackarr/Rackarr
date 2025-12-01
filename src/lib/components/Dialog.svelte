@@ -5,6 +5,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import { onMount } from 'svelte';
+	import { trapFocus, focusFirst, createFocusManager } from '$lib/utils/focus';
 
 	interface Props {
 		open: boolean;
@@ -17,7 +18,7 @@
 	let { open, title, width = '400px', onclose, children }: Props = $props();
 
 	let dialogElement: HTMLDivElement | null = $state(null);
-	let previousActiveElement: HTMLElement | null = null;
+	const focusManager = createFocusManager();
 	const titleId = `dialog-title-${Math.random().toString(36).slice(2, 11)}`;
 
 	// Handle escape key
@@ -34,22 +35,18 @@
 		}
 	}
 
-	// Focus management
+	// Focus management using utilities
 	$effect(() => {
 		if (open) {
-			// Store current focus
-			previousActiveElement = document.activeElement as HTMLElement;
-			// Focus the dialog
+			focusManager.save();
+			// Focus the first focusable element after mount
 			setTimeout(() => {
-				const focusable = dialogElement?.querySelector<HTMLElement>(
-					'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-				);
-				focusable?.focus();
+				if (dialogElement) {
+					focusFirst(dialogElement);
+				}
 			}, 0);
-		} else if (previousActiveElement) {
-			// Return focus on close
-			previousActiveElement.focus();
-			previousActiveElement = null;
+		} else {
+			focusManager.restore();
 		}
 	});
 
@@ -77,6 +74,7 @@
 			aria-modal="true"
 			aria-labelledby={titleId}
 			style:width
+			use:trapFocus
 		>
 			<div class="dialog-header">
 				<h2 id={titleId} class="dialog-title">{title}</h2>
