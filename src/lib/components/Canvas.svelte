@@ -1,6 +1,7 @@
 <!--
   Canvas Component
-  Main content area displaying all racks in a horizontal layout
+  Main content area displaying single rack
+  v0.1.1: Single-rack mode - centered layout
   Uses panzoom for zoom and pan functionality
 -->
 <script lang="ts">
@@ -356,10 +357,10 @@
 	}
 
 	.rack-row {
+		/* Single-rack mode: centered layout (v0.1.1) */
 		display: flex;
-		flex-direction: row;
+		justify-content: center;
 		align-items: flex-end;
-		gap: 24px;
 		padding: 16px;
 	}
 </style>
