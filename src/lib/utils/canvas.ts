@@ -1,6 +1,7 @@
 /**
  * Canvas Utility Functions
- * Calculations for fit-all zoom and rack bounding boxes
+ * Calculations for fit-all zoom and rack positioning
+ * v0.1.1: Single-rack mode - code supports multi-rack for v0.3 restoration
  */
 
 import type { Rack } from '$lib/types';
@@ -10,7 +11,7 @@ const U_HEIGHT = 22;
 const RACK_WIDTH = 220;
 const RAIL_WIDTH = 17; // Width of rails and top/bottom bars
 const RACK_PADDING = 18; // Space at top for rack name (must match Rack.svelte)
-const RACK_GAP = 24; // Gap between racks in rack-row
+const RACK_GAP = 24; // Gap between racks (unused in v0.1.1 single-rack mode)
 const RACK_ROW_PADDING = 16; // Padding around rack-row
 
 /**
@@ -152,16 +153,16 @@ export function calculateFitAll(
 
 /**
  * Convert racks to RackPosition array for bounding box calculation.
- * Sorts racks by position and calculates x coordinates based on layout.
- * Accounts for rack-row padding and actual rendered heights.
+ * v0.1.1: Single-rack mode simplifies to single rack centering.
+ * Multi-rack layout logic preserved for v0.3 restoration.
  *
- * @param racks - Array of racks from the layout store
+ * @param racks - Array of racks from the layout store (max 1 in v0.1.1)
  * @returns Array of RackPosition objects with calculated coordinates
  */
 export function racksToPositions(racks: Rack[]): RackPosition[] {
 	if (racks.length === 0) return [];
 
-	// Sort by position
+	// Sort by position (no-op for single rack, preserved for v0.3)
 	const sorted = [...racks].sort((a, b) => a.position - b.position);
 
 	// Calculate total rendered height
@@ -169,7 +170,7 @@ export function racksToPositions(racks: Rack[]): RackPosition[] {
 	// (rack name padding + top bar + U slots + bottom bar)
 	const getRackHeight = (rack: Rack) => RACK_PADDING + RAIL_WIDTH * 2 + rack.height * U_HEIGHT;
 
-	// Find max height for vertical alignment (racks align at bottom via CSS)
+	// Find max height for vertical alignment (single value in v0.1.1)
 	const maxHeight = Math.max(...sorted.map(getRackHeight));
 
 	// Account for rack-row padding
@@ -180,10 +181,11 @@ export function racksToPositions(racks: Rack[]): RackPosition[] {
 		const height = getRackHeight(rack);
 		const position: RackPosition = {
 			x: currentX,
-			y: startY + (maxHeight - height), // Align to bottom within padded area
+			y: startY + (maxHeight - height),
 			width: RACK_WIDTH,
 			height
 		};
+		// Gap only applied between racks (none in single-rack mode)
 		currentX += RACK_WIDTH + RACK_GAP;
 		return position;
 	});
