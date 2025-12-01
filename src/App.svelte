@@ -12,6 +12,7 @@
 	import NewRackForm from '$lib/components/NewRackForm.svelte';
 	import AddDeviceForm from '$lib/components/AddDeviceForm.svelte';
 	import ConfirmDialog from '$lib/components/ConfirmDialog.svelte';
+	import ConfirmReplaceDialog from '$lib/components/ConfirmReplaceDialog.svelte';
 	import ToastContainer from '$lib/components/ToastContainer.svelte';
 	import KeyboardHandler from '$lib/components/KeyboardHandler.svelte';
 	import ExportDialog from '$lib/components/ExportDialog.svelte';
@@ -45,10 +46,16 @@
 	let exportDialogOpen = $state(false);
 	let helpPanelOpen = $state(false);
 	let deleteTarget: { type: 'rack' | 'device'; name: string } | null = $state(null);
+	let showReplaceDialog = $state(false);
+	let pendingSaveFirst = $state(false);
 
 	// Toolbar event handlers
 	function handleNewRack() {
-		newRackFormOpen = true;
+		if (layoutStore.racks.length > 0) {
+			showReplaceDialog = true;
+		} else {
+			newRackFormOpen = true;
+		}
 	}
 
 	function handleNewRackCreate(data: { name: string; height: number }) {
@@ -60,6 +67,23 @@
 		newRackFormOpen = false;
 	}
 
+	// Replace dialog handlers (single-rack mode)
+	function handleSaveFirst() {
+		showReplaceDialog = false;
+		pendingSaveFirst = true;
+		handleSave();
+	}
+
+	function handleReplace() {
+		showReplaceDialog = false;
+		layoutStore.resetLayout();
+		newRackFormOpen = true;
+	}
+
+	function handleCancelReplace() {
+		showReplaceDialog = false;
+	}
+
 	function handleTogglePalette() {
 		uiStore.toggleLeftDrawer();
 	}
@@ -68,6 +92,13 @@
 		downloadLayout(layoutStore.layout);
 		layoutStore.markClean();
 		toastStore.showToast('Layout saved', 'success', 3000);
+
+		// After save, if pendingSaveFirst, reset and open new rack form
+		if (pendingSaveFirst) {
+			pendingSaveFirst = false;
+			layoutStore.resetLayout();
+			newRackFormOpen = true;
+		}
 	}
 
 	async function handleLoad() {
@@ -315,6 +346,13 @@
 		confirmLabel={deleteTarget?.type === 'rack' ? 'Delete Rack' : 'Remove'}
 		onconfirm={handleConfirmDelete}
 		oncancel={handleCancelDelete}
+	/>
+
+	<ConfirmReplaceDialog
+		open={showReplaceDialog}
+		onSaveFirst={handleSaveFirst}
+		onReplace={handleReplace}
+		onCancel={handleCancelReplace}
 	/>
 
 	<ExportDialog
