@@ -355,6 +355,27 @@
 			class="rack-rail"
 		/>
 
+		<!-- U slot backgrounds (for drop zone highlighting) -->
+		{#each Array(rack.height).fill(null) as _slot, i (i)}
+			{@const uPosition = rack.height - i}
+			{@const isDropTarget =
+				dropPreview !== null &&
+				uPosition >= dropPreview.position &&
+				uPosition < dropPreview.position + dropPreview.height}
+			<rect
+				class="u-slot"
+				class:u-slot-even={uPosition % 2 === 0}
+				class:drop-target={isDropTarget}
+				class:drop-valid={isDropTarget && dropPreview?.feedback === 'valid'}
+				class:drop-invalid={isDropTarget &&
+					(dropPreview?.feedback === 'invalid' || dropPreview?.feedback === 'blocked')}
+				x={RAIL_WIDTH}
+				y={i * U_HEIGHT + RACK_PADDING + RAIL_WIDTH}
+				width={interiorWidth}
+				height={U_HEIGHT}
+			/>
+		{/each}
+
 		<!-- Horizontal grid lines (U dividers) -->
 		{#each Array(rack.height + 1).fill(null) as _gridLine, i (i)}
 			<line
@@ -492,6 +513,28 @@
 		fill: var(--colour-rack-interior, #2d2d2d);
 	}
 
+	/* U slot backgrounds */
+	.u-slot {
+		fill: var(--rack-slot);
+		transition: fill var(--duration-fast) var(--ease-out);
+	}
+
+	.u-slot.u-slot-even {
+		fill: var(--rack-slot-alt);
+	}
+
+	.u-slot.drop-target {
+		transition: fill var(--duration-fast) var(--ease-out);
+	}
+
+	.u-slot.drop-target.drop-valid {
+		fill: var(--colour-dnd-valid-bg);
+	}
+
+	.u-slot.drop-target.drop-invalid {
+		fill: var(--colour-dnd-invalid-bg);
+	}
+
 	.rack-rail {
 		fill: var(--colour-rack-rail, #404040);
 	}
@@ -523,23 +566,25 @@
 
 	.drop-preview {
 		pointer-events: none;
+		stroke-dasharray: 4 2;
+		opacity: 0.8;
 	}
 
 	.drop-valid {
-		fill: rgba(0, 200, 0, 0.3);
-		stroke: #00c800;
+		fill: var(--colour-dnd-valid-bg);
+		stroke: var(--colour-dnd-valid);
 		stroke-width: 2;
 	}
 
 	.drop-invalid {
-		fill: rgba(200, 0, 0, 0.3);
-		stroke: #c80000;
+		fill: var(--colour-dnd-invalid-bg);
+		stroke: var(--colour-dnd-invalid);
 		stroke-width: 2;
 	}
 
 	.drop-blocked {
-		fill: rgba(200, 100, 0, 0.3);
-		stroke: #c86400;
+		fill: var(--colour-dnd-invalid-bg);
+		stroke: var(--colour-dnd-invalid);
 		stroke-width: 2;
 	}
 </style>
