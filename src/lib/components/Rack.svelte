@@ -39,7 +39,6 @@
 				targetPosition: number;
 			}>
 		) => void;
-		onrackdragstart?: (event: CustomEvent<{ rackId: string }>) => void;
 		onrackviewchange?: (event: CustomEvent<{ rackId: string; view: RackView }>) => void;
 	}
 
@@ -53,7 +52,6 @@
 		ondevicedrop,
 		ondevicemove,
 		ondevicemoverack,
-		onrackdragstart,
 		onrackviewchange
 	}: Props = $props();
 
@@ -293,23 +291,8 @@
 		}
 	}
 
-	// Rack drag handle for reordering
-	function handleRackDragStart(event: DragEvent) {
-		event.stopPropagation();
-		if (!event.dataTransfer) return;
-
-		event.dataTransfer.setData(
-			'application/json',
-			JSON.stringify({ type: 'rack-reorder', rackId: rack.id })
-		);
-		event.dataTransfer.effectAllowed = 'move';
-
-		onrackdragstart?.(
-			new CustomEvent('rackdragstart', {
-				detail: { rackId: rack.id }
-			})
-		);
-	}
+	// NOTE: Rack drag handle for reordering removed in v0.1.1 (single-rack mode)
+	// Restore in v0.3 when multi-rack support returns
 </script>
 
 <div
@@ -320,19 +303,7 @@
 	onkeydown={handleKeyDown}
 	onclick={handleClick}
 >
-	<!-- Drag handle for rack reordering - only shown when selected -->
-	{#if selected}
-		<div
-			class="rack-drag-handle"
-			draggable="true"
-			ondragstart={handleRackDragStart}
-			role="button"
-			aria-label="Drag to reorder {rack.name}"
-			tabindex="-1"
-		>
-			<span class="drag-handle-icon">&#x2630;</span>
-		</div>
-	{/if}
+	<!-- NOTE: Drag handle removed in v0.1.1 (single-rack mode) -->
 	<svg
 		class="rack-svg"
 		width={RACK_WIDTH}
@@ -510,39 +481,7 @@
 		pointer-events: all;
 	}
 
-	.rack-drag-handle {
-		position: absolute;
-		bottom: -24px;
-		left: 50%;
-		transform: translateX(-50%);
-		width: 32px;
-		height: 20px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		background: var(--colour-panel, #2d2d2d);
-		border: 1px solid var(--colour-border, #404040);
-		border-radius: 4px;
-		cursor: grab;
-		opacity: 0.6;
-		transition: opacity 0.15s ease;
-		z-index: 10;
-	}
-
-	.rack-drag-handle:hover {
-		opacity: 1;
-		background: var(--colour-hover, #3d3d3d);
-	}
-
-	.rack-drag-handle:active {
-		cursor: grabbing;
-	}
-
-	.drag-handle-icon {
-		color: var(--colour-text-muted, #808080);
-		font-size: 12px;
-		line-height: 1;
-	}
+	/* NOTE: Drag handle CSS removed in v0.1.1 (single-rack mode) */
 
 	svg {
 		pointer-events: auto;

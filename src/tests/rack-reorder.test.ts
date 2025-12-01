@@ -31,8 +31,10 @@ describe('Rack Reordering (Single-Rack Mode)', () => {
 		// This file focuses on reordering behavior which is N/A in single-rack mode
 	});
 
-	describe('Drag Handle Area', () => {
-		it('rack has drag handle element when selected', () => {
+	describe('Drag Handle Removed (v0.1.1)', () => {
+		it('drag handle does not exist when rack is selected', () => {
+			// NOTE: Drag handle removed in v0.1.1 (single-rack mode)
+			// Will be restored in v0.3
 			const layoutStore = getLayoutStore();
 			const selectionStore = getSelectionStore();
 			const rack = layoutStore.addRack('Test Rack', 42);
@@ -41,17 +43,16 @@ describe('Rack Reordering (Single-Rack Mode)', () => {
 			const { container } = render(Canvas);
 
 			const dragHandle = container.querySelector('.rack-drag-handle');
-			expect(dragHandle).toBeInTheDocument();
+			expect(dragHandle).not.toBeInTheDocument();
 		});
 
-		it('drag handle is hidden when rack not selected', () => {
+		it('drag handle does not exist when rack is not selected', () => {
 			const layoutStore = getLayoutStore();
 			layoutStore.addRack('Test Rack', 42);
 
 			const { container } = render(Canvas);
 
 			const dragHandle = container.querySelector('.rack-drag-handle');
-			// Drag handle should not exist when rack is not selected
 			expect(dragHandle).not.toBeInTheDocument();
 		});
 	});

@@ -189,112 +189,8 @@
 		layoutStore.updateRackView(rackId, view);
 	}
 
-	// Rack reordering state (prefixed with _ as they're for future visual feedback)
-	let _rackDragOverId = $state<string | null>(null);
-	let _rackDragSourceId = $state<string | null>(null);
-
-	function handleRackRowDragOver(event: DragEvent) {
-		if (!event.dataTransfer) return;
-
-		const data = event.dataTransfer.getData('application/json');
-		if (!data) {
-			// Data might not be available during dragover in some browsers
-			// Check if we have effectAllowed set to 'move' (set by rack drag)
-			if (event.dataTransfer.effectAllowed === 'move') {
-				event.preventDefault();
-				event.dataTransfer.dropEffect = 'move';
-			}
-			return;
-		}
-
-		try {
-			const parsed = JSON.parse(data);
-			if (parsed.type === 'rack-reorder') {
-				event.preventDefault();
-				event.dataTransfer.dropEffect = 'move';
-				_rackDragSourceId = parsed.rackId;
-
-				// Find which rack we're over based on mouse position
-				const rackRow = event.currentTarget as HTMLElement;
-				const rackElements = rackRow.querySelectorAll('.rack-container');
-				let targetRackId: string | null = null;
-
-				for (const el of rackElements) {
-					const rect = el.getBoundingClientRect();
-					if (event.clientX >= rect.left && event.clientX <= rect.right) {
-						const rackId = sortedRacks.find((r) => {
-							// Match by position in the DOM
-							const rackIndex = Array.from(rackElements).indexOf(el);
-							return rackIndex !== -1 && sortedRacks[rackIndex]?.id === r.id;
-						})?.id;
-						if (rackId) {
-							targetRackId = rackId;
-							break;
-						}
-					}
-				}
-
-				_rackDragOverId = targetRackId;
-			}
-		} catch {
-			// Invalid JSON, ignore
-		}
-	}
-
-	function handleRackRowDragLeave() {
-		_rackDragOverId = null;
-	}
-
-	function handleRackRowDrop(event: DragEvent) {
-		event.preventDefault();
-		_rackDragOverId = null;
-
-		if (!event.dataTransfer) return;
-
-		const data = event.dataTransfer.getData('application/json');
-		if (!data) return;
-
-		try {
-			const parsed = JSON.parse(data);
-			if (parsed.type === 'rack-reorder' && parsed.rackId) {
-				const sourceRackId = parsed.rackId;
-
-				// Find target rack based on drop position
-				const rackRow = event.currentTarget as HTMLElement;
-				const rackElements = rackRow.querySelectorAll('.rack-container');
-				let targetIndex = -1;
-
-				for (let i = 0; i < rackElements.length; i++) {
-					const rect = rackElements[i].getBoundingClientRect();
-					const midX = rect.left + rect.width / 2;
-
-					if (event.clientX < midX) {
-						targetIndex = i;
-						break;
-					}
-				}
-
-				// If we didn't find a position, drop at the end
-				if (targetIndex === -1) {
-					targetIndex = sortedRacks.length - 1;
-				}
-
-				// Find source rack index
-				const sourceIndex = sortedRacks.findIndex((r) => r.id === sourceRackId);
-				if (sourceIndex !== -1 && sourceIndex !== targetIndex) {
-					// Adjust target index if dragging from before the target
-					const adjustedTarget = sourceIndex < targetIndex ? targetIndex - 1 : targetIndex;
-					if (sourceIndex !== adjustedTarget) {
-						layoutStore.reorderRacks(sourceIndex, adjustedTarget);
-					}
-				}
-			}
-		} catch {
-			// Invalid JSON, ignore
-		}
-
-		_rackDragSourceId = null;
-	}
+	// NOTE: Rack reordering handlers removed in v0.1.1 (single-rack mode)
+	// Restore in v0.3 when multi-rack support returns
 </script>
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -302,13 +198,7 @@
 <div class="canvas" role="application" bind:this={canvasContainer} onclick={handleCanvasClick}>
 	{#if hasRacks}
 		<div class="panzoom-container" bind:this={panzoomContainer}>
-			<div
-				class="rack-row"
-				ondragover={handleRackRowDragOver}
-				ondragleave={handleRackRowDragLeave}
-				ondrop={handleRackRowDrop}
-				role="list"
-			>
+			<div class="rack-row" role="list">
 				{#each sortedRacks as rack (rack.id)}
 					<Rack
 						{rack}
