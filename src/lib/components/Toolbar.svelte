@@ -4,6 +4,7 @@
 -->
 <script lang="ts">
 	import ToolbarButton from './ToolbarButton.svelte';
+	import Tooltip from './Tooltip.svelte';
 	import {
 		IconPlus,
 		IconPalette,
@@ -76,60 +77,80 @@
 
 	<!-- Center section: Main actions -->
 	<div class="toolbar-section toolbar-center">
-		<ToolbarButton label="New Rack" onclick={onnewrack}>
-			<IconPlus />
-		</ToolbarButton>
+		<Tooltip text="New Rack" shortcut="N" position="bottom">
+			<ToolbarButton label="New Rack" onclick={onnewrack}>
+				<IconPlus />
+			</ToolbarButton>
+		</Tooltip>
 
 		<div class="separator" aria-hidden="true"></div>
 
-		<ToolbarButton label="Save" onclick={onsave}>
-			<IconSave />
-		</ToolbarButton>
+		<Tooltip text="Save Layout" shortcut="Ctrl+S" position="bottom">
+			<ToolbarButton label="Save" onclick={onsave}>
+				<IconSave />
+			</ToolbarButton>
+		</Tooltip>
 
-		<ToolbarButton label="Load" onclick={onload}>
-			<IconLoad />
-		</ToolbarButton>
+		<Tooltip text="Load Layout" shortcut="Ctrl+O" position="bottom">
+			<ToolbarButton label="Load" onclick={onload}>
+				<IconLoad />
+			</ToolbarButton>
+		</Tooltip>
 
-		<ToolbarButton label="Export" onclick={onexport}>
-			<IconExport />
-		</ToolbarButton>
+		<Tooltip text="Export Image" shortcut="Ctrl+E" position="bottom">
+			<ToolbarButton label="Export" onclick={onexport}>
+				<IconExport />
+			</ToolbarButton>
+		</Tooltip>
 
 		<div class="separator" aria-hidden="true"></div>
 
-		<ToolbarButton label="Delete" disabled={!hasSelection} onclick={ondelete}>
-			<IconTrash />
-		</ToolbarButton>
+		<Tooltip text="Delete Selected" shortcut="Del" position="bottom">
+			<ToolbarButton label="Delete" disabled={!hasSelection} onclick={ondelete}>
+				<IconTrash />
+			</ToolbarButton>
+		</Tooltip>
 	</div>
 
 	<!-- Right section: Zoom, theme, help -->
 	<div class="toolbar-section toolbar-right">
-		<ToolbarButton label="Zoom Out" disabled={!canvasStore.canZoomOut} onclick={onzoomout}>
-			<IconZoomOut />
-		</ToolbarButton>
+		<Tooltip text="Zoom Out" shortcut="-" position="bottom">
+			<ToolbarButton label="Zoom Out" disabled={!canvasStore.canZoomOut} onclick={onzoomout}>
+				<IconZoomOut />
+			</ToolbarButton>
+		</Tooltip>
 
 		<span class="zoom-display">{canvasStore.zoomPercentage}%</span>
 
-		<ToolbarButton label="Zoom In" disabled={!canvasStore.canZoomIn} onclick={onzoomin}>
-			<IconZoomIn />
-		</ToolbarButton>
+		<Tooltip text="Zoom In" shortcut="+" position="bottom">
+			<ToolbarButton label="Zoom In" disabled={!canvasStore.canZoomIn} onclick={onzoomin}>
+				<IconZoomIn />
+			</ToolbarButton>
+		</Tooltip>
 
-		<ToolbarButton label="Fit All" onclick={onfitall}>
-			<IconFitAll />
-		</ToolbarButton>
+		<Tooltip text="Fit All Racks" shortcut="F" position="bottom">
+			<ToolbarButton label="Fit All" onclick={onfitall}>
+				<IconFitAll />
+			</ToolbarButton>
+		</Tooltip>
 
 		<div class="separator" aria-hidden="true"></div>
 
-		<ToolbarButton label="Toggle Theme" onclick={ontoggletheme}>
-			{#if theme === 'dark'}
-				<IconSun />
-			{:else}
-				<IconMoon />
-			{/if}
-		</ToolbarButton>
+		<Tooltip text="Toggle Theme" position="bottom">
+			<ToolbarButton label="Toggle Theme" onclick={ontoggletheme}>
+				{#if theme === 'dark'}
+					<IconSun />
+				{:else}
+					<IconMoon />
+				{/if}
+			</ToolbarButton>
+		</Tooltip>
 
-		<ToolbarButton label="Help" onclick={onhelp}>
-			<IconHelp />
-		</ToolbarButton>
+		<Tooltip text="Help & Shortcuts" shortcut="?" position="bottom">
+			<ToolbarButton label="Help" onclick={onhelp}>
+				<IconHelp />
+			</ToolbarButton>
+		</Tooltip>
 	</div>
 </header>
 

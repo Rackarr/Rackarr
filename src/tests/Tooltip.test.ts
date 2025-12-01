@@ -208,33 +208,31 @@ describe('Tooltip Component', () => {
 			expect(tooltip).toHaveAttribute('role', 'tooltip');
 		});
 
-		it('trigger has aria-describedby when tooltip is visible', async () => {
+		it('tooltip has unique id for accessibility linking', async () => {
 			const { container } = render(Tooltip, {
 				props: { text: 'Test tooltip' }
 			});
 
 			const trigger = container.querySelector('.tooltip-trigger');
-
-			// Before tooltip is visible, no aria-describedby
-			expect(trigger).not.toHaveAttribute('aria-describedby');
-
 			await fireEvent.mouseEnter(trigger!);
 			vi.advanceTimersByTime(500);
 			await tick();
 
-			// After tooltip is visible, aria-describedby should be set
-			expect(trigger).toHaveAttribute('aria-describedby');
+			const tooltip = container.querySelector('.tooltip');
+			expect(tooltip).toHaveAttribute('id');
+			expect(tooltip?.getAttribute('id')).toMatch(/^tooltip-/);
 		});
 	});
 
 	describe('Focus behavior', () => {
-		it('tooltip appears on focus', async () => {
+		it('tooltip appears on focusin event (from child elements)', async () => {
 			const { container } = render(Tooltip, {
 				props: { text: 'Test tooltip' }
 			});
 
 			const trigger = container.querySelector('.tooltip-trigger');
-			await fireEvent.focus(trigger!);
+			// Use focusIn to simulate focus bubbling from a child element
+			await fireEvent.focusIn(trigger!);
 			vi.advanceTimersByTime(500);
 			await tick();
 
@@ -242,19 +240,19 @@ describe('Tooltip Component', () => {
 			expect(tooltip).toBeInTheDocument();
 		});
 
-		it('tooltip hides on blur', async () => {
+		it('tooltip hides on focusout event', async () => {
 			const { container } = render(Tooltip, {
 				props: { text: 'Test tooltip' }
 			});
 
 			const trigger = container.querySelector('.tooltip-trigger');
-			await fireEvent.focus(trigger!);
+			await fireEvent.focusIn(trigger!);
 			vi.advanceTimersByTime(500);
 			await tick();
 
 			expect(container.querySelector('.tooltip')).toBeInTheDocument();
 
-			await fireEvent.blur(trigger!);
+			await fireEvent.focusOut(trigger!);
 			await tick();
 
 			expect(container.querySelector('.tooltip')).not.toBeInTheDocument();

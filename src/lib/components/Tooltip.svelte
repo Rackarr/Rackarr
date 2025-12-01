@@ -54,15 +54,13 @@
 </script>
 
 <div class="tooltip-wrapper">
+	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div
 		class="tooltip-trigger"
 		onmouseenter={handleMouseEnter}
 		onmouseleave={handleMouseLeave}
-		onfocus={handleFocus}
-		onblur={handleBlur}
-		aria-describedby={visible ? tooltipId : undefined}
-		tabindex="0"
-		role="button"
+		onfocusin={handleFocus}
+		onfocusout={handleBlur}
 	>
 		{#if children}
 			{@render children()}
