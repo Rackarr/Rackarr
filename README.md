@@ -6,11 +6,11 @@ A browser-based visual tool for planning and documenting server rack layouts. De
 
 ## Features
 
-- **Visual Rack Editor**: Create and manage up to 6 racks with heights from 1U to 100U
+- **Visual Rack Editor**: Single rack editing with heights from 1U to 100U (multi-rack support planned for v0.3)
 - **Drag-and-Drop**: Intuitive device placement from palette to rack
 - **Device Library**: Starter library with common devices, plus custom device creation
 - **Smart Collision Detection**: Prevents device overlap with visual feedback
-- **Multi-Rack Support**: Move devices between racks seamlessly
+- **Multi-Rack File Loading**: Opens multi-rack files (loads first rack only with warning)
 - **Export Options**: PNG, JPEG, SVG, and PDF export with customizable options
 - **Dark/Light Themes**: Full theme support with system preference detection
 - **Keyboard Shortcuts**: Full keyboard navigation for power users
@@ -68,8 +68,6 @@ Access the app at `http://localhost:8080`
 | `Delete` / `Backspace` | Delete selected item            |
 | `Arrow Up`             | Move device up 1U               |
 | `Arrow Down`           | Move device down 1U             |
-| `Arrow Left`           | Reorder rack left               |
-| `Arrow Right`          | Reorder rack right              |
 | `Escape`               | Clear selection / Close drawers |
 | `D`                    | Toggle device palette           |
 | `Ctrl/Cmd + S`         | Save layout                     |

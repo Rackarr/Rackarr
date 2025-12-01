@@ -33,6 +33,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Integrated panzoom library for smooth canvas zoom/pan
 - Added comprehensive test coverage (793 tests)
 
+## [0.1.1] - 2025-12-01
+
+### Changed
+
+- Rescoped to single-rack editing for v0.1 stability
+- Multi-rack support deferred to v0.3
+- Removed rack reordering UI (drag handles)
+- Simplified canvas layout for single rack (centered)
+
+### Added
+
+- Save-first confirmation dialog when replacing rack
+- Warning toast when loading multi-rack files
+- E2E tests for single-rack behavior
+
+### Removed
+
+- Multi-rack canvas display (deferred to v0.3)
+- Cross-rack device moves (deferred to v0.3)
+- Rack reordering controls (deferred to v0.3)
+
 ## [0.1.0] - 2025-11-28
 
 ### Added
