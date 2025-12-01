@@ -43,14 +43,15 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		width: 36px;
-		height: 36px;
-		border-radius: 6px;
+		width: var(--space-8);
+		height: var(--space-8);
+		padding: var(--space-2);
+		border-radius: var(--radius-md);
 		background: transparent;
 		color: var(--colour-text);
 		transition:
-			background-color var(--transition-fast),
-			color var(--transition-fast);
+			background-color var(--duration-fast) var(--ease-out),
+			color var(--duration-fast) var(--ease-out);
 	}
 
 	.toolbar-button:hover:not(:disabled) {
@@ -58,8 +59,8 @@
 	}
 
 	.toolbar-button:focus-visible {
-		outline: 2px solid var(--colour-selection);
-		outline-offset: 2px;
+		outline: 2px solid var(--colour-focus-ring);
+		outline-offset: var(--space-1);
 	}
 
 	.toolbar-button:disabled {
@@ -69,11 +70,10 @@
 
 	.toolbar-button.active {
 		background: var(--colour-selection);
-		color: #ffffff;
+		color: var(--neutral-50);
 	}
 
 	.toolbar-button.active:hover:not(:disabled) {
-		background: var(--colour-selection);
-		filter: brightness(1.1);
+		background: var(--colour-selection-hover);
 	}
 </style>

@@ -138,17 +138,17 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		height: var(--toolbar-height, 52px);
-		padding: 0 16px;
-		background: var(--colour-toolbar-bg);
-		border-bottom: 1px solid var(--colour-border);
+		height: var(--toolbar-height);
+		padding: 0 var(--space-4);
+		background: var(--colour-toolbar-bg, var(--toolbar-bg));
+		border-bottom: 1px solid var(--colour-toolbar-border, var(--toolbar-border));
 		flex-shrink: 0;
 	}
 
 	.toolbar-section {
 		display: flex;
 		align-items: center;
-		gap: 4px;
+		gap: var(--space-1);
 	}
 
 	.toolbar-left {
@@ -167,16 +167,16 @@
 	.library-toggle {
 		display: flex;
 		align-items: center;
-		gap: 8px;
-		padding: 8px 16px;
+		gap: var(--space-2);
+		padding: var(--space-2) var(--space-4);
 		border: 1px solid var(--colour-border);
-		border-radius: 6px;
+		border-radius: var(--radius-md);
 		background: transparent;
 		color: var(--colour-text);
 		cursor: pointer;
-		transition: all var(--transition-fast);
-		font-size: 14px;
-		font-weight: 500;
+		transition: all var(--duration-fast) var(--ease-out);
+		font-size: var(--font-size-base);
+		font-weight: var(--font-weight-medium);
 	}
 
 	.library-toggle:hover {
@@ -185,33 +185,33 @@
 	}
 
 	.library-toggle:focus {
-		outline: 2px solid var(--colour-selection);
-		outline-offset: 2px;
+		outline: 2px solid var(--colour-focus-ring);
+		outline-offset: var(--space-1);
 	}
 
 	.library-toggle.active {
 		background: var(--colour-selection);
 		border-color: var(--colour-selection);
-		color: white;
+		color: var(--neutral-50);
 	}
 
 	.library-text {
-		font-size: 14px;
-		font-weight: 500;
+		font-size: var(--font-size-base);
+		font-weight: var(--font-weight-medium);
 	}
 
 	.separator {
 		width: 1px;
-		height: 24px;
+		height: var(--space-6);
 		background: var(--colour-border);
-		margin: 0 8px;
+		margin: 0 var(--space-2);
 	}
 
 	.zoom-display {
-		min-width: 48px;
+		min-width: var(--space-12);
 		text-align: center;
-		font-size: 13px;
-		color: var(--colour-text-secondary);
+		font-size: var(--font-size-sm);
+		color: var(--colour-text-muted);
 		font-variant-numeric: tabular-nums;
 	}
 </style>

@@ -223,14 +223,56 @@ describe('DevicePaletteItem Component', () => {
 			expect(screen.getByText('2U')).toBeInTheDocument();
 		});
 
-		it('shows colour swatch', () => {
+		it('shows category indicator with device color', () => {
 			const { container } = render(DevicePaletteItem, { props: { device: mockDevice } });
 
-			const swatch = container.querySelector('.colour-swatch');
-			expect(swatch).toBeInTheDocument();
+			const indicator = container.querySelector('.category-indicator');
+			expect(indicator).toBeInTheDocument();
 			// Browser converts hex to rgb, so check for either format
-			const style = swatch?.getAttribute('style') ?? '';
+			const style = indicator?.getAttribute('style') ?? '';
 			expect(style).toContain('background-color');
+		});
+	});
+
+	describe('Drag Affordance', () => {
+		it('displays grip handle icon', () => {
+			const { container } = render(DevicePaletteItem, { props: { device: mockDevice } });
+
+			const dragHandle = container.querySelector('.drag-handle');
+			expect(dragHandle).toBeInTheDocument();
+			// Check that it contains an SVG (the grip icon)
+			const svg = dragHandle?.querySelector('svg');
+			expect(svg).toBeInTheDocument();
+		});
+
+		it('has cursor: grab style', () => {
+			const { container } = render(DevicePaletteItem, { props: { device: mockDevice } });
+
+			const item = container.querySelector('.device-palette-item');
+			expect(item).toBeInTheDocument();
+			// The cursor style is applied via CSS class
+			expect(item).toHaveClass('device-palette-item');
+		});
+
+		it('is draggable', () => {
+			const { container } = render(DevicePaletteItem, { props: { device: mockDevice } });
+
+			const item = container.querySelector('.device-palette-item');
+			expect(item).toHaveAttribute('draggable', 'true');
+		});
+
+		it('starts without dragging class', () => {
+			const { container } = render(DevicePaletteItem, { props: { device: mockDevice } });
+
+			const item = container.querySelector('.device-palette-item')!;
+			expect(item).not.toHaveClass('dragging');
+		});
+
+		it('has aria-hidden on drag handle', () => {
+			const { container } = render(DevicePaletteItem, { props: { device: mockDevice } });
+
+			const dragHandle = container.querySelector('.drag-handle');
+			expect(dragHandle).toHaveAttribute('aria-hidden', 'true');
 		});
 	});
 

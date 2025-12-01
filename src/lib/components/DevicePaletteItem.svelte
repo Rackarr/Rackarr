@@ -5,7 +5,7 @@
 -->
 <script lang="ts">
 	import type { Device } from '$lib/types';
-	import CategoryIcon from './CategoryIcon.svelte';
+	import IconGrip from './icons/IconGrip.svelte';
 	import { createPaletteDragData, serializeDragData } from '$lib/utils/dragdrop';
 
 	interface Props {
@@ -44,10 +44,12 @@
 	}
 </script>
 
+<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <div
 	class="device-palette-item"
 	class:dragging={isDragging}
-	role="button"
+	role="listitem"
 	tabindex="0"
 	draggable="true"
 	onclick={handleClick}
@@ -56,85 +58,86 @@
 	ondragend={handleDragEnd}
 	aria-label="{device.name}, {device.height}U {device.category}"
 >
-	<div class="item-content">
-		<div class="colour-swatch" style="background-color: {device.colour}"></div>
-		<div class="item-info">
-			<span class="device-name">{device.name}</span>
-			<span class="device-meta">
-				<CategoryIcon category={device.category} size={12} />
-				<span class="height-badge">{device.height}U</span>
-			</span>
-		</div>
-	</div>
+	<span class="drag-handle" aria-hidden="true">
+		<IconGrip size={16} />
+	</span>
+	<span class="category-indicator" style="background-color: {device.colour}"></span>
+	<span class="device-name">{device.name}</span>
+	<span class="device-height">{device.height}U</span>
 </div>
 
 <style>
 	.device-palette-item {
 		display: flex;
 		align-items: center;
-		padding: 8px 12px;
-		cursor: pointer;
-		border-radius: 4px;
-		transition: background-color 0.15s ease;
+		gap: var(--space-2);
+		padding: var(--space-2) var(--space-3);
+		border-radius: var(--radius-sm);
+		cursor: grab;
+		transition:
+			transform var(--duration-fast) var(--ease-out),
+			box-shadow var(--duration-fast) var(--ease-out),
+			background-color var(--duration-fast) var(--ease-out);
 	}
 
 	.device-palette-item:hover {
-		background-color: var(--colour-hover, rgba(255, 255, 255, 0.05));
+		background-color: var(--colour-surface-hover);
+		transform: translateY(-1px);
+		box-shadow: var(--shadow-sm);
 	}
 
+	.device-palette-item:active,
 	.device-palette-item.dragging {
+		cursor: grabbing;
+		transform: translateY(-2px) scale(1.02);
+		box-shadow: var(--shadow-lg);
+		z-index: 100;
+	}
+
+	.device-palette-item:focus-visible {
+		outline: 2px solid var(--colour-focus-ring);
+		outline-offset: var(--space-1);
+	}
+
+	.drag-handle {
+		color: var(--colour-text-muted);
 		opacity: 0.5;
-	}
-
-	.device-palette-item:focus {
-		outline: 2px solid var(--colour-selection, #0066ff);
-		outline-offset: -2px;
-	}
-
-	.item-content {
+		transition: opacity var(--duration-fast) var(--ease-out);
+		flex-shrink: 0;
 		display: flex;
 		align-items: center;
-		gap: 10px;
-		width: 100%;
 	}
 
-	.colour-swatch {
-		width: 16px;
-		height: 16px;
-		border-radius: 3px;
-		border: 1px solid rgba(255, 255, 255, 0.2);
+	.device-palette-item:hover .drag-handle {
+		opacity: 1;
+	}
+
+	.category-indicator {
+		width: 4px;
+		height: 100%;
+		min-height: 24px;
+		border-radius: 2px;
 		flex-shrink: 0;
 	}
 
-	.item-info {
-		display: flex;
-		flex-direction: column;
-		gap: 2px;
-		flex: 1;
-		min-width: 0;
-	}
-
 	.device-name {
-		font-size: 13px;
-		font-weight: 500;
-		color: var(--colour-text, #ffffff);
+		flex: 1;
+		font-size: var(--font-size-sm);
+		font-weight: var(--font-weight-medium);
+		color: var(--colour-text);
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
+		min-width: 0;
 	}
 
-	.device-meta {
-		display: flex;
-		align-items: center;
-		gap: 6px;
-		color: var(--colour-text-secondary, #a0a0a0);
-	}
-
-	.height-badge {
-		font-size: 11px;
-		font-weight: 500;
-		padding: 1px 4px;
-		background-color: rgba(255, 255, 255, 0.1);
-		border-radius: 3px;
+	.device-height {
+		background-color: var(--colour-surface-raised);
+		padding: 2px 8px;
+		border-radius: var(--radius-full);
+		font-size: var(--font-size-xs);
+		font-weight: var(--font-weight-medium);
+		color: var(--colour-text-muted);
+		flex-shrink: 0;
 	}
 </style>

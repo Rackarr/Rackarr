@@ -29,8 +29,8 @@ body {
 
 /* Focus styles for accessibility */
 :focus-visible {
-	outline: 2px solid var(--colour-selection);
-	outline-offset: 2px;
+	outline: 2px solid var(--colour-focus-ring);
+	outline-offset: var(--space-1);
 }
 
 /* Button reset */
@@ -57,8 +57,8 @@ textarea {
 
 /* Scrollbar styling */
 ::-webkit-scrollbar {
-	width: 8px;
-	height: 8px;
+	width: var(--space-2);
+	height: var(--space-2);
 }
 
 ::-webkit-scrollbar-track {
@@ -67,11 +67,11 @@ textarea {
 
 ::-webkit-scrollbar-thumb {
 	background: var(--colour-border);
-	border-radius: 4px;
+	border-radius: var(--radius-sm);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-	background: var(--colour-text-secondary);
+	background: var(--colour-text-muted);
 }
 
 /* Utility classes */
