@@ -42,9 +42,19 @@ describe('Rack Utilities', () => {
 			);
 		});
 
-		it('sets width to 19', () => {
+		it('sets default width to 19', () => {
 			const rack = createRack('Test Rack', 42);
 			expect(rack.width).toBe(19);
+		});
+
+		it('creates rack with explicit width 19', () => {
+			const rack = createRack('Test Rack', 42, 'front', 19);
+			expect(rack.width).toBe(19);
+		});
+
+		it('creates rack with width 10', () => {
+			const rack = createRack('Test Rack', 42, 'front', 10);
+			expect(rack.width).toBe(10);
 		});
 
 		it('sets position to 0', () => {
@@ -150,7 +160,35 @@ describe('Rack Utilities', () => {
 			expect(result.errors).toContain('Name is required');
 		});
 
-		it('rejects width other than 19', () => {
+		it('accepts width of 10', () => {
+			const rack: Rack = {
+				id: '123e4567-e89b-12d3-a456-426614174000',
+				name: 'Main Rack',
+				height: 42,
+				width: 10,
+				position: 0,
+				devices: []
+			};
+
+			const result = validateRack(rack);
+			expect(result.valid).toBe(true);
+		});
+
+		it('accepts width of 19', () => {
+			const rack: Rack = {
+				id: '123e4567-e89b-12d3-a456-426614174000',
+				name: 'Main Rack',
+				height: 42,
+				width: 19,
+				position: 0,
+				devices: []
+			};
+
+			const result = validateRack(rack);
+			expect(result.valid).toBe(true);
+		});
+
+		it('rejects invalid width', () => {
 			const rack: Rack = {
 				id: '123e4567-e89b-12d3-a456-426614174000',
 				name: 'Main Rack',
@@ -162,7 +200,7 @@ describe('Rack Utilities', () => {
 
 			const result = validateRack(rack);
 			expect(result.valid).toBe(false);
-			expect(result.errors).toContain('Width must be 19 inches');
+			expect(result.errors).toContain('Width must be 10 or 19 inches');
 		});
 	});
 

@@ -74,6 +74,16 @@ export const CURRENT_VERSION = '0.2.0';
 export const STANDARD_RACK_WIDTH = 19;
 
 /**
+ * Narrow rack width (10" rack)
+ */
+export const NARROW_RACK_WIDTH = 10;
+
+/**
+ * Allowed rack widths
+ */
+export const ALLOWED_RACK_WIDTHS: readonly number[] = [10, 19] as const;
+
+/**
  * Default rack view (front-facing)
  */
 export const DEFAULT_RACK_VIEW: RackView = 'front';

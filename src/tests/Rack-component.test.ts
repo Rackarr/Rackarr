@@ -370,4 +370,67 @@ describe('Rack SVG Component', () => {
 			expect(containerRear.querySelectorAll('[data-device-id]')).toHaveLength(1);
 		});
 	});
+
+	describe('Rack Width', () => {
+		it('renders 19" rack at standard width', () => {
+			const rack19: RackType = { ...mockRack, width: 19 };
+
+			const { container } = render(Rack, {
+				props: {
+					rack: rack19,
+					deviceLibrary: mockDeviceLibrary,
+					selected: false
+				}
+			});
+
+			const svg = container.querySelector('svg');
+			expect(svg).toHaveAttribute('width', '220');
+		});
+
+		it('renders 10" rack proportionally narrower', () => {
+			const rack10: RackType = { ...mockRack, width: 10 };
+
+			const { container } = render(Rack, {
+				props: {
+					rack: rack10,
+					deviceLibrary: mockDeviceLibrary,
+					selected: false
+				}
+			});
+
+			const svg = container.querySelector('svg');
+			const width = parseInt(svg!.getAttribute('width') || '0');
+			// 10" should be approximately 10/19 of 220 = ~116
+			expect(width).toBeLessThan(220);
+			expect(width).toBeGreaterThan(100);
+		});
+
+		it('10" rack is narrower than 19" rack', () => {
+			const rack10: RackType = { ...mockRack, width: 10 };
+			const rack19: RackType = { ...mockRack, width: 19 };
+
+			const { container: container10 } = render(Rack, {
+				props: {
+					rack: rack10,
+					deviceLibrary: mockDeviceLibrary,
+					selected: false
+				}
+			});
+
+			const { container: container19 } = render(Rack, {
+				props: {
+					rack: rack19,
+					deviceLibrary: mockDeviceLibrary,
+					selected: false
+				}
+			});
+
+			const svg10 = container10.querySelector('svg');
+			const svg19 = container19.querySelector('svg');
+			const width10 = parseInt(svg10!.getAttribute('width') || '0');
+			const width19 = parseInt(svg19!.getAttribute('width') || '0');
+
+			expect(width10).toBeLessThan(width19);
+		});
+	});
 });

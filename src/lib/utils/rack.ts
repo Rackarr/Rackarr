@@ -8,6 +8,7 @@ import {
 	MIN_RACK_HEIGHT,
 	MAX_RACK_HEIGHT,
 	STANDARD_RACK_WIDTH,
+	ALLOWED_RACK_WIDTHS,
 	DEFAULT_RACK_VIEW
 } from '$lib/types/constants';
 import { generateId } from './device';
@@ -15,12 +16,12 @@ import { generateId } from './device';
 /**
  * Create a new rack with sensible defaults
  */
-export function createRack(name: string, height: number, view?: RackView): Rack {
+export function createRack(name: string, height: number, view?: RackView, width?: number): Rack {
 	return {
 		id: generateId(),
 		name,
 		height,
-		width: STANDARD_RACK_WIDTH,
+		width: width ?? STANDARD_RACK_WIDTH,
 		position: 0,
 		view: view ?? DEFAULT_RACK_VIEW,
 		devices: [],
@@ -54,9 +55,9 @@ export function validateRack(rack: Rack): RackValidationResult {
 		errors.push(`Height must be between ${MIN_RACK_HEIGHT} and ${MAX_RACK_HEIGHT}`);
 	}
 
-	// Validate width (must be 19 inches for v0.1)
-	if (rack.width !== STANDARD_RACK_WIDTH) {
-		errors.push(`Width must be ${STANDARD_RACK_WIDTH} inches`);
+	// Validate width (must be 10 or 19 inches)
+	if (!ALLOWED_RACK_WIDTHS.includes(rack.width)) {
+		errors.push('Width must be 10 or 19 inches');
 	}
 
 	return {

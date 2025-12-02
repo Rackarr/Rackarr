@@ -67,9 +67,13 @@
 
 	// CSS custom property values (fallbacks match app.css)
 	const U_HEIGHT = 22;
-	const RACK_WIDTH = 220;
+	const BASE_RACK_WIDTH = 220; // Base width for 19" rack
 	const RAIL_WIDTH = 17;
 	const RACK_PADDING = 18; // Space at top for rack name (13px font + margin)
+
+	// Calculate actual width based on rack.width (10" or 19")
+	// Scale proportionally: 10" rack = 220 * 10/19 ≈ 116
+	const RACK_WIDTH = $derived(Math.round((BASE_RACK_WIDTH * rack.width) / 19));
 
 	// Calculated dimensions
 	const totalHeight = $derived(rack.height * U_HEIGHT);
