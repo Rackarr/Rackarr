@@ -73,7 +73,6 @@
 		name: string;
 		height: number;
 		width: number;
-		form_factor: import('$lib/types').FormFactor;
 		desc_units: boolean;
 		starting_unit: number;
 	}) {
@@ -81,7 +80,7 @@
 			data.name,
 			data.height,
 			data.width,
-			data.form_factor,
+			undefined, // form_factor (use default)
 			data.desc_units,
 			data.starting_unit
 		);

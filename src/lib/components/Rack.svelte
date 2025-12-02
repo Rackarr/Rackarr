@@ -74,6 +74,7 @@
 	const BASE_RACK_WIDTH = 220; // Base width for 19" rack
 	const RAIL_WIDTH = 17;
 	const RACK_PADDING = 18; // Space at top for rack name (13px font + margin)
+	const NAME_Y_OFFSET = 4; // Extra space above rack name to prevent cutoff on narrow racks
 
 	// Calculate actual width based on rack.width (10" or 19")
 	// Scale proportionally: 10" rack = 220 * 10/19 ≈ 116
@@ -321,8 +322,8 @@
 	<svg
 		class="rack-svg"
 		width={RACK_WIDTH}
-		height={viewBoxHeight}
-		viewBox="0 0 {RACK_WIDTH} {viewBoxHeight}"
+		height={viewBoxHeight + NAME_Y_OFFSET}
+		viewBox="0 -{NAME_Y_OFFSET} {RACK_WIDTH} {viewBoxHeight + NAME_Y_OFFSET}"
 		role="img"
 		aria-label="{rack.name}, {rack.height}U rack{selected ? ', selected' : ''}"
 		ondragover={handleDragOver}
@@ -464,17 +465,6 @@
 			/>
 		{/if}
 
-		<!-- Rack name at top -->
-		<text
-			x={RACK_WIDTH / 2}
-			y="0"
-			class="rack-name"
-			text-anchor="middle"
-			dominant-baseline="text-before-edge"
-		>
-			{rack.name}
-		</text>
-
 		<!-- View toggle in top bar (centered) -->
 		<foreignObject
 			x="0"
@@ -487,6 +477,17 @@
 				<RackViewToggle view={rack.view} onchange={handleViewChange} />
 			</div>
 		</foreignObject>
+
+		<!-- Rack name at top (rendered last so it's on top) -->
+		<text
+			x={RACK_WIDTH / 2}
+			y={-NAME_Y_OFFSET}
+			class="rack-name"
+			text-anchor="middle"
+			dominant-baseline="text-before-edge"
+		>
+			{rack.name}
+		</text>
 	</svg>
 </div>
 
