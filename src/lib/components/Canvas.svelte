@@ -255,10 +255,9 @@
 	}
 
 	.rack-wrapper {
-		/* Single-rack mode: centered layout (v0.1.1) */
-		display: flex;
-		justify-content: center;
-		align-items: flex-end;
+		/* Single-rack mode: positioned at origin, panzoom controls viewport centering (v0.1.1) */
+		/* Note: fitAll() in canvas store handles centering via pan calculations */
+		display: inline-block;
 		padding: 16px;
 	}
 </style>
