@@ -550,3 +550,87 @@ describe('Constants', () => {
 		});
 	});
 });
+
+describe('Image Types (v0.3.0)', () => {
+	describe('ImageData interface', () => {
+		it('accepts valid ImageData structure', () => {
+			// Create a mock ImageData
+			const mockBlob = new Blob(['test'], { type: 'image/png' });
+			const imageData: import('$lib/types/images').ImageData = {
+				blob: mockBlob,
+				dataUrl: 'data:image/png;base64,dGVzdA==',
+				filename: 'test-device-front.png'
+			};
+
+			expect(imageData.blob).toBeInstanceOf(Blob);
+			expect(imageData.dataUrl).toContain('data:image/png');
+			expect(imageData.filename).toBe('test-device-front.png');
+		});
+	});
+
+	describe('Image Format Types', () => {
+		it('SUPPORTED_IMAGE_FORMATS includes png, jpeg, and webp', async () => {
+			const { SUPPORTED_IMAGE_FORMATS } = await import('$lib/types/constants');
+
+			expect(SUPPORTED_IMAGE_FORMATS).toContain('image/png');
+			expect(SUPPORTED_IMAGE_FORMATS).toContain('image/jpeg');
+			expect(SUPPORTED_IMAGE_FORMATS).toContain('image/webp');
+			expect(SUPPORTED_IMAGE_FORMATS.length).toBe(3);
+		});
+
+		it('MAX_IMAGE_SIZE_MB is 5', async () => {
+			const { MAX_IMAGE_SIZE_MB } = await import('$lib/types/constants');
+			expect(MAX_IMAGE_SIZE_MB).toBe(5);
+		});
+
+		it('MAX_IMAGE_SIZE_BYTES is 5MB', async () => {
+			const { MAX_IMAGE_SIZE_BYTES } = await import('$lib/types/constants');
+			expect(MAX_IMAGE_SIZE_BYTES).toBe(5 * 1024 * 1024);
+		});
+	});
+
+	describe('ImageUploadResult interface', () => {
+		it('accepts successful result with data', async () => {
+			const mockBlob = new Blob(['test'], { type: 'image/png' });
+			const result: import('$lib/types/images').ImageUploadResult = {
+				success: true,
+				data: {
+					blob: mockBlob,
+					dataUrl: 'data:image/png;base64,dGVzdA==',
+					filename: 'test-front.png'
+				}
+			};
+
+			expect(result.success).toBe(true);
+			expect(result.data).toBeDefined();
+			expect(result.error).toBeUndefined();
+		});
+
+		it('accepts failed result with error', async () => {
+			const result: import('$lib/types/images').ImageUploadResult = {
+				success: false,
+				error: 'File too large'
+			};
+
+			expect(result.success).toBe(false);
+			expect(result.error).toBe('File too large');
+			expect(result.data).toBeUndefined();
+		});
+	});
+
+	describe('SupportedImageFormat type', () => {
+		it('type guards work for supported formats', async () => {
+			const { SUPPORTED_IMAGE_FORMATS } = await import('$lib/types/constants');
+
+			// Test that these are the only supported formats
+			const formats = ['image/png', 'image/jpeg', 'image/webp'];
+			formats.forEach((format) => {
+				expect(SUPPORTED_IMAGE_FORMATS).toContain(format);
+			});
+
+			// Test that other formats are not included
+			expect(SUPPORTED_IMAGE_FORMATS).not.toContain('image/gif');
+			expect(SUPPORTED_IMAGE_FORMATS).not.toContain('image/bmp');
+		});
+	});
+});

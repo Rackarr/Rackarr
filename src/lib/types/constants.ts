@@ -92,3 +92,26 @@ export const DEFAULT_RACK_VIEW: RackView = 'front';
  * Default device face (front-mounted)
  */
 export const DEFAULT_DEVICE_FACE: DeviceFace = 'front';
+
+/**
+ * Image Constants (v0.3.0)
+ */
+
+/**
+ * Supported image MIME types for device images
+ */
+export const SUPPORTED_IMAGE_FORMATS: readonly string[] = [
+	'image/png',
+	'image/jpeg',
+	'image/webp'
+] as const;
+
+/**
+ * Maximum image file size in megabytes
+ */
+export const MAX_IMAGE_SIZE_MB = 5;
+
+/**
+ * Maximum image file size in bytes
+ */
+export const MAX_IMAGE_SIZE_BYTES = MAX_IMAGE_SIZE_MB * 1024 * 1024;
