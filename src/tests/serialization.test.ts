@@ -91,7 +91,8 @@ describe('Layout Serialization', () => {
 				height: 42,
 				width: 19,
 				position: 0,
-				devices: [{ libraryId: 'device-1', position: 5 }]
+				view: 'front',
+				devices: [{ libraryId: 'device-1', position: 5, face: 'front' }]
 			};
 
 			const layout: Layout = {

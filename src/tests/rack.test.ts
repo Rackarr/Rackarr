@@ -318,8 +318,8 @@ describe('Rack Utilities', () => {
 			});
 			const copy = duplicateRack(original);
 			expect(copy.devices).toHaveLength(2);
-			expect(copy.devices[0].position).toBe(1);
-			expect(copy.devices[1].face).toBe('both');
+			expect(copy.devices[0]?.position).toBe(1);
+			expect(copy.devices[1]?.face).toBe('both');
 		});
 
 		it('positions copy after original', () => {
