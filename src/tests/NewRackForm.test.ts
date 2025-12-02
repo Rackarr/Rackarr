@@ -118,7 +118,7 @@ describe('NewRackForm Component', () => {
 			const submitBtn = screen.getByRole('button', { name: /create/i });
 			await fireEvent.click(submitBtn);
 
-			expect(onCreate).toHaveBeenCalledWith({ name: 'My New Rack', height: 24 });
+			expect(onCreate).toHaveBeenCalledWith({ name: 'My New Rack', height: 24, width: 19 });
 		});
 
 		it('dispatches create event with custom height', async () => {
@@ -136,7 +136,7 @@ describe('NewRackForm Component', () => {
 			const submitBtn = screen.getByRole('button', { name: /create/i });
 			await fireEvent.click(submitBtn);
 
-			expect(onCreate).toHaveBeenCalledWith({ name: 'Custom Rack', height: 50 });
+			expect(onCreate).toHaveBeenCalledWith({ name: 'Custom Rack', height: 50, width: 19 });
 		});
 	});
 
@@ -168,7 +168,7 @@ describe('NewRackForm Component', () => {
 			// Default selection is 42U, so just submit
 			await fireEvent.keyDown(nameInput, { key: 'Enter' });
 
-			expect(onCreate).toHaveBeenCalledWith({ name: 'Enter Test Rack', height: 42 });
+			expect(onCreate).toHaveBeenCalledWith({ name: 'Enter Test Rack', height: 42, width: 19 });
 		});
 
 		it('Escape key cancels form', async () => {
@@ -196,6 +196,52 @@ describe('NewRackForm Component', () => {
 			// Check form is reset to default name
 			const newNameInput = screen.getByLabelText(/name/i);
 			expect(newNameInput).toHaveValue('Rack 1');
+		});
+	});
+
+	describe('Width selection', () => {
+		it('shows width selection options', () => {
+			render(NewRackForm, { props: { open: true } });
+			expect(screen.getByRole('group', { name: /rack width/i })).toBeInTheDocument();
+		});
+
+		it('has 19" width selected by default', () => {
+			render(NewRackForm, { props: { open: true } });
+			const width19 = screen.getByRole('radio', { name: /19/i });
+			expect(width19).toBeChecked();
+		});
+
+		it('can select 10" width', async () => {
+			render(NewRackForm, { props: { open: true } });
+			const width10 = screen.getByRole('radio', { name: /10/i });
+			await fireEvent.click(width10);
+			expect(width10).toBeChecked();
+		});
+
+		it('includes width in create event data', async () => {
+			const onCreate = vi.fn();
+			render(NewRackForm, { props: { open: true, oncreate: onCreate } });
+
+			// Select 10" width
+			const width10 = screen.getByRole('radio', { name: /10/i });
+			await fireEvent.click(width10);
+
+			// Submit form
+			const submitBtn = screen.getByRole('button', { name: /create/i });
+			await fireEvent.click(submitBtn);
+
+			expect(onCreate).toHaveBeenCalledWith(expect.objectContaining({ width: 10 }));
+		});
+
+		it('defaults to 19" width in create event data', async () => {
+			const onCreate = vi.fn();
+			render(NewRackForm, { props: { open: true, oncreate: onCreate } });
+
+			// Submit form without changing width
+			const submitBtn = screen.getByRole('button', { name: /create/i });
+			await fireEvent.click(submitBtn);
+
+			expect(onCreate).toHaveBeenCalledWith(expect.objectContaining({ width: 19 }));
 		});
 	});
 });

@@ -122,14 +122,15 @@ function loadLayout(layoutData: Layout): number {
  * Add a new rack to the layout
  * @param name - Rack name
  * @param height - Rack height in U
+ * @param width - Rack width in inches (10 or 19)
  * @returns The created rack, or null if max racks reached
  */
-function addRack(name: string, height: number): Rack | null {
+function addRack(name: string, height: number, width?: number): Rack | null {
 	if (layout.racks.length >= MAX_RACKS) {
 		return null;
 	}
 
-	const rack = createRack(name, height);
+	const rack = createRack(name, height, undefined, width);
 	rack.position = layout.racks.length;
 
 	layout.racks = [...layout.racks, rack];

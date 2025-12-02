@@ -58,8 +58,8 @@
 		}
 	}
 
-	function handleNewRackCreate(data: { name: string; height: number }) {
-		layoutStore.addRack(data.name, data.height);
+	function handleNewRackCreate(data: { name: string; height: number; width: number }) {
+		layoutStore.addRack(data.name, data.height, data.width);
 		newRackFormOpen = false;
 	}
 

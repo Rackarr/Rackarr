@@ -4,12 +4,18 @@
 -->
 <script lang="ts">
 	import Dialog from './Dialog.svelte';
-	import { COMMON_RACK_HEIGHTS, MIN_RACK_HEIGHT, MAX_RACK_HEIGHT } from '$lib/types/constants';
+	import {
+		COMMON_RACK_HEIGHTS,
+		MIN_RACK_HEIGHT,
+		MAX_RACK_HEIGHT,
+		STANDARD_RACK_WIDTH,
+		ALLOWED_RACK_WIDTHS
+	} from '$lib/types/constants';
 
 	interface Props {
 		open: boolean;
 		rackCount?: number;
-		oncreate?: (data: { name: string; height: number }) => void;
+		oncreate?: (data: { name: string; height: number; width: number }) => void;
 		oncancel?: () => void;
 	}
 
@@ -20,6 +26,7 @@
 	let selectedHeight = $state(42);
 	let isCustomHeight = $state(false);
 	let customHeight = $state(42);
+	let selectedWidth = $state(STANDARD_RACK_WIDTH);
 
 	// Validation errors
 	let nameError = $state('');
@@ -32,6 +39,7 @@
 			selectedHeight = 42;
 			isCustomHeight = false;
 			customHeight = 42;
+			selectedWidth = STANDARD_RACK_WIDTH;
 			nameError = '';
 			heightError = '';
 		}
@@ -73,7 +81,7 @@
 
 	function handleSubmit() {
 		if (validate()) {
-			oncreate?.({ name: name.trim(), height: getCurrentHeight() });
+			oncreate?.({ name: name.trim(), height: getCurrentHeight(), width: selectedWidth });
 		}
 	}
 
@@ -148,6 +156,24 @@
 			{#if heightError}
 				<span class="error-message">{heightError}</span>
 			{/if}
+		</div>
+
+		<div class="form-group">
+			<span class="form-label">Rack Width</span>
+			<div class="width-options" role="group" aria-label="Rack width">
+				{#each ALLOWED_RACK_WIDTHS as width (width)}
+					<label class="width-option">
+						<input
+							type="radio"
+							name="rack-width"
+							value={width}
+							checked={selectedWidth === width}
+							onchange={() => (selectedWidth = width)}
+						/>
+						<span class="width-label">{width}"</span>
+					</label>
+				{/each}
+			</div>
 		</div>
 
 		<div class="form-actions">
@@ -260,6 +286,30 @@
 		clip: rect(0, 0, 0, 0);
 		white-space: nowrap;
 		border: 0;
+	}
+
+	.width-options {
+		display: flex;
+		gap: 16px;
+	}
+
+	.width-option {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		cursor: pointer;
+	}
+
+	.width-option input[type='radio'] {
+		width: 18px;
+		height: 18px;
+		accent-color: var(--colour-selection);
+		cursor: pointer;
+	}
+
+	.width-label {
+		font-size: 14px;
+		color: var(--colour-text);
 	}
 
 	.form-actions {
