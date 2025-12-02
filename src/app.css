@@ -152,3 +152,124 @@ textarea {
 .text-low-contrast {
 	color: var(--colour-text-disabled);
 }
+
+/* ==========================================================================
+   Animation Keyframes
+   ========================================================================== */
+
+/* Device Drop Animation - Subtle scale + opacity for dropped devices */
+@keyframes device-settle {
+	0% {
+		transform: scale(1.05);
+		opacity: 0.8;
+	}
+	100% {
+		transform: scale(1);
+		opacity: 1;
+	}
+}
+
+.device-just-dropped {
+	animation: device-settle var(--duration-normal) var(--ease-spring);
+}
+
+/* Drawer Slide Animations */
+@keyframes drawer-slide-in-left {
+	from {
+		transform: translateX(-100%);
+	}
+	to {
+		transform: translateX(0);
+	}
+}
+
+@keyframes drawer-slide-in-right {
+	from {
+		transform: translateX(100%);
+	}
+	to {
+		transform: translateX(0);
+	}
+}
+
+.drawer-left {
+	animation: drawer-slide-in-left var(--duration-normal) var(--ease-out);
+}
+
+.drawer-right {
+	animation: drawer-slide-in-right var(--duration-normal) var(--ease-out);
+}
+
+/* Toast Animation - Slide up from bottom */
+@keyframes toast-slide-up {
+	from {
+		transform: translateY(100%);
+		opacity: 0;
+	}
+	to {
+		transform: translateY(0);
+		opacity: 1;
+	}
+}
+
+.toast-enter {
+	animation: toast-slide-up var(--duration-normal) var(--ease-out);
+}
+
+/* Dialog Animations */
+@keyframes dialog-fade-in {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+@keyframes dialog-scale-in {
+	from {
+		transform: scale(0.95);
+		opacity: 0;
+	}
+	to {
+		transform: scale(1);
+		opacity: 1;
+	}
+}
+
+.dialog-backdrop {
+	animation: dialog-fade-in var(--duration-fast) var(--ease-out);
+}
+
+.dialog {
+	animation: dialog-scale-in var(--duration-normal) var(--ease-out);
+}
+
+/* Selection Pulse - For selected elements */
+@keyframes selection-pulse {
+	0%,
+	100% {
+		opacity: 0.5;
+	}
+	50% {
+		opacity: 1;
+	}
+}
+
+/* Shake Animation - For error states */
+@keyframes shake {
+	0%,
+	100% {
+		transform: translateX(0);
+	}
+	25% {
+		transform: translateX(-4px);
+	}
+	75% {
+		transform: translateX(4px);
+	}
+}
+
+.error-shake {
+	animation: shake var(--duration-normal) var(--ease-out);
+}
