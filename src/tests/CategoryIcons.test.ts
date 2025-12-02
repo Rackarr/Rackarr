@@ -12,6 +12,7 @@ const ALL_CATEGORIES: DeviceCategory[] = [
 	'kvm',
 	'av-media',
 	'cooling',
+	'shelf',
 	'blank',
 	'other'
 ];
@@ -114,6 +115,14 @@ describe('CategoryIcon Component', () => {
 			const circles = container.querySelectorAll('circle');
 			const lines = container.querySelectorAll('line');
 			expect(circles.length).toBeGreaterThanOrEqual(1);
+			expect(lines.length).toBeGreaterThanOrEqual(2);
+		});
+
+		it('shelf icon has horizontal shelf with supports (rect and lines)', () => {
+			const { container } = render(CategoryIcon, { props: { category: 'shelf' } });
+			const rect = container.querySelector('rect');
+			const lines = container.querySelectorAll('line');
+			expect(rect).toBeInTheDocument();
 			expect(lines.length).toBeGreaterThanOrEqual(2);
 		});
 

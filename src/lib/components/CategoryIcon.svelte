@@ -75,6 +75,11 @@
 		<line x1="8" y1="10" x2="8" y2="13" stroke="currentColor" stroke-width="1.5" />
 		<line x1="3" y1="8" x2="6" y2="8" stroke="currentColor" stroke-width="1.5" />
 		<line x1="10" y1="8" x2="13" y2="8" stroke="currentColor" stroke-width="1.5" />
+	{:else if category === 'shelf'}
+		<!-- Shelf: Horizontal platform with angled supports -->
+		<rect x="2" y="7" width="12" height="2" rx="0.3" />
+		<line x1="3" y1="9" x2="4" y2="13" stroke="currentColor" stroke-width="1.5" />
+		<line x1="13" y1="9" x2="12" y2="13" stroke="currentColor" stroke-width="1.5" />
 	{:else if category === 'blank'}
 		<!-- Blank: Empty rectangle -->
 		<rect
