@@ -3,12 +3,31 @@
  */
 
 import { serializeLayout, deserializeLayout } from './serialization';
+import { createArchive } from './archive';
 import type { Layout } from '$lib/types';
+import type { ImageStoreMap } from '$lib/types/images';
+import { ARCHIVE_EXTENSION, LEGACY_JSON_EXTENSION } from '$lib/types/constants';
+
+/** File format type */
+export type FileFormat = 'archive' | 'json';
 
 /**
- * Generate a safe filename from the layout name
+ * Detect file format from file extension
+ * @param file - File to check
+ * @returns 'archive' for .rackarr.zip, 'json' for .rackarr.json or other JSON
  */
-export function generateFilename(layout: Layout): string {
+export function detectFileFormat(file: File): FileFormat {
+	const name = file.name.toLowerCase();
+	if (name.endsWith(ARCHIVE_EXTENSION.toLowerCase())) {
+		return 'archive';
+	}
+	return 'json';
+}
+
+/**
+ * Generate a safe base name from the layout name (without extension)
+ */
+function generateBaseName(layout: Layout): string {
 	// Sanitize the layout name by replacing invalid filesystem characters
 	const safeName = layout.name
 		.replace(/[/\\:*?"<>|]/g, '-') // Replace invalid chars with dash
@@ -16,9 +35,21 @@ export function generateFilename(layout: Layout): string {
 		.trim();
 
 	// Use a default name if empty
-	const baseName = safeName || 'untitled';
+	return safeName || 'untitled';
+}
 
-	return `${baseName}.rackarr.json`;
+/**
+ * Generate a safe filename from the layout name (JSON format)
+ */
+export function generateFilename(layout: Layout): string {
+	return `${generateBaseName(layout)}${LEGACY_JSON_EXTENSION}`;
+}
+
+/**
+ * Generate a safe filename for archive format
+ */
+export function generateArchiveFilename(layout: Layout): string {
+	return `${generateBaseName(layout)}${ARCHIVE_EXTENSION}`;
 }
 
 /**
@@ -50,15 +81,48 @@ export function downloadLayout(layout: Layout, filename?: string): void {
 }
 
 /**
+ * Download a layout as a ZIP archive with embedded images
+ * @param layout - The layout to save
+ * @param images - Map of device images
+ * @param filename - Optional custom filename
+ */
+export async function downloadArchive(
+	layout: Layout,
+	images: ImageStoreMap,
+	filename?: string
+): Promise<void> {
+	// Create the archive
+	const blob = await createArchive(layout, images);
+
+	// Create object URL for the blob
+	const url = URL.createObjectURL(blob);
+
+	try {
+		// Create a temporary anchor element
+		const anchor = document.createElement('a');
+		anchor.href = url;
+		anchor.download = filename ?? generateArchiveFilename(layout);
+
+		// Trigger the download
+		anchor.click();
+	} finally {
+		// Clean up the object URL
+		URL.revokeObjectURL(url);
+	}
+}
+
+/**
  * Open a file picker dialog and return the selected file
  * Returns null if the user cancels or no file is selected
+ * Accepts both archive (.rackarr.zip) and legacy JSON (.rackarr.json) formats
  */
 export function openFilePicker(): Promise<File | null> {
 	return new Promise((resolve) => {
 		// Create a temporary file input
 		const input = document.createElement('input');
 		input.type = 'file';
-		input.accept = '.json,.rackarr.json';
+		// Accept both new archive format and legacy JSON
+		input.accept = '.rackarr.zip,.rackarr.json,.json';
 
 		// Handle file selection
 		input.addEventListener('change', () => {

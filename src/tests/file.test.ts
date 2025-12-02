@@ -1,6 +1,31 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { downloadLayout, openFilePicker, generateFilename, parseLayoutJson } from '$lib/utils/file';
+import { describe, it, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from 'vitest';
+import {
+	downloadLayout,
+	downloadArchive,
+	openFilePicker,
+	generateFilename,
+	generateArchiveFilename,
+	parseLayoutJson,
+	detectFileFormat
+} from '$lib/utils/file';
 import { createLayout, serializeLayout } from '$lib/utils/serialization';
+import type { ImageStoreMap } from '$lib/types/images';
+
+// Setup URL mocks for jsdom (required for JSZip)
+const originalCreateObjectURL = URL.createObjectURL;
+const originalRevokeObjectURL = URL.revokeObjectURL;
+
+beforeAll(() => {
+	// @ts-expect-error - polyfill for jsdom
+	URL.createObjectURL = vi.fn(() => 'blob:mock-url');
+	// @ts-expect-error - polyfill for jsdom
+	URL.revokeObjectURL = vi.fn();
+});
+
+afterAll(() => {
+	URL.createObjectURL = originalCreateObjectURL;
+	URL.revokeObjectURL = originalRevokeObjectURL;
+});
 
 describe('File Utilities', () => {
 	// Mock Date.now for consistent timestamps
@@ -213,10 +238,11 @@ describe('File Utilities', () => {
 			await promise;
 		});
 
-		it('accepts .json files', async () => {
+		it('accepts archive and json file formats', async () => {
 			const promise = openFilePicker();
 
-			expect(mockInput.accept).toBe('.json,.rackarr.json');
+			// Should accept both new archive format and legacy JSON formats
+			expect(mockInput.accept).toBe('.rackarr.zip,.rackarr.json,.json');
 
 			resolveFileSelect?.(null);
 			await promise;
@@ -319,4 +345,156 @@ describe('File Utilities', () => {
 
 	// Note: readLayoutFile is tested via E2E tests since it requires real FileReader
 	// The core parsing logic is tested in parseLayoutJson tests above
+
+	describe('detectFileFormat', () => {
+		it('identifies .rackarr.zip as archive format', () => {
+			const file = new File([''], 'test.rackarr.zip', { type: 'application/zip' });
+			expect(detectFileFormat(file)).toBe('archive');
+		});
+
+		it('identifies .rackarr.json as json format', () => {
+			const file = new File([''], 'test.rackarr.json', { type: 'application/json' });
+			expect(detectFileFormat(file)).toBe('json');
+		});
+
+		it('identifies plain .json as json format', () => {
+			const file = new File([''], 'test.json', { type: 'application/json' });
+			expect(detectFileFormat(file)).toBe('json');
+		});
+
+		it('handles uppercase extensions', () => {
+			const file = new File([''], 'TEST.RACKARR.ZIP', { type: 'application/zip' });
+			expect(detectFileFormat(file)).toBe('archive');
+		});
+	});
+
+	describe('generateArchiveFilename', () => {
+		it('uses layout name in filename', () => {
+			const layout = createLayout('My Homelab');
+			const filename = generateArchiveFilename(layout);
+
+			expect(filename).toContain('My Homelab');
+		});
+
+		it('adds .rackarr.zip extension', () => {
+			const layout = createLayout('Test');
+			const filename = generateArchiveFilename(layout);
+
+			expect(filename).toMatch(/\.rackarr\.zip$/);
+		});
+
+		it('sanitizes filename by replacing invalid characters', () => {
+			const layout = createLayout('Test/With:Invalid*Chars?');
+			const filename = generateArchiveFilename(layout);
+
+			expect(filename).not.toContain('/');
+			expect(filename).not.toContain(':');
+			expect(filename).not.toContain('*');
+			expect(filename).not.toContain('?');
+		});
+
+		it('handles empty name gracefully', () => {
+			const layout = createLayout('');
+			const filename = generateArchiveFilename(layout);
+
+			expect(filename).toMatch(/\.rackarr\.zip$/);
+		});
+	});
+
+	describe('downloadArchive', () => {
+		let mockCreateObjectURL: ReturnType<typeof vi.fn>;
+		let mockRevokeObjectURL: ReturnType<typeof vi.fn>;
+		let mockClick: ReturnType<typeof vi.fn>;
+
+		beforeEach(() => {
+			// JSZip requires real timers for async operations
+			vi.useRealTimers();
+
+			mockClick = vi.fn();
+
+			mockCreateObjectURL = vi.fn(() => {
+				return 'blob:mock-url';
+			});
+			mockRevokeObjectURL = vi.fn();
+
+			global.URL.createObjectURL = mockCreateObjectURL;
+			global.URL.revokeObjectURL = mockRevokeObjectURL;
+
+			// Mock document.createElement to capture anchor element
+			const originalCreateElement = document.createElement.bind(document);
+			vi.spyOn(document, 'createElement').mockImplementation((tagName: string) => {
+				const element = originalCreateElement(tagName);
+				if (tagName === 'a') {
+					element.click = mockClick;
+				}
+				return element;
+			});
+		});
+
+		it('creates blob with application/zip type', async () => {
+			const layout = createLayout('Test');
+			const images: ImageStoreMap = new Map();
+			let capturedBlob: Blob | null = null;
+
+			mockCreateObjectURL.mockImplementation((blob: Blob) => {
+				capturedBlob = blob;
+				return 'blob:mock-url';
+			});
+
+			await downloadArchive(layout, images);
+
+			expect(capturedBlob).not.toBeNull();
+			expect(capturedBlob!.type).toBe('application/zip');
+		});
+
+		it('uses layout name in filename', async () => {
+			const layout = createLayout('My Archive Design');
+			const images: ImageStoreMap = new Map();
+			const anchorSpy = vi.spyOn(document, 'createElement');
+
+			await downloadArchive(layout, images);
+
+			// Find the anchor element that was created
+			const anchorCall = anchorSpy.mock.results.find(
+				(r) => r.type === 'return' && r.value?.tagName === 'A'
+			);
+			const anchor = anchorCall?.value as HTMLAnchorElement;
+
+			expect(anchor.download).toContain('My Archive Design');
+			expect(anchor.download).toMatch(/\.rackarr\.zip$/);
+		});
+
+		it('uses custom filename when provided', async () => {
+			const layout = createLayout('Test');
+			const images: ImageStoreMap = new Map();
+			const anchorSpy = vi.spyOn(document, 'createElement');
+
+			await downloadArchive(layout, images, 'custom-name.rackarr.zip');
+
+			const anchorCall = anchorSpy.mock.results.find(
+				(r) => r.type === 'return' && r.value?.tagName === 'A'
+			);
+			const anchor = anchorCall?.value as HTMLAnchorElement;
+
+			expect(anchor.download).toBe('custom-name.rackarr.zip');
+		});
+
+		it('triggers download by clicking anchor element', async () => {
+			const layout = createLayout('Test');
+			const images: ImageStoreMap = new Map();
+
+			await downloadArchive(layout, images);
+
+			expect(mockClick).toHaveBeenCalled();
+		});
+
+		it('cleans up object URL after download', async () => {
+			const layout = createLayout('Test');
+			const images: ImageStoreMap = new Map();
+
+			await downloadArchive(layout, images);
+
+			expect(mockRevokeObjectURL).toHaveBeenCalledWith('blob:mock-url');
+		});
+	});
 });

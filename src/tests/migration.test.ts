@@ -52,7 +52,7 @@ describe('migrateLayout', () => {
 	});
 
 	it('preserves existing v0.2 rack view values', () => {
-		const v02Layout: Layout = {
+		const v02Layout = {
 			version: '0.2.0',
 			name: 'Test Layout',
 			created: '2025-01-01T00:00:00Z',
@@ -70,14 +70,14 @@ describe('migrateLayout', () => {
 					devices: [{ libraryId: 'd1', position: 1, face: 'both' }]
 				}
 			]
-		};
+		} as unknown as Layout;
 
 		const result = migrateLayout(v02Layout);
 		expect(result.racks[0].view).toBe('rear');
 		expect(result.racks[0].devices[0].face).toBe('both');
 	});
 
-	it('updates version to 0.2.0', () => {
+	it('updates version to 0.3.0', () => {
 		const v01Layout = {
 			version: '0.1.0',
 			name: 'Test Layout',
@@ -86,10 +86,86 @@ describe('migrateLayout', () => {
 			settings: { theme: 'dark' as const },
 			deviceLibrary: [],
 			racks: []
-		} as Layout;
+		} as unknown as Layout;
 
 		const result = migrateLayout(v01Layout);
-		expect(result.version).toBe('0.2.0');
+		expect(result.version).toBe('0.3.0');
+	});
+
+	it('adds v0.3 settings fields to v0.1 layouts', () => {
+		const v01Layout = {
+			version: '0.1.0',
+			name: 'Test Layout',
+			created: '2025-01-01T00:00:00Z',
+			modified: '2025-01-01T00:00:00Z',
+			settings: { theme: 'dark' as const },
+			deviceLibrary: [],
+			racks: []
+		} as unknown as Layout;
+
+		const result = migrateLayout(v01Layout);
+		expect(result.settings.displayMode).toBe('label');
+		expect(result.settings.showLabelsOnImages).toBe(false);
+		expect(result.settings.view).toBe('front');
+	});
+
+	it('adds v0.3 rack fields to v0.2 racks', () => {
+		const v02Layout = {
+			version: '0.2.0',
+			name: 'Test Layout',
+			created: '2025-01-01T00:00:00Z',
+			modified: '2025-01-01T00:00:00Z',
+			settings: { theme: 'dark' },
+			deviceLibrary: [],
+			racks: [
+				{
+					id: '1',
+					name: 'Test',
+					height: 42,
+					width: 19,
+					position: 0,
+					view: 'front',
+					devices: []
+				}
+			]
+		} as unknown as Layout;
+
+		const result = migrateLayout(v02Layout);
+		expect(result.racks[0].form_factor).toBe('4-post-cabinet');
+		expect(result.racks[0].desc_units).toBe(false);
+		expect(result.racks[0].starting_unit).toBe(1);
+	});
+
+	it('preserves existing v0.3 rack fields', () => {
+		const v03Layout: Layout = {
+			version: '0.3.0',
+			name: 'Test Layout',
+			created: '2025-01-01T00:00:00Z',
+			modified: '2025-01-01T00:00:00Z',
+			settings: { theme: 'dark', displayMode: 'image', showLabelsOnImages: true, view: 'rear' },
+			deviceLibrary: [],
+			racks: [
+				{
+					id: '1',
+					name: 'Test',
+					height: 42,
+					width: 19,
+					position: 0,
+					view: 'rear',
+					form_factor: '2-post-frame',
+					desc_units: true,
+					starting_unit: 5,
+					devices: []
+				}
+			]
+		};
+
+		const result = migrateLayout(v03Layout);
+		expect(result.settings.displayMode).toBe('image');
+		expect(result.settings.showLabelsOnImages).toBe(true);
+		expect(result.racks[0].form_factor).toBe('2-post-frame');
+		expect(result.racks[0].desc_units).toBe(true);
+		expect(result.racks[0].starting_unit).toBe(5);
 	});
 
 	it('handles multiple racks with multiple devices', () => {

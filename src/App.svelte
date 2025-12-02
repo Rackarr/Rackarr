@@ -24,7 +24,13 @@
 	import { getToastStore } from '$lib/stores/toast.svelte';
 	import { getImageStore } from '$lib/stores/images.svelte';
 	import type { ImageData } from '$lib/types/images';
-	import { downloadLayout, openFilePicker, readLayoutFile } from '$lib/utils/file';
+	import {
+		downloadArchive,
+		openFilePicker,
+		readLayoutFile,
+		detectFileFormat
+	} from '$lib/utils/file';
+	import { extractArchive } from '$lib/utils/archive';
 	import {
 		generateExportSVG,
 		exportAsSVG,
@@ -85,10 +91,10 @@
 	}
 
 	// Replace dialog handlers (single-rack mode)
-	function handleSaveFirst() {
+	async function handleSaveFirst() {
 		showReplaceDialog = false;
 		pendingSaveFirst = true;
-		handleSave();
+		await handleSave();
 	}
 
 	function handleReplace() {
@@ -101,16 +107,28 @@
 		showReplaceDialog = false;
 	}
 
-	function handleSave() {
-		downloadLayout(layoutStore.layout);
-		layoutStore.markClean();
-		toastStore.showToast('Layout saved', 'success', 3000);
+	async function handleSave() {
+		try {
+			// Get images from image store for archive
+			const images = imageStore.getAllImages();
 
-		// After save, if pendingSaveFirst, reset and open new rack form
-		if (pendingSaveFirst) {
-			pendingSaveFirst = false;
-			layoutStore.resetLayout();
-			newRackFormOpen = true;
+			// Save as archive (.rackarr.zip)
+			await downloadArchive(layoutStore.layout, images);
+			layoutStore.markClean();
+			toastStore.showToast('Layout saved', 'success', 3000);
+
+			// After save, if pendingSaveFirst, reset and open new rack form
+			if (pendingSaveFirst) {
+				pendingSaveFirst = false;
+				layoutStore.resetLayout();
+				newRackFormOpen = true;
+			}
+		} catch (error) {
+			console.error('Failed to save layout:', error);
+			toastStore.showToast(
+				error instanceof Error ? error.message : 'Failed to save layout',
+				'error'
+			);
 		}
 	}
 
@@ -122,7 +140,32 @@
 				return;
 			}
 
-			const loadedLayout = await readLayoutFile(file);
+			// Detect file format and load accordingly
+			const format = detectFileFormat(file);
+			let loadedLayout;
+
+			if (format === 'archive') {
+				// Load from ZIP archive
+				const { layout, images } = await extractArchive(file);
+				loadedLayout = layout;
+
+				// Clear and restore images from archive
+				imageStore.clearAllImages();
+				for (const [deviceId, deviceImages] of images) {
+					if (deviceImages.front) {
+						imageStore.setDeviceImage(deviceId, 'front', deviceImages.front);
+					}
+					if (deviceImages.rear) {
+						imageStore.setDeviceImage(deviceId, 'rear', deviceImages.rear);
+					}
+				}
+			} else {
+				// Load from legacy JSON format
+				loadedLayout = await readLayoutFile(file);
+				// No images to restore from JSON
+				imageStore.clearAllImages();
+			}
+
 			const originalRackCount = layoutStore.loadLayout(loadedLayout);
 			layoutStore.markClean();
 			selectionStore.clearSelection();

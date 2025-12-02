@@ -527,8 +527,8 @@ describe('Constants', () => {
 	});
 
 	describe('CURRENT_VERSION', () => {
-		it('is set to 0.2.0', () => {
-			expect(CURRENT_VERSION).toBe('0.2.0');
+		it('is set to 0.3.0', () => {
+			expect(CURRENT_VERSION).toBe('0.3.0');
 		});
 	});
 

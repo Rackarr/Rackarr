@@ -88,6 +88,7 @@
 			kvm: 'KVM',
 			'av-media': 'AV/Media',
 			cooling: 'Cooling',
+			shelf: 'Shelf',
 			blank: 'Blank Panel',
 			other: 'Other'
 		};

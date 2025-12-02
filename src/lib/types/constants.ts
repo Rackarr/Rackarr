@@ -66,7 +66,7 @@ export const MAX_RACKS = 1;
 /**
  * Current layout schema version
  */
-export const CURRENT_VERSION = '0.2.0';
+export const CURRENT_VERSION = '0.3.0';
 
 /**
  * Standard rack width in inches (19" rack)
@@ -115,3 +115,27 @@ export const MAX_IMAGE_SIZE_MB = 5;
  * Maximum image file size in bytes
  */
 export const MAX_IMAGE_SIZE_BYTES = MAX_IMAGE_SIZE_MB * 1024 * 1024;
+
+/**
+ * Archive Constants (v0.3.0)
+ */
+
+/**
+ * New archive file extension (.rackarr.zip)
+ */
+export const ARCHIVE_EXTENSION = '.rackarr.zip';
+
+/**
+ * Legacy JSON file extension (for backwards compatibility)
+ */
+export const LEGACY_JSON_EXTENSION = '.rackarr.json';
+
+/**
+ * Layout filename inside the archive
+ */
+export const LAYOUT_FILENAME = 'layout.json';
+
+/**
+ * Images folder inside the archive
+ */
+export const IMAGES_FOLDER = 'images';
