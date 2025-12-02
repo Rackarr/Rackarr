@@ -4,7 +4,9 @@
 -->
 <script lang="ts">
 	import Dialog from './Dialog.svelte';
+	import ImageUpload from './ImageUpload.svelte';
 	import type { DeviceCategory } from '$lib/types';
+	import type { ImageData } from '$lib/types/images';
 	import {
 		ALL_CATEGORIES,
 		CATEGORY_COLOURS,
@@ -21,6 +23,8 @@
 			category: DeviceCategory;
 			colour: string;
 			notes: string;
+			frontImage?: ImageData;
+			rearImage?: ImageData;
 		}) => void;
 		oncancel?: () => void;
 	}
@@ -34,6 +38,10 @@
 	let colour = $state(getDefaultColour('server'));
 	let notes = $state('');
 	let userChangedColour = $state(false);
+
+	// Image state (v0.3.0)
+	let frontImage = $state<ImageData | undefined>(undefined);
+	let rearImage = $state<ImageData | undefined>(undefined);
 
 	// Validation errors
 	let nameError = $state('');
@@ -50,6 +58,9 @@
 			userChangedColour = false;
 			nameError = '';
 			heightError = '';
+			// Reset images (v0.3.0)
+			frontImage = undefined;
+			rearImage = undefined;
 		}
 	});
 
@@ -108,7 +119,9 @@
 				height,
 				category,
 				colour,
-				notes: notes.trim()
+				notes: notes.trim(),
+				frontImage,
+				rearImage
 			});
 		}
 	}
@@ -213,6 +226,22 @@
 				placeholder="Additional notes about the device..."
 				rows="3"
 			></textarea>
+		</div>
+
+		<!-- Image uploads (v0.3.0) -->
+		<div class="form-row">
+			<ImageUpload
+				face="front"
+				currentImage={frontImage}
+				onupload={(data) => (frontImage = data)}
+				onremove={() => (frontImage = undefined)}
+			/>
+			<ImageUpload
+				face="rear"
+				currentImage={rearImage}
+				onupload={(data) => (rearImage = data)}
+				onremove={() => (rearImage = undefined)}
+			/>
 		</div>
 
 		<div class="form-actions">

@@ -1,7 +1,23 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import AddDeviceForm from '$lib/components/AddDeviceForm.svelte';
 import { ALL_CATEGORIES } from '$lib/types/constants';
+
+// Setup URL mocks for jsdom (needed for ImageUpload component)
+const originalCreateObjectURL = URL.createObjectURL;
+const originalRevokeObjectURL = URL.revokeObjectURL;
+
+beforeAll(() => {
+	// @ts-expect-error - polyfill for jsdom
+	URL.createObjectURL = vi.fn(() => 'blob:mock-url');
+	// @ts-expect-error - polyfill for jsdom
+	URL.revokeObjectURL = vi.fn();
+});
+
+afterAll(() => {
+	URL.createObjectURL = originalCreateObjectURL;
+	URL.revokeObjectURL = originalRevokeObjectURL;
+});
 
 describe('AddDeviceForm Component', () => {
 	describe('Open state', () => {
@@ -201,6 +217,35 @@ describe('AddDeviceForm Component', () => {
 			await fireEvent.keyDown(document, { key: 'Escape' });
 
 			expect(onCancel).toHaveBeenCalledTimes(1);
+		});
+	});
+
+	describe('Image uploads (v0.3.0)', () => {
+		it('shows image upload for front', () => {
+			render(AddDeviceForm, { props: { open: true } });
+			expect(screen.getByText(/front image/i)).toBeInTheDocument();
+		});
+
+		it('shows image upload for rear', () => {
+			render(AddDeviceForm, { props: { open: true } });
+			expect(screen.getByText(/rear image/i)).toBeInTheDocument();
+		});
+
+		it('images are optional - form submits without them', async () => {
+			const onAdd = vi.fn();
+			render(AddDeviceForm, { props: { open: true, onadd: onAdd } });
+
+			// Fill only required fields
+			const nameInput = screen.getByLabelText(/^name$/i);
+			await fireEvent.input(nameInput, { target: { value: 'Test Device' } });
+
+			const submitBtn = screen.getByRole('button', { name: /add/i });
+			await fireEvent.click(submitBtn);
+
+			expect(onAdd).toHaveBeenCalledTimes(1);
+			const callArg = onAdd.mock.calls[0][0];
+			expect(callArg.frontImage).toBeUndefined();
+			expect(callArg.rearImage).toBeUndefined();
 		});
 	});
 });

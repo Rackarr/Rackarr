@@ -22,6 +22,8 @@
 	import { getUIStore } from '$lib/stores/ui.svelte';
 	import { getCanvasStore } from '$lib/stores/canvas.svelte';
 	import { getToastStore } from '$lib/stores/toast.svelte';
+	import { getImageStore } from '$lib/stores/images.svelte';
+	import type { ImageData } from '$lib/types/images';
 	import { downloadLayout, openFilePicker, readLayoutFile } from '$lib/utils/file';
 	import {
 		generateExportSVG,
@@ -38,6 +40,7 @@
 	const uiStore = getUIStore();
 	const canvasStore = getCanvasStore();
 	const toastStore = getToastStore();
+	const imageStore = getImageStore();
 
 	// Dialog state
 	let newRackFormOpen = $state(false);
@@ -269,14 +272,25 @@
 		category: import('$lib/types').DeviceCategory;
 		colour: string;
 		notes: string;
+		frontImage?: ImageData;
+		rearImage?: ImageData;
 	}) {
-		layoutStore.addDeviceToLibrary({
+		const device = layoutStore.addDeviceToLibrary({
 			name: data.name,
 			height: data.height,
 			category: data.category,
 			colour: data.colour,
 			notes: data.notes || undefined
 		});
+
+		// Store images if provided (v0.3.0)
+		if (data.frontImage) {
+			imageStore.setDeviceImage(device.id, 'front', data.frontImage);
+		}
+		if (data.rearImage) {
+			imageStore.setDeviceImage(device.id, 'rear', data.rearImage);
+		}
+
 		addDeviceFormOpen = false;
 	}
 
