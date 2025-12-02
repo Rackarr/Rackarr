@@ -18,7 +18,8 @@
 		IconMoon,
 		IconHelp,
 		IconLabel,
-		IconImage
+		IconImage,
+		IconLogo
 	} from './icons';
 	import { getCanvasStore } from '$lib/stores/canvas.svelte';
 	import type { DisplayMode } from '$lib/types';
@@ -69,7 +70,10 @@
 <header class="toolbar">
 	<!-- Left section: Branding -->
 	<div class="toolbar-section toolbar-left">
-		<span class="toolbar-brand">Rackarr</span>
+		<div class="toolbar-brand">
+			<IconLogo size={22} />
+			<span>Rackarr</span>
+		</div>
 	</div>
 
 	<!-- Center section: Main actions -->
@@ -209,6 +213,9 @@
 	}
 
 	.toolbar-brand {
+		display: flex;
+		align-items: center;
+		gap: var(--space-2);
 		font-size: var(--font-size-lg);
 		font-weight: var(--font-weight-bold);
 		color: var(--colour-text);
