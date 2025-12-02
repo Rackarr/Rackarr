@@ -297,6 +297,12 @@
 		uiStore.toggleTheme();
 	}
 
+	function handleToggleDisplayMode() {
+		uiStore.toggleDisplayMode();
+		// Sync with layout settings
+		layoutStore.updateDisplayMode(uiStore.displayMode);
+	}
+
 	function handleHelp() {
 		helpPanelOpen = true;
 	}
@@ -363,6 +369,7 @@
 	<Toolbar
 		hasSelection={selectionStore.hasSelection}
 		theme={uiStore.theme}
+		displayMode={uiStore.displayMode}
 		onnewrack={handleNewRack}
 		onsave={handleSave}
 		onload={handleLoad}
@@ -372,6 +379,7 @@
 		onzoomout={handleZoomOut}
 		onfitall={handleFitAll}
 		ontoggletheme={handleToggleTheme}
+		ontoggledisplaymode={handleToggleDisplayMode}
 		onhelp={handleHelp}
 	/>
 
@@ -435,6 +443,7 @@
 		ondelete={handleDelete}
 		onfitall={handleFitAll}
 		onhelp={handleHelp}
+		ontoggledisplaymode={handleToggleDisplayMode}
 	/>
 </div>
 

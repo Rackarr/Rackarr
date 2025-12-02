@@ -1,6 +1,6 @@
 /**
  * UI Store
- * Manages theme, zoom, and drawer state using Svelte 5 runes
+ * Manages theme, zoom, drawer state, and display mode using Svelte 5 runes
  */
 
 import {
@@ -9,6 +9,7 @@ import {
 	applyThemeToDocument,
 	type Theme
 } from '$lib/utils/theme';
+import type { DisplayMode } from '$lib/types';
 
 // Zoom constants
 export const ZOOM_MIN = 50;
@@ -23,6 +24,8 @@ let theme = $state<Theme>(initialTheme);
 let zoom = $state(100);
 let leftDrawerOpen = $state(false);
 let rightDrawerOpen = $state(false);
+let displayMode = $state<DisplayMode>('label');
+let showLabelsOnImages = $state(false);
 
 // Derived values (using $derived rune)
 const canZoomIn = $derived(zoom < ZOOM_MAX);
@@ -40,6 +43,8 @@ export function resetUIStore(): void {
 	zoom = 100;
 	leftDrawerOpen = false;
 	rightDrawerOpen = false;
+	displayMode = 'label';
+	showLabelsOnImages = false;
 	applyThemeToDocument(theme);
 }
 
@@ -76,6 +81,14 @@ export function getUIStore() {
 			return rightDrawerOpen;
 		},
 
+		// Display mode state getters
+		get displayMode() {
+			return displayMode;
+		},
+		get showLabelsOnImages() {
+			return showLabelsOnImages;
+		},
+
 		// Theme actions
 		toggleTheme,
 		setTheme,
@@ -92,7 +105,13 @@ export function getUIStore() {
 		openLeftDrawer,
 		closeLeftDrawer,
 		openRightDrawer,
-		closeRightDrawer
+		closeRightDrawer,
+
+		// Display mode actions
+		toggleDisplayMode,
+		setDisplayMode,
+		toggleShowLabelsOnImages,
+		setShowLabelsOnImages
 	};
 }
 
@@ -187,4 +206,36 @@ function openRightDrawer(): void {
  */
 function closeRightDrawer(): void {
 	rightDrawerOpen = false;
+}
+
+/**
+ * Toggle display mode between label and image
+ */
+function toggleDisplayMode(): void {
+	displayMode = displayMode === 'label' ? 'image' : 'label';
+}
+
+/**
+ * Set display mode to a specific value
+ * @param mode - Display mode to set ('label' or 'image')
+ */
+function setDisplayMode(mode: DisplayMode): void {
+	if (mode === 'label' || mode === 'image') {
+		displayMode = mode;
+	}
+}
+
+/**
+ * Toggle whether to show labels on images
+ */
+function toggleShowLabelsOnImages(): void {
+	showLabelsOnImages = !showLabelsOnImages;
+}
+
+/**
+ * Set whether to show labels on images
+ * @param value - Boolean value to set
+ */
+function setShowLabelsOnImages(value: boolean): void {
+	showLabelsOnImages = value;
 }

@@ -80,6 +80,10 @@ export function getLayoutStore() {
 		removeDeviceFromRack,
 		updateDeviceFace,
 
+		// Settings actions
+		updateDisplayMode,
+		updateShowLabelsOnImages,
+
 		// Dirty tracking
 		markDirty,
 		markClean
@@ -473,4 +477,22 @@ function markDirty(): void {
  */
 function markClean(): void {
 	isDirty = false;
+}
+
+/**
+ * Update the display mode in layout settings
+ * @param mode - Display mode to set ('label' or 'image')
+ */
+function updateDisplayMode(mode: 'label' | 'image'): void {
+	layout.settings = { ...layout.settings, displayMode: mode };
+	isDirty = true;
+}
+
+/**
+ * Update the showLabelsOnImages setting
+ * @param value - Boolean value to set
+ */
+function updateShowLabelsOnImages(value: boolean): void {
+	layout.settings = { ...layout.settings, showLabelsOnImages: value };
+	isDirty = true;
 }

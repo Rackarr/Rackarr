@@ -16,9 +16,11 @@
 		ondelete?: () => void;
 		onfitall?: () => void;
 		onhelp?: () => void;
+		ontoggledisplaymode?: () => void;
 	}
 
-	let { onsave, onload, onexport, ondelete, onfitall, onhelp }: Props = $props();
+	let { onsave, onload, onexport, ondelete, onfitall, onhelp, ontoggledisplaymode }: Props =
+		$props();
 
 	const layoutStore = getLayoutStore();
 	const selectionStore = getSelectionStore();
@@ -132,6 +134,12 @@
 			{
 				key: '?',
 				action: () => onhelp?.()
+			},
+
+			// I - toggle display mode (label/image)
+			{
+				key: 'i',
+				action: () => ontoggledisplaymode?.()
 			}
 		];
 	}

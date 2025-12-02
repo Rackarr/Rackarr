@@ -362,4 +362,24 @@ describe('KeyboardHandler Component', () => {
 			document.body.removeChild(input);
 		});
 	});
+
+	describe('Display Mode Toggle', () => {
+		it('I key toggles display mode', async () => {
+			const onToggleDisplayMode = vi.fn();
+			render(KeyboardHandler, { props: { ontoggledisplaymode: onToggleDisplayMode } });
+
+			await fireEvent.keyDown(window, { key: 'i' });
+
+			expect(onToggleDisplayMode).toHaveBeenCalledTimes(1);
+		});
+
+		it('I key is case insensitive', async () => {
+			const onToggleDisplayMode = vi.fn();
+			render(KeyboardHandler, { props: { ontoggledisplaymode: onToggleDisplayMode } });
+
+			await fireEvent.keyDown(window, { key: 'I' });
+
+			expect(onToggleDisplayMode).toHaveBeenCalledTimes(1);
+		});
+	});
 });

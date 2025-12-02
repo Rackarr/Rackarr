@@ -227,6 +227,39 @@ describe('Toolbar Component', () => {
 		});
 	});
 
+	describe('Display Mode Toggle', () => {
+		it('has display mode toggle button', () => {
+			render(Toolbar);
+			expect(screen.getByRole('button', { name: /display mode/i })).toBeInTheDocument();
+		});
+
+		it('shows Label icon when displayMode is label', () => {
+			render(Toolbar, { props: { displayMode: 'label' } });
+			const button = screen.getByRole('button', { name: /display mode/i });
+			expect(button.querySelector('[data-icon="label"]')).toBeInTheDocument();
+		});
+
+		it('shows Image icon when displayMode is image', () => {
+			render(Toolbar, { props: { displayMode: 'image' } });
+			const button = screen.getByRole('button', { name: /display mode/i });
+			expect(button.querySelector('[data-icon="image"]')).toBeInTheDocument();
+		});
+
+		it('dispatches toggleDisplayMode event when clicked', async () => {
+			const onToggleDisplayMode = vi.fn();
+			render(Toolbar, { props: { ontoggledisplaymode: onToggleDisplayMode } });
+
+			await fireEvent.click(screen.getByRole('button', { name: /display mode/i }));
+			expect(onToggleDisplayMode).toHaveBeenCalledTimes(1);
+		});
+
+		it('has correct aria-label describing current mode', () => {
+			render(Toolbar, { props: { displayMode: 'label' } });
+			const button = screen.getByRole('button', { name: /display mode.*label/i });
+			expect(button).toBeInTheDocument();
+		});
+	});
+
 	describe('Accessibility', () => {
 		it('all buttons have aria-labels', () => {
 			render(Toolbar);

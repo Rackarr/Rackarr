@@ -16,13 +16,17 @@
 		IconFitAll,
 		IconSun,
 		IconMoon,
-		IconHelp
+		IconHelp,
+		IconLabel,
+		IconImage
 	} from './icons';
 	import { getCanvasStore } from '$lib/stores/canvas.svelte';
+	import type { DisplayMode } from '$lib/types';
 
 	interface Props {
 		hasSelection?: boolean;
 		theme?: 'dark' | 'light';
+		displayMode?: DisplayMode;
 		onnewrack?: () => void;
 		onsave?: () => void;
 		onload?: () => void;
@@ -32,12 +36,14 @@
 		onzoomout?: () => void;
 		onfitall?: () => void;
 		ontoggletheme?: () => void;
+		ontoggledisplaymode?: () => void;
 		onhelp?: () => void;
 	}
 
 	let {
 		hasSelection = false,
 		theme = 'dark',
+		displayMode = 'label',
 		onnewrack,
 		onsave,
 		onload,
@@ -47,8 +53,11 @@
 		onzoomout,
 		onfitall,
 		ontoggletheme,
+		ontoggledisplaymode,
 		onhelp
 	}: Props = $props();
+
+	const displayModeLabel = $derived(displayMode === 'label' ? 'Label' : 'Image');
 
 	const canvasStore = getCanvasStore();
 </script>
@@ -84,6 +93,18 @@
 		<Tooltip text="Export Image" shortcut="Ctrl+E" position="bottom">
 			<ToolbarButton label="Export" onclick={onexport}>
 				<IconExport />
+			</ToolbarButton>
+		</Tooltip>
+
+		<div class="separator" aria-hidden="true"></div>
+
+		<Tooltip text="Display Mode: {displayModeLabel}" shortcut="I" position="bottom">
+			<ToolbarButton label="Display Mode: {displayModeLabel}" onclick={ontoggledisplaymode}>
+				{#if displayMode === 'label'}
+					<IconLabel />
+				{:else}
+					<IconImage />
+				{/if}
 			</ToolbarButton>
 		</Tooltip>
 

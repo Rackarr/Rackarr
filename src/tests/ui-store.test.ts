@@ -230,4 +230,71 @@ describe('UI Store', () => {
 			expect(store.rightDrawerOpen).toBe(false);
 		});
 	});
+
+	describe('Display Mode', () => {
+		it('initial displayMode is label', () => {
+			const store = getUIStore();
+			expect(store.displayMode).toBe('label');
+		});
+
+		it('toggleDisplayMode switches between label and image', () => {
+			const store = getUIStore();
+			expect(store.displayMode).toBe('label');
+
+			store.toggleDisplayMode();
+			expect(store.displayMode).toBe('image');
+
+			store.toggleDisplayMode();
+			expect(store.displayMode).toBe('label');
+		});
+
+		it('setDisplayMode sets specific mode', () => {
+			const store = getUIStore();
+
+			store.setDisplayMode('image');
+			expect(store.displayMode).toBe('image');
+
+			store.setDisplayMode('label');
+			expect(store.displayMode).toBe('label');
+		});
+
+		it('setDisplayMode only accepts valid modes', () => {
+			const store = getUIStore();
+
+			store.setDisplayMode('image');
+			expect(store.displayMode).toBe('image');
+
+			// Invalid mode should be ignored
+			store.setDisplayMode('invalid' as 'label' | 'image');
+			expect(store.displayMode).toBe('image');
+		});
+	});
+
+	describe('Show Labels On Images', () => {
+		it('initial showLabelsOnImages is false', () => {
+			const store = getUIStore();
+			expect(store.showLabelsOnImages).toBe(false);
+		});
+
+		it('toggleShowLabelsOnImages toggles value', () => {
+			const store = getUIStore();
+			expect(store.showLabelsOnImages).toBe(false);
+
+			store.toggleShowLabelsOnImages();
+			expect(store.showLabelsOnImages).toBe(true);
+
+			store.toggleShowLabelsOnImages();
+			expect(store.showLabelsOnImages).toBe(false);
+		});
+
+		it('setShowLabelsOnImages sets specific value', () => {
+			const store = getUIStore();
+
+			store.setShowLabelsOnImages(true);
+			expect(store.showLabelsOnImages).toBe(true);
+
+			store.setShowLabelsOnImages(false);
+			expect(store.showLabelsOnImages).toBe(false);
+		});
+	});
 });
