@@ -172,6 +172,9 @@
 	--drawer-width: 320px;
 	--drawer-bg: var(--neutral-900);
 
+	/* Sidebar (fixed) */
+	--sidebar-width: 300px;
+
 	/* Device */
 	--device-font-size: var(--font-size-xs);
 	--device-padding: var(--space-2);

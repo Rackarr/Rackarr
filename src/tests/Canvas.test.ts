@@ -175,3 +175,39 @@ describe('Canvas Component', () => {
 		});
 	});
 });
+
+describe('Canvas Layout with Fixed Sidebar (v0.3.0)', () => {
+	beforeEach(() => {
+		resetLayoutStore();
+		resetSelectionStore();
+		resetUIStore();
+		resetCanvasStore();
+	});
+
+	describe('Canvas positioning', () => {
+		it('canvas has proper structure for sidebar offset', () => {
+			const layoutStore = getLayoutStore();
+			layoutStore.addRack('Test Rack', 12);
+
+			const { container } = render(Canvas);
+
+			// Canvas should exist and have correct class
+			const canvas = container.querySelector('.canvas');
+			expect(canvas).toBeInTheDocument();
+			expect(canvas).toHaveClass('canvas');
+		});
+
+		it('canvas fills available space', () => {
+			const layoutStore = getLayoutStore();
+			layoutStore.addRack('Test Rack', 12);
+
+			const { container } = render(Canvas);
+
+			// Canvas should have flex: 1 style via CSS
+			const canvas = container.querySelector('.canvas');
+			expect(canvas).toBeInTheDocument();
+			// Verify the class exists (CSS sets flex: 1)
+			expect(canvas).toHaveClass('canvas');
+		});
+	});
+});

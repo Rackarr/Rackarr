@@ -32,7 +32,7 @@
 		position: fixed;
 		top: var(--toolbar-height, 56px);
 		bottom: 0;
-		width: 300px;
+		width: var(--sidebar-width, 300px);
 		background: var(--colour-sidebar-bg, var(--colour-bg));
 		border-right: 1px solid var(--colour-border);
 		display: flex;

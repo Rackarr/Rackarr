@@ -394,5 +394,7 @@
 		flex: 1;
 		position: relative;
 		overflow: hidden;
+		/* Account for fixed sidebar on left */
+		margin-left: var(--sidebar-width, 300px);
 	}
 </style>

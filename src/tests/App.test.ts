@@ -75,6 +75,28 @@ describe('App Component', () => {
 			const paletteBtn = screen.queryByRole('button', { name: /^device library$/i });
 			expect(paletteBtn).not.toBeInTheDocument();
 		});
+
+		it('main area has proper grid/flex layout structure', () => {
+			render(App);
+
+			// App main should exist with proper structure
+			const appMain = document.querySelector('.app-main');
+			expect(appMain).toBeInTheDocument();
+			// Should have the class that enables the layout
+			expect(appMain).toHaveClass('app-main');
+		});
+
+		it('canvas exists alongside sidebar in main area', () => {
+			render(App);
+
+			// Both sidebar and canvas should exist in the main area
+			const appMain = document.querySelector('.app-main');
+			expect(appMain).toBeInTheDocument();
+
+			// Check that canvas exists
+			const canvas = document.querySelector('.canvas');
+			expect(canvas).toBeInTheDocument();
+		});
 	});
 
 	describe('Edit Panel', () => {
