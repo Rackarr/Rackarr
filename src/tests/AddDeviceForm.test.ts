@@ -218,7 +218,7 @@ describe('AddDeviceForm Component', () => {
 		});
 	});
 
-	describe('Image uploads (v0.3.0)', () => {
+	describe('Image uploads (v0.1.0)', () => {
 		it('shows image upload for front', () => {
 			render(AddDeviceForm, { props: { open: true } });
 			expect(screen.getByText(/front image/i)).toBeInTheDocument();

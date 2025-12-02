@@ -140,7 +140,7 @@ test.describe('Archive Format', () => {
 		expect(layoutJson).toBeDefined();
 
 		const layout = JSON.parse(layoutJson!);
-		expect(layout.version).toBe('0.3.0');
+		expect(layout.version).toBe('0.1.0');
 		expect(layout.racks[0].name).toBe('Archive Test Rack');
 	});
 

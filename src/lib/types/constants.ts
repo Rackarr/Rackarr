@@ -66,7 +66,7 @@ export const MAX_RACKS = 1;
 /**
  * Current layout schema version
  */
-export const CURRENT_VERSION = '0.3.0';
+export const CURRENT_VERSION = '0.1.0';
 
 /**
  * Standard rack width in inches (19" rack)
@@ -94,7 +94,7 @@ export const DEFAULT_RACK_VIEW: RackView = 'front';
 export const DEFAULT_DEVICE_FACE: DeviceFace = 'front';
 
 /**
- * Image Constants (v0.3.0)
+ * Image Constants (v0.1.0)
  */
 
 /**
@@ -117,7 +117,7 @@ export const MAX_IMAGE_SIZE_MB = 5;
 export const MAX_IMAGE_SIZE_BYTES = MAX_IMAGE_SIZE_MB * 1024 * 1024;
 
 /**
- * Archive Constants (v0.3.0)
+ * Archive Constants (v0.1.0)
  */
 
 /**

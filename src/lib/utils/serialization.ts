@@ -295,7 +295,7 @@ export function deserializeLayout(json: string): Layout {
 		return migrateLayout(parsed);
 	}
 
-	// v0.2.x layouts are structurally compatible with v0.3.0
+	// v0.2.x layouts are structurally compatible with v0.1.0
 	// Just update the version to current
 	if (parsed.version.startsWith('0.2.')) {
 		return {

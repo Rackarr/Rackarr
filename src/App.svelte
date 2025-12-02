@@ -372,7 +372,7 @@
 			notes: data.notes || undefined
 		});
 
-		// Store images if provided (v0.3.0)
+		// Store images if provided (v0.1.0)
 		if (data.frontImage) {
 			imageStore.setDeviceImage(device.id, 'front', data.frontImage);
 		}

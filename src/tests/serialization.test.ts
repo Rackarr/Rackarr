@@ -292,6 +292,9 @@ describe('Layout Serialization', () => {
 				width: 19,
 				position: 0,
 				view: 'front',
+				form_factor: '4-post-cabinet',
+				desc_units: false,
+				starting_unit: 1,
 				devices: [{ libraryId: 'device-1', position: 5, face: 'front' }]
 			};
 
@@ -300,7 +303,12 @@ describe('Layout Serialization', () => {
 				name: 'My Homelab',
 				created: mockDate,
 				modified: mockDate,
-				settings: { theme: 'light' },
+				settings: {
+					theme: 'light',
+					displayMode: 'label',
+					showLabelsOnImages: false,
+					view: 'front'
+				},
 				deviceLibrary: [device],
 				racks: [rack]
 			};

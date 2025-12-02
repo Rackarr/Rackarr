@@ -1,5 +1,5 @@
 /**
- * Image Store (v0.3.0)
+ * Image Store (v0.1.0)
  * Manages device images in memory during the session
  * Uses Svelte 5 runes for reactivity
  */

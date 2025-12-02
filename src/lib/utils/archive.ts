@@ -1,5 +1,5 @@
 /**
- * Archive Utilities (v0.3.0)
+ * Archive Utilities (v0.1.0)
  * Functions for creating and extracting .rackarr.zip archives
  */
 

@@ -1,5 +1,5 @@
 /**
- * Image Upload Utilities (v0.3.0)
+ * Image Upload Utilities (v0.1.0)
  * Functions for validating, processing, and converting device images
  */
 

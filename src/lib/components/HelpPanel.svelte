@@ -13,7 +13,7 @@
 
 	let { open, onclose }: Props = $props();
 
-	// Keyboard shortcuts (v0.3.0)
+	// Keyboard shortcuts (v0.1.0)
 	const shortcuts = [
 		{ key: 'Escape', action: 'Clear selection / Close dialog' },
 		{ key: 'Delete / Backspace', action: 'Delete selected rack or device' },

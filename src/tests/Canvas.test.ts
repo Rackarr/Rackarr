@@ -176,7 +176,7 @@ describe('Canvas Component', () => {
 	});
 });
 
-describe('Canvas Layout with Fixed Sidebar (v0.3.0)', () => {
+describe('Canvas Layout with Fixed Sidebar (v0.1.0)', () => {
 	beforeEach(() => {
 		resetLayoutStore();
 		resetSelectionStore();

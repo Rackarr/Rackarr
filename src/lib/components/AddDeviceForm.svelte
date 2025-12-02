@@ -39,7 +39,7 @@
 	let notes = $state('');
 	let userChangedColour = $state(false);
 
-	// Image state (v0.3.0)
+	// Image state (v0.1.0)
 	let frontImage = $state<ImageData | undefined>(undefined);
 	let rearImage = $state<ImageData | undefined>(undefined);
 
@@ -58,7 +58,7 @@
 			userChangedColour = false;
 			nameError = '';
 			heightError = '';
-			// Reset images (v0.3.0)
+			// Reset images (v0.1.0)
 			frontImage = undefined;
 			rearImage = undefined;
 		}
@@ -229,7 +229,7 @@
 			></textarea>
 		</div>
 
-		<!-- Image uploads (v0.3.0) -->
+		<!-- Image uploads (v0.1.0) -->
 		<div class="form-row">
 			<ImageUpload
 				face="front"

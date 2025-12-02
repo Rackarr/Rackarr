@@ -1,11 +1,11 @@
 # CLAUDE.md — Rackarr
 
 **Project:** Rackarr — Rack Layout Designer for Homelabbers
-**Version:** 0.3.0
+**Version:** 0.1.0
 
 ---
 
-## v0.3.0 Features
+## v0.1.0 Features
 
 - 11 device categories (+ shelf category)
 - Save/load as ZIP archive (`.rackarr.zip`) with embedded images

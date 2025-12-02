@@ -527,8 +527,8 @@ describe('Constants', () => {
 	});
 
 	describe('CURRENT_VERSION', () => {
-		it('is set to 0.3.0', () => {
-			expect(CURRENT_VERSION).toBe('0.3.0');
+		it('is set to 0.1.0', () => {
+			expect(CURRENT_VERSION).toBe('0.1.0');
 		});
 	});
 
@@ -551,7 +551,7 @@ describe('Constants', () => {
 	});
 });
 
-describe('Image Types (v0.3.0)', () => {
+describe('Image Types (v0.1.0)', () => {
 	describe('ImageData interface', () => {
 		it('accepts valid ImageData structure', () => {
 			// Create a mock ImageData
@@ -635,7 +635,7 @@ describe('Image Types (v0.3.0)', () => {
 	});
 });
 
-describe('Export Types (v0.3.0)', () => {
+describe('Export Types (v0.1.0)', () => {
 	describe('ExportMode type', () => {
 		it('accepts quick and bundled values', () => {
 			// ExportMode is a type-only export, verify valid values compile
@@ -650,7 +650,7 @@ describe('Export Types (v0.3.0)', () => {
 	describe('ExportMetadata interface', () => {
 		it('accepts valid metadata structure', async () => {
 			const metadata: import('$lib/types').ExportMetadata = {
-				version: '0.3.0',
+				version: '0.1.0',
 				exportedAt: '2025-12-02T12:00:00.000Z',
 				layoutName: 'My Rack Layout',
 				rackName: 'Main Rack',
@@ -666,7 +666,7 @@ describe('Export Types (v0.3.0)', () => {
 				sourceIncluded: true
 			};
 
-			expect(metadata.version).toBe('0.3.0');
+			expect(metadata.version).toBe('0.1.0');
 			expect(metadata.exportedAt).toContain('2025');
 			expect(metadata.layoutName).toBe('My Rack Layout');
 			expect(metadata.rackName).toBe('Main Rack');

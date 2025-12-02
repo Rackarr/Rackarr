@@ -1,17 +1,16 @@
 /**
  * Layout Migration Utilities
  * Handles migration of layouts from older versions to current version
- * Supports: 0.1.0 -> 0.3.0, 0.2.0 -> 0.3.0, 1.0 -> 0.3.0
  */
 
 import type { Layout, Rack, PlacedDevice, LayoutSettings } from '$lib/types';
 import { CURRENT_VERSION, DEFAULT_RACK_VIEW, DEFAULT_DEVICE_FACE } from '$lib/types/constants';
 
-/** Default values for new v0.3.0 settings fields */
+/** Default values for settings fields */
 const DEFAULT_DISPLAY_MODE = 'label' as const;
 const DEFAULT_SHOW_LABELS_ON_IMAGES = false;
 
-/** Default values for new v0.3.0 rack fields */
+/** Default values for rack fields */
 const DEFAULT_FORM_FACTOR = '4-post-cabinet' as const;
 const DEFAULT_DESC_UNITS = false;
 const DEFAULT_STARTING_UNIT = 1;

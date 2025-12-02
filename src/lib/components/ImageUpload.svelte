@@ -1,5 +1,5 @@
 <!--
-  ImageUpload Component (v0.3.0)
+  ImageUpload Component (v0.1.0)
   Component for uploading device images (front/rear)
 -->
 <script lang="ts">

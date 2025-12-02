@@ -282,7 +282,7 @@ describe('Bundled Export Utilities', () => {
 	};
 
 	const mockLayout = {
-		version: '0.3.0',
+		version: '0.1.0',
 		name: 'Test Layout',
 		racks: [mockRack],
 		deviceLibrary: [mockDevice],
@@ -309,7 +309,7 @@ describe('Bundled Export Utilities', () => {
 
 			const metadata = generateExportMetadata(mockLayout, mockRack, options, false);
 
-			expect(metadata.version).toBe('0.3.0');
+			expect(metadata.version).toBe('0.1.0');
 			expect(metadata.layoutName).toBe('Test Layout');
 			expect(metadata.rackName).toBe('Main Rack');
 			expect(metadata.rackHeight).toBe(42);

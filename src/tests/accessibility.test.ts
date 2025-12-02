@@ -273,7 +273,7 @@ describe('Accessibility Tests', () => {
 		});
 	});
 
-	// Note: "Expandable elements have aria-expanded" test suite was removed in v0.3.0
+	// Note: "Expandable elements have aria-expanded" test suite was removed in v0.1.0
 	// The Device Library toggle button was removed - sidebar is now always visible
 
 	describe('Selected items have aria-selected', () => {

@@ -1,5 +1,5 @@
 /**
- * Device Image Types (v0.3.0)
+ * Device Image Types (v0.1.0)
  * Types for storing and managing device images
  */
 

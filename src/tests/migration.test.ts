@@ -77,7 +77,7 @@ describe('migrateLayout', () => {
 		expect(result.racks[0]?.devices[0]?.face).toBe('both');
 	});
 
-	it('updates version to 0.3.0', () => {
+	it('updates version to current version', () => {
 		const v01Layout = {
 			version: '0.1.0',
 			name: 'Test Layout',
@@ -89,7 +89,7 @@ describe('migrateLayout', () => {
 		} as unknown as Layout;
 
 		const result = migrateLayout(v01Layout);
-		expect(result.version).toBe('0.3.0');
+		expect(result.version).toBe('0.1.0');
 	});
 
 	it('adds v0.3 settings fields to v0.1 layouts', () => {
@@ -138,7 +138,7 @@ describe('migrateLayout', () => {
 
 	it('preserves existing v0.3 rack fields', () => {
 		const v03Layout: Layout = {
-			version: '0.3.0',
+			version: '0.1.0',
 			name: 'Test Layout',
 			created: '2025-01-01T00:00:00Z',
 			modified: '2025-01-01T00:00:00Z',

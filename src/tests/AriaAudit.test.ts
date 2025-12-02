@@ -22,7 +22,7 @@ describe('ARIA Labels Audit', () => {
 			});
 		});
 
-		// Note: Device Library toggle button was removed in v0.3.0
+		// Note: Device Library toggle button was removed in v0.1.0
 		// The sidebar is now always visible (not toggleable)
 	});
 
