@@ -6,7 +6,7 @@
 	import { onMount } from 'svelte';
 	import Toolbar from '$lib/components/Toolbar.svelte';
 	import Canvas from '$lib/components/Canvas.svelte';
-	import Drawer from '$lib/components/Drawer.svelte';
+	import Sidebar from '$lib/components/Sidebar.svelte';
 	import DevicePalette from '$lib/components/DevicePalette.svelte';
 	import EditPanel from '$lib/components/EditPanel.svelte';
 	import NewRackForm from '$lib/components/NewRackForm.svelte';
@@ -96,10 +96,6 @@
 
 	function handleCancelReplace() {
 		showReplaceDialog = false;
-	}
-
-	function handleTogglePalette() {
-		uiStore.toggleLeftDrawer();
 	}
 
 	function handleSave() {
@@ -263,10 +259,6 @@
 		helpPanelOpen = false;
 	}
 
-	function handleClosePalette() {
-		uiStore.closeLeftDrawer();
-	}
-
 	function handleAddDevice() {
 		addDeviceFormOpen = true;
 	}
@@ -313,10 +305,8 @@
 <div class="app-layout">
 	<Toolbar
 		hasSelection={selectionStore.hasSelection}
-		paletteOpen={uiStore.leftDrawerOpen}
 		theme={uiStore.theme}
 		onnewrack={handleNewRack}
-		ontogglepalette={handleTogglePalette}
 		onsave={handleSave}
 		onload={handleLoad}
 		onexport={handleExport}
@@ -329,17 +319,9 @@
 	/>
 
 	<main class="app-main">
-		<Drawer
-			id="device-library-drawer"
-			side="left"
-			open={uiStore.leftDrawerOpen}
-			title="Device Library"
-			showClose={false}
-			showHeader={false}
-			onclose={handleClosePalette}
-		>
+		<Sidebar side="left" title="Device Library">
 			<DevicePalette onadddevice={handleAddDevice} />
-		</Drawer>
+		</Sidebar>
 
 		<Canvas onnewrack={handleNewRack} onload={handleLoad} />
 

@@ -22,20 +22,8 @@ describe('ARIA Labels Audit', () => {
 			});
 		});
 
-		it('library toggle has aria-label and aria-expanded', () => {
-			render(Toolbar, { props: { paletteOpen: false } });
-
-			const libraryButton = screen.getByRole('button', { name: /device library/i });
-			expect(libraryButton).toHaveAttribute('aria-label');
-			expect(libraryButton).toHaveAttribute('aria-expanded', 'false');
-		});
-
-		it('library toggle aria-expanded updates when open', () => {
-			render(Toolbar, { props: { paletteOpen: true } });
-
-			const libraryButton = screen.getByRole('button', { name: /device library/i });
-			expect(libraryButton).toHaveAttribute('aria-expanded', 'true');
-		});
+		// Note: Device Library toggle button was removed in v0.3.0
+		// The sidebar is now always visible (not toggleable)
 	});
 
 	describe('ToolbarButton component', () => {

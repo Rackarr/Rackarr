@@ -40,9 +40,6 @@ describe('Toolbar Component', () => {
 		it('renders all action buttons', () => {
 			render(Toolbar);
 
-			// Left section
-			expect(screen.getByRole('button', { name: /device library/i })).toBeInTheDocument();
-
 			// Center section buttons
 			expect(screen.getByRole('button', { name: /new rack/i })).toBeInTheDocument();
 			expect(screen.getByRole('button', { name: /save/i })).toBeInTheDocument();
@@ -77,33 +74,12 @@ describe('Toolbar Component', () => {
 		});
 	});
 
-	describe('Device Library toggle', () => {
-		it('renders icon and "Device Library" text', () => {
+	describe('Device Library (removed)', () => {
+		it('does not have a Device Library toggle button (sidebar is always visible)', () => {
 			render(Toolbar);
-			const libraryBtn = screen.getByRole('button', { name: /device library/i });
-			expect(libraryBtn).toBeInTheDocument();
-		});
-
-		it('has aria-expanded reflecting drawer state', () => {
-			const { rerender } = render(Toolbar, { props: { paletteOpen: false } });
-			let libraryBtn = screen.getByRole('button', { name: /device library/i });
-			expect(libraryBtn).toHaveAttribute('aria-expanded', 'false');
-
-			rerender({ paletteOpen: true });
-			libraryBtn = screen.getByRole('button', { name: /device library/i });
-			expect(libraryBtn).toHaveAttribute('aria-expanded', 'true');
-		});
-
-		it('has aria-controls pointing to drawer', () => {
-			render(Toolbar);
-			const libraryBtn = screen.getByRole('button', { name: /device library/i });
-			expect(libraryBtn).toHaveAttribute('aria-controls', 'device-library-drawer');
-		});
-
-		it('shows active state when drawer open', () => {
-			render(Toolbar, { props: { paletteOpen: true } });
-			const libraryBtn = screen.getByRole('button', { name: /device library/i });
-			expect(libraryBtn).toHaveClass('active');
+			// Device Library button was removed - sidebar is now always visible
+			const libraryBtn = screen.queryByRole('button', { name: /device library/i });
+			expect(libraryBtn).not.toBeInTheDocument();
 		});
 	});
 
@@ -184,14 +160,6 @@ describe('Toolbar Component', () => {
 
 			await fireEvent.click(screen.getByRole('button', { name: /new rack/i }));
 			expect(onNewRack).toHaveBeenCalledTimes(1);
-		});
-
-		it('dispatches togglePalette event when Device Library clicked', async () => {
-			const onTogglePalette = vi.fn();
-			render(Toolbar, { props: { ontogglepalette: onTogglePalette } });
-
-			await fireEvent.click(screen.getByRole('button', { name: /device library/i }));
-			expect(onTogglePalette).toHaveBeenCalledTimes(1);
 		});
 
 		it('dispatches save event when Save clicked', async () => {

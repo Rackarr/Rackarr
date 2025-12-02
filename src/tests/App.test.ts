@@ -45,23 +45,35 @@ describe('App Component', () => {
 		});
 	});
 
-	describe('Palette Drawer', () => {
-		it('palette drawer toggles with toolbar button', async () => {
+	describe('Device Library Sidebar', () => {
+		it('device library sidebar is always visible', () => {
 			render(App);
 
-			const paletteBtn = screen.getByRole('button', { name: /device library/i });
+			// Sidebar should always be visible (not a drawer that toggles)
+			const sidebar = document.querySelector('aside.sidebar');
+			expect(sidebar).toBeInTheDocument();
+			expect(sidebar).toBeVisible();
+		});
 
-			// Initially closed - drawer should not be visible
-			const drawer = document.querySelector('.drawer-left');
-			expect(drawer).not.toHaveClass('open');
+		it('sidebar contains DevicePalette', () => {
+			render(App);
 
-			// Click to open
-			await fireEvent.click(paletteBtn);
-			expect(drawer).toHaveClass('open');
+			// Look for DevicePalette content inside sidebar
+			const sidebar = document.querySelector('aside.sidebar');
+			expect(sidebar).toBeInTheDocument();
 
-			// Click to close
-			await fireEvent.click(paletteBtn);
-			expect(drawer).not.toHaveClass('open');
+			// DevicePalette should be inside - look for category icons or device items
+			const palette = sidebar?.querySelector('.device-palette');
+			expect(palette).toBeInTheDocument();
+		});
+
+		it('there is no toggle button for device library in toolbar', () => {
+			render(App);
+
+			// There should be no button named exactly "Device Library" anymore
+			// (there is still an "Import device library" button in the sidebar, which is different)
+			const paletteBtn = screen.queryByRole('button', { name: /^device library$/i });
+			expect(paletteBtn).not.toBeInTheDocument();
 		});
 	});
 

@@ -275,20 +275,8 @@ describe('Accessibility Tests', () => {
 		});
 	});
 
-	describe('Expandable elements have aria-expanded', () => {
-		it('Device Library toggle button has aria-expanded', () => {
-			render(Toolbar, {
-				props: {
-					paletteOpen: true,
-					hasSelection: false,
-					theme: 'dark' as const
-				}
-			});
-
-			const libraryButton = screen.getByRole('button', { name: /library/i });
-			expect(libraryButton).toHaveAttribute('aria-expanded');
-		});
-	});
+	// Note: "Expandable elements have aria-expanded" test suite was removed in v0.3.0
+	// The Device Library toggle button was removed - sidebar is now always visible
 
 	describe('Selected items have aria-selected', () => {
 		it('Selected rack has aria-selected="true"', () => {
