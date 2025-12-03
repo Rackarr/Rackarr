@@ -14,8 +14,7 @@ describe('Setup', () => {
 
 	it('can render Svelte component', async () => {
 		render(App);
-		// Multiple 'Rackarr' texts may exist (toolbar and welcome screen)
-		const rackarrElements = screen.getAllByText('Rackarr');
-		expect(rackarrElements.length).toBeGreaterThan(0);
+		// 'Rackarr' text appears in toolbar
+		expect(screen.getByText('Rackarr')).toBeInTheDocument();
 	});
 });

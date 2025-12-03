@@ -57,8 +57,8 @@
 		align-items: center;
 		justify-content: center;
 		gap: var(--space-2);
-		width: var(--space-8);
-		height: var(--space-8);
+		width: 37px; /* 32px + 15% */
+		height: 37px;
 		padding: var(--space-2);
 		border: none;
 		border-radius: var(--radius-md);

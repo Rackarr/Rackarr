@@ -21,10 +21,10 @@ describe('Toolbar Tooltips', () => {
 				}
 			});
 
-			// All ToolbarButtons should be wrapped in tooltip-wrapper
+			// All action buttons should be wrapped in tooltip-wrapper
 			const tooltipWrappers = container.querySelectorAll('.tooltip-wrapper');
-			// New Rack, Save, Load, Export, Delete, Zoom Out, Zoom In, Fit All, Theme, Help = 10 buttons
-			expect(tooltipWrappers.length).toBeGreaterThanOrEqual(10);
+			// New Rack, Load Layout, Save, Export, Display Mode, Delete, Fit All, Theme, Help = 9 buttons
+			expect(tooltipWrappers.length).toBeGreaterThanOrEqual(9);
 		});
 	});
 
@@ -34,10 +34,10 @@ describe('Toolbar Tooltips', () => {
 				props: { theme: 'dark' }
 			});
 
-			// Find the New Rack button's tooltip trigger
+			// Find the New Rack button's tooltip wrapper
 			const tooltipWrappers = container.querySelectorAll('.tooltip-wrapper');
 			const newRackWrapper = Array.from(tooltipWrappers).find((wrapper) =>
-				wrapper.querySelector('[aria-label="New Rack"]')
+				wrapper.textContent?.includes('New Rack')
 			);
 
 			expect(newRackWrapper).toBeTruthy();
@@ -57,9 +57,10 @@ describe('Toolbar Tooltips', () => {
 			});
 
 			const tooltipWrappers = container.querySelectorAll('.tooltip-wrapper');
-			const saveWrapper = Array.from(tooltipWrappers).find((wrapper) =>
-				wrapper.querySelector('[aria-label="Save"]')
-			);
+			const saveWrapper = Array.from(tooltipWrappers).find((wrapper) => {
+				const btn = wrapper.querySelector('button');
+				return btn?.textContent?.includes('Save');
+			});
 
 			expect(saveWrapper).toBeTruthy();
 
@@ -79,9 +80,10 @@ describe('Toolbar Tooltips', () => {
 			});
 
 			const tooltipWrappers = container.querySelectorAll('.tooltip-wrapper');
-			const deleteWrapper = Array.from(tooltipWrappers).find((wrapper) =>
-				wrapper.querySelector('[aria-label="Delete"]')
-			);
+			const deleteWrapper = Array.from(tooltipWrappers).find((wrapper) => {
+				const btn = wrapper.querySelector('button');
+				return btn?.textContent?.includes('Delete');
+			});
 
 			expect(deleteWrapper).toBeTruthy();
 
@@ -95,37 +97,16 @@ describe('Toolbar Tooltips', () => {
 			expect(shortcut).toHaveTextContent('Del');
 		});
 
-		it('Zoom Out button shows shortcut in tooltip', async () => {
-			const { container } = render(Toolbar, {
-				props: { theme: 'dark' }
-			});
-
-			const tooltipWrappers = container.querySelectorAll('.tooltip-wrapper');
-			const zoomOutWrapper = Array.from(tooltipWrappers).find((wrapper) =>
-				wrapper.querySelector('[aria-label="Zoom Out"]')
-			);
-
-			expect(zoomOutWrapper).toBeTruthy();
-
-			const trigger = zoomOutWrapper!.querySelector('.tooltip-trigger');
-			await fireEvent.mouseEnter(trigger!);
-			vi.advanceTimersByTime(500);
-			await tick();
-
-			const shortcut = zoomOutWrapper!.querySelector('.tooltip-shortcut');
-			expect(shortcut).toBeInTheDocument();
-			expect(shortcut).toHaveTextContent('-');
-		});
-
 		it('Help button shows shortcut in tooltip', async () => {
 			const { container } = render(Toolbar, {
 				props: { theme: 'dark' }
 			});
 
 			const tooltipWrappers = container.querySelectorAll('.tooltip-wrapper');
-			const helpWrapper = Array.from(tooltipWrappers).find((wrapper) =>
-				wrapper.querySelector('[aria-label="Help"]')
-			);
+			const helpWrapper = Array.from(tooltipWrappers).find((wrapper) => {
+				const btn = wrapper.querySelector('button');
+				return btn?.textContent?.includes('Help');
+			});
 
 			expect(helpWrapper).toBeTruthy();
 
@@ -145,9 +126,10 @@ describe('Toolbar Tooltips', () => {
 			});
 
 			const tooltipWrappers = container.querySelectorAll('.tooltip-wrapper');
-			const themeWrapper = Array.from(tooltipWrappers).find((wrapper) =>
-				wrapper.querySelector('[aria-label="Toggle Theme"]')
-			);
+			const themeWrapper = Array.from(tooltipWrappers).find((wrapper) => {
+				const btn = wrapper.querySelector('button');
+				return btn?.textContent?.includes('Light') || btn?.textContent?.includes('Dark');
+			});
 
 			expect(themeWrapper).toBeTruthy();
 
@@ -169,16 +151,6 @@ describe('Toolbar Tooltips', () => {
 
 			const dividers = container.querySelectorAll('.separator, .toolbar-divider');
 			expect(dividers.length).toBeGreaterThan(0);
-		});
-
-		it('zoom display shows percentage', () => {
-			const { container } = render(Toolbar, {
-				props: { theme: 'dark' }
-			});
-
-			const zoomDisplay = container.querySelector('.zoom-display');
-			expect(zoomDisplay).toBeInTheDocument();
-			expect(zoomDisplay?.textContent).toMatch(/%/);
 		});
 	});
 

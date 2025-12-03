@@ -28,7 +28,8 @@
 		downloadArchive,
 		openFilePicker,
 		readLayoutFile,
-		detectFileFormat
+		detectFileFormat,
+		generateArchiveFilename
 	} from '$lib/utils/file';
 	import { extractArchive, createArchive } from '$lib/utils/archive';
 	import {
@@ -100,10 +101,13 @@
 			// Get images from image store for archive
 			const images = imageStore.getAllImages();
 
+			// Get the filename for the toast message
+			const filename = generateArchiveFilename(layoutStore.layout);
+
 			// Save as archive (.rackarr.zip)
 			await downloadArchive(layoutStore.layout, images);
 			layoutStore.markClean();
-			toastStore.showToast('Layout saved', 'success', 3000);
+			toastStore.showToast(`Saved ${filename}`, 'success', 3000);
 
 			// After save, if pendingSaveFirst, reset and open new rack form
 			if (pendingSaveFirst) {
@@ -315,14 +319,6 @@
 		deleteTarget = null;
 	}
 
-	function handleZoomIn() {
-		canvasStore.zoomIn();
-	}
-
-	function handleZoomOut() {
-		canvasStore.zoomOut();
-	}
-
 	function handleFitAll() {
 		canvasStore.fitAll(layoutStore.racks);
 	}
@@ -408,6 +404,7 @@
 <div class="app-layout">
 	<Toolbar
 		hasSelection={selectionStore.hasSelection}
+		hasRacks={layoutStore.racks.length > 0}
 		theme={uiStore.theme}
 		displayMode={uiStore.displayMode}
 		showLabelsOnImages={uiStore.showLabelsOnImages}
@@ -416,8 +413,6 @@
 		onload={handleLoad}
 		onexport={handleExport}
 		ondelete={handleDelete}
-		onzoomin={handleZoomIn}
-		onzoomout={handleZoomOut}
 		onfitall={handleFitAll}
 		ontoggletheme={handleToggleTheme}
 		ontoggledisplaymode={handleToggleDisplayMode}
@@ -502,7 +497,5 @@
 		flex: 1;
 		position: relative;
 		overflow: hidden;
-		/* Account for fixed sidebar on left */
-		margin-left: var(--sidebar-width, 300px);
 	}
 </style>

@@ -161,15 +161,22 @@
    ============================================================ */
 
 :root {
-	/* Rack */
+	/* Canvas */
+	--canvas-bg: var(--neutral-950);
+
+	/* Rack - these tokens are NOT overridden in light mode (racks stay dark) */
 	--rack-u-height: 17.78px; /* 1U height in scaled pixels */
 	--rack-width: 482.6px; /* 19" rack width */
 	--rack-rail-width: 30px;
 	--rack-padding: 16px;
 	--rack-bg: var(--neutral-900);
+	--rack-rail: var(--neutral-700);
+	--rack-interior: var(--neutral-800);
 	--rack-slot: rgba(255, 255, 255, 0.02);
 	--rack-slot-alt: rgba(255, 255, 255, 0.04);
 	--rack-grid: var(--neutral-800);
+	--rack-text: var(--neutral-400); /* U label text - stays light on dark rack */
+	--rack-text-highlight: var(--neutral-200); /* Highlighted U labels (multiples of 5) */
 
 	/* Toolbar */
 	--toolbar-height: 56px;
@@ -183,6 +190,16 @@
 	/* Sidebar (fixed) */
 	--sidebar-width: 300px;
 
+	/* Form Inputs */
+	--input-bg: var(--neutral-800);
+	--input-border: var(--neutral-700);
+	--input-placeholder: var(--neutral-500);
+
+	/* Buttons */
+	--button-bg: var(--neutral-800);
+	--button-bg-hover: var(--neutral-700);
+	--button-border: var(--neutral-700);
+
 	/* Device */
 	--device-font-size: var(--font-size-xs);
 	--device-padding: var(--space-2);
@@ -194,7 +211,7 @@
 	--toast-border: var(--neutral-700);
 	--toast-radius: var(--radius-md);
 
-	/* Logo */
+	/* Logo - Brand colours (unchanged between themes) */
 	--logo-frame: var(--neutral-700);
 	--logo-interior: var(--neutral-800);
 	--logo-device-1: var(--blue-500);
@@ -243,10 +260,7 @@
 	--colour-dnd-dragging: var(--blue-600);
 
 	/* Component Overrides */
-	--rack-bg: #ffffff;
-	--rack-slot: rgba(0, 0, 0, 0.02);
-	--rack-slot-alt: rgba(0, 0, 0, 0.04);
-	--rack-grid: var(--neutral-200);
+	/* NOTE: Rack tokens intentionally NOT overridden - racks stay dark in all themes */
 
 	--toolbar-bg: #ffffff;
 	--toolbar-border: var(--neutral-200);
@@ -256,12 +270,20 @@
 	--toast-bg: #ffffff;
 	--toast-border: var(--neutral-200);
 
-	/* Logo */
-	--logo-frame: var(--neutral-300);
-	--logo-interior: var(--neutral-200);
-	--logo-device-1: var(--blue-600);
-	--logo-device-2: #16a34a; /* Green 600 */
-	--logo-device-3: #7c3aed; /* Violet 600 */
+	/* NOTE: Logo tokens intentionally NOT overridden - brand colours stay consistent */
+
+	/* Canvas - slight grey instead of pure white */
+	--canvas-bg: var(--neutral-100);
+
+	/* Form Inputs */
+	--input-bg: #ffffff;
+	--input-border: var(--neutral-300);
+	--input-placeholder: var(--neutral-400);
+
+	/* Buttons */
+	--button-bg: var(--neutral-100);
+	--button-bg-hover: var(--neutral-200);
+	--button-border: var(--neutral-300);
 
 	/* Lighter shadows for light theme */
 	--shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.08);

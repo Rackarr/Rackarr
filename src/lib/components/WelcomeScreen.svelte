@@ -1,52 +1,113 @@
 <!--
   WelcomeScreen Component
-  Displayed when no racks exist - initial load state
+  Displayed when no racks exist - shows ghostly rack background
+  Click anywhere to create a new rack
 -->
 <script lang="ts">
 	interface Props {
-		onnewrack?: () => void;
-		onload?: () => void;
+		onclick?: () => void;
 	}
 
-	let { onnewrack, onload }: Props = $props();
+	let { onclick }: Props = $props();
 
-	function handleNewRack() {
-		onnewrack?.();
+	// Match Rack.svelte dimensions exactly
+	const U_HEIGHT = 22;
+	const RACK_WIDTH = 220;
+	const RAIL_WIDTH = 17;
+	const RACK_PADDING = 18;
+	const RACK_HEIGHT = 42;
+	const totalHeight = RACK_HEIGHT * U_HEIGHT; // 924
+	const interiorWidth = RACK_WIDTH - RAIL_WIDTH * 2; // 186
+
+	// Generate U labels (highest number at top, ascending from bottom)
+	const uLabels = Array.from({ length: RACK_HEIGHT }, (_, i) => ({
+		uNumber: RACK_HEIGHT - i,
+		yPosition: i * U_HEIGHT + U_HEIGHT / 2 + RACK_PADDING + RAIL_WIDTH
+	}));
+
+	function handleClick() {
+		onclick?.();
 	}
 
-	function handleLoad() {
-		onload?.();
+	function handleKeyDown(event: KeyboardEvent) {
+		if (event.key === 'Enter' || event.key === ' ') {
+			event.preventDefault();
+			onclick?.();
+		}
 	}
 </script>
 
-<div class="welcome-screen">
-	<div class="welcome-content">
-		<div class="welcome-header">
-			<div class="logo">
-				<svg viewBox="0 0 48 48" class="logo-icon" aria-hidden="true">
-					<!-- Rack icon using design tokens -->
-					<rect x="8" y="4" width="32" height="40" rx="2" class="logo-frame" />
-					<rect x="12" y="8" width="24" height="32" class="logo-interior" />
-					<rect x="14" y="10" width="20" height="6" rx="1" class="logo-device-1" />
-					<rect x="14" y="18" width="20" height="4" rx="1" class="logo-device-2" />
-					<rect x="14" y="24" width="20" height="8" rx="1" class="logo-device-3" />
-				</svg>
-			</div>
-			<h1 class="app-name">Rackarr</h1>
-			<p class="tagline">Rack Layout Designer for Homelabbers</p>
-		</div>
+<div
+	class="welcome-screen"
+	onclick={handleClick}
+	onkeydown={handleKeyDown}
+	role="button"
+	tabindex="0"
+	aria-label="Click to get started"
+>
+	<!-- Ghostly 42U rack background (matching Rack.svelte dimensions) -->
+	<svg
+		class="ghost-rack"
+		viewBox="0 0 {RACK_WIDTH} {RACK_PADDING + RAIL_WIDTH * 2 + totalHeight}"
+		aria-hidden="true"
+	>
+		<!-- Rack interior -->
+		<rect
+			x={RAIL_WIDTH}
+			y={RACK_PADDING + RAIL_WIDTH}
+			width={interiorWidth}
+			height={totalHeight}
+			class="rack-interior"
+		/>
 
-		<p class="description">
-			Create and visualize your server rack layout. Add racks, drag devices, and export your design.
-		</p>
+		<!-- Top bar (horizontal) -->
+		<rect x="0" y={RACK_PADDING} width={RACK_WIDTH} height={RAIL_WIDTH} class="rack-rail" />
 
-		<div class="actions">
-			<button class="btn btn-primary" onclick={handleNewRack}>New Rack</button>
-			<button class="btn btn-secondary" onclick={handleLoad}>Load Layout</button>
-		</div>
+		<!-- Bottom bar (horizontal) -->
+		<rect
+			x="0"
+			y={RACK_PADDING + RAIL_WIDTH + totalHeight}
+			width={RACK_WIDTH}
+			height={RAIL_WIDTH}
+			class="rack-rail"
+		/>
 
-		<p class="hint">Start by creating a new rack or loading an existing layout from a JSON file.</p>
-	</div>
+		<!-- Left rail (vertical) -->
+		<rect
+			x="0"
+			y={RACK_PADDING + RAIL_WIDTH}
+			width={RAIL_WIDTH}
+			height={totalHeight}
+			class="rack-rail"
+		/>
+
+		<!-- Right rail (vertical) -->
+		<rect
+			x={RACK_WIDTH - RAIL_WIDTH}
+			y={RACK_PADDING + RAIL_WIDTH}
+			width={RAIL_WIDTH}
+			height={totalHeight}
+			class="rack-rail"
+		/>
+
+		<!-- Horizontal grid lines (U dividers) -->
+		{#each Array(RACK_HEIGHT + 1) as _, i (i)}
+			<line
+				x1={RAIL_WIDTH}
+				y1={i * U_HEIGHT + RACK_PADDING + RAIL_WIDTH}
+				x2={RACK_WIDTH - RAIL_WIDTH}
+				y2={i * U_HEIGHT + RACK_PADDING + RAIL_WIDTH}
+				class="rack-line"
+			/>
+		{/each}
+
+		<!-- U labels on left rail -->
+		{#each uLabels as { uNumber, yPosition } (uNumber)}
+			<text x={RAIL_WIDTH / 2} y={yPosition} class="rack-unit-num" dominant-baseline="middle">
+				{uNumber}
+			</text>
+		{/each}
+	</svg>
 </div>
 
 <style>
@@ -55,113 +116,46 @@
 		align-items: center;
 		justify-content: center;
 		min-height: 100%;
-		padding: 40px 20px;
-		background: var(--colour-bg);
-	}
-
-	.welcome-content {
-		max-width: 480px;
-		text-align: center;
-	}
-
-	.welcome-header {
-		margin-bottom: 24px;
-	}
-
-	.logo {
-		margin-bottom: 16px;
-	}
-
-	.logo-icon {
-		width: 80px;
-		height: 80px;
-	}
-
-	.logo-frame {
-		fill: var(--logo-frame);
-	}
-	.logo-interior {
-		fill: var(--logo-interior);
-	}
-	.logo-device-1 {
-		fill: var(--logo-device-1);
-	}
-	.logo-device-2 {
-		fill: var(--logo-device-2);
-	}
-	.logo-device-3 {
-		fill: var(--logo-device-3);
-	}
-
-	.app-name {
-		font-size: 36px;
-		font-weight: 700;
-		color: var(--colour-text);
-		margin: 0 0 8px;
-	}
-
-	.tagline {
-		font-size: 16px;
-		color: var(--colour-text-secondary);
-		margin: 0;
-	}
-
-	.description {
-		font-size: 15px;
-		color: var(--colour-text-muted);
-		line-height: 1.6;
-		margin-bottom: 32px;
-	}
-
-	.actions {
-		display: flex;
-		gap: 16px;
-		justify-content: center;
-		margin-bottom: 24px;
-	}
-
-	.btn {
-		padding: 12px 24px;
-		font-size: 15px;
-		font-weight: 500;
-		border: none;
-		border-radius: 6px;
+		background: var(--canvas-bg);
+		position: relative;
+		overflow: hidden;
 		cursor: pointer;
-		transition:
-			background-color 0.15s ease,
-			transform 0.1s ease;
 	}
 
-	.btn:hover {
-		transform: translateY(-1px);
+	.welcome-screen:focus {
+		outline: none;
 	}
 
-	.btn:active {
-		transform: translateY(0);
+	.welcome-screen:focus-visible {
+		outline: 2px solid var(--colour-focus-ring);
+		outline-offset: -2px;
 	}
 
-	.btn-primary {
-		background: var(--colour-selection);
-		color: #ffffff;
+	.ghost-rack {
+		height: 90%;
+		max-height: 976px; /* Match 42U rack viewBox height */
+		opacity: 0.15;
 	}
 
-	.btn-primary:hover {
-		background: var(--colour-selection-hover, #0052cc);
+	.rack-interior {
+		fill: var(--rack-interior);
 	}
 
-	.btn-secondary {
-		background: var(--colour-panel);
-		color: var(--colour-text);
-		border: 1px solid var(--colour-border);
+	.rack-line {
+		stroke: var(--rack-grid);
+		stroke-width: 1;
 	}
 
-	.btn-secondary:hover {
-		background: var(--colour-hover);
+	.rack-rail {
+		fill: var(--rack-rail);
 	}
 
-	.hint {
-		font-size: 13px;
-		color: var(--colour-text-muted);
-		margin: 0;
+	.rack-unit-num {
+		fill: var(--rack-text);
+		font-size: 10px;
+		text-anchor: middle;
+		font-family: var(--font-mono, monospace);
+		font-variant-numeric: tabular-nums;
+		user-select: none;
 	}
 </style>

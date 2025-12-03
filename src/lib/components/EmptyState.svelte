@@ -68,7 +68,7 @@
 	}
 
 	.empty-state-icon {
-		color: var(--colour-text-secondary, #a0a0a0);
+		color: var(--colour-text-muted);
 		opacity: 0.6;
 	}
 
@@ -82,7 +82,7 @@
 	.empty-state-subtitle {
 		margin: 0;
 		font-size: 14px;
-		color: var(--colour-text-secondary, #a0a0a0);
+		color: var(--colour-text-muted);
 		max-width: 280px;
 	}
 

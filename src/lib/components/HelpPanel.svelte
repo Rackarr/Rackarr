@@ -71,12 +71,11 @@
 		<section class="help-section">
 			<h4>Features</h4>
 			<ul class="features-list">
-				<li>11 device categories including shelf</li>
-				<li>10" and 19" rack width options</li>
+				<li>Drag and drop devices from the library to build your rack</li>
+				<li>10" and 19" rack width support</li>
 				<li>Device images (front/rear) with Label/Image display toggle</li>
-				<li>Save as .rackarr.zip with embedded images</li>
-				<li>Export as PNG, JPEG, SVG with optional bundled metadata</li>
-				<li>Rack options: form factor, unit numbering direction</li>
+				<li>Export as PNG, JPEG, or SVG with optional bundled metadata</li>
+				<li>Save layouts as .rackarr.zip with embedded images</li>
 			</ul>
 		</section>
 
@@ -167,7 +166,7 @@
 	.description {
 		margin: 0;
 		font-size: 14px;
-		color: var(--colour-text-secondary, #a0a0a0);
+		color: var(--colour-text-muted);
 		line-height: 1.5;
 	}
 
@@ -186,7 +185,7 @@
 
 	.shortcuts-table th {
 		font-weight: 600;
-		color: var(--colour-text-secondary, #a0a0a0);
+		color: var(--colour-text-muted);
 	}
 
 	.shortcuts-table td {
@@ -208,7 +207,7 @@
 		flex-direction: column;
 		gap: 4px;
 		font-size: 13px;
-		color: var(--colour-text-secondary, #a0a0a0);
+		color: var(--colour-text-muted);
 	}
 
 	.links-list {
@@ -233,7 +232,7 @@
 	.license {
 		margin: 0;
 		font-size: 14px;
-		color: var(--colour-text-secondary, #a0a0a0);
+		color: var(--colour-text-muted);
 	}
 
 	.dialog-actions {

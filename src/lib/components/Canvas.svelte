@@ -38,7 +38,7 @@
 
 	let {
 		onnewrack,
-		onload,
+		onload: _onload,
 		onrackselect,
 		ondeviceselect,
 		ondevicedrop,
@@ -227,7 +227,7 @@
 			</div>
 		</div>
 	{:else}
-		<WelcomeScreen onnewrack={handleNewRack} {onload} />
+		<WelcomeScreen onclick={handleNewRack} />
 	{/if}
 </div>
 
@@ -235,7 +235,7 @@
 	.canvas {
 		flex: 1;
 		overflow: hidden;
-		background-color: var(--colour-bg, #1a1a1a);
+		background-color: var(--canvas-bg);
 		min-height: 0;
 		position: relative;
 	}

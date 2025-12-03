@@ -34,7 +34,7 @@
 <style>
 	.message {
 		margin: 0 0 24px 0;
-		color: var(--colour-text-secondary);
+		color: var(--colour-text-muted);
 		line-height: 1.5;
 	}
 

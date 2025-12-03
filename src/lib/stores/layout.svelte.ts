@@ -148,6 +148,10 @@ function addRack(
 	rack.position = layout.racks.length;
 
 	layout.racks = [...layout.racks, rack];
+
+	// Single-rack mode: sync layout name with rack name for file save
+	layout.name = name;
+
 	isDirty = true;
 
 	return rack;
@@ -163,6 +167,12 @@ function updateRack(id: string, updates: Partial<Rack>): void {
 	if (index === -1) return;
 
 	layout.racks = layout.racks.map((rack) => (rack.id === id ? { ...rack, ...updates } : rack));
+
+	// Single-rack mode: sync layout name with rack name for file save
+	if (updates.name !== undefined) {
+		layout.name = updates.name;
+	}
+
 	isDirty = true;
 }
 

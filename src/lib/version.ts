@@ -1,4 +1,6 @@
 /**
- * Application version
+ * Application version - injected at build time from package.json
  */
-export const VERSION = '0.2.1';
+declare const __APP_VERSION__: string;
+
+export const VERSION = __APP_VERSION__;

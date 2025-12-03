@@ -315,15 +315,15 @@
 	.form-group label {
 		font-size: 12px;
 		font-weight: 600;
-		color: var(--colour-text-secondary);
+		color: var(--colour-text-muted);
 		text-transform: uppercase;
 		letter-spacing: 0.5px;
 	}
 
 	.form-group input {
 		padding: 8px 12px;
-		background: var(--colour-input-bg);
-		border: 1px solid var(--colour-border);
+		background: var(--input-bg);
+		border: 1px solid var(--input-border);
 		border-radius: 4px;
 		color: var(--colour-text);
 		font-size: 14px;
@@ -342,7 +342,7 @@
 	.helper-text {
 		font-size: 12px;
 		margin: 0;
-		color: var(--colour-text-secondary);
+		color: var(--colour-text-muted);
 	}
 
 	.helper-text.warning {
@@ -357,7 +357,7 @@
 
 	.preset-btn {
 		padding: 4px 8px;
-		background: var(--colour-button-bg);
+		background: var(--button-bg);
 		border: 1px solid var(--colour-border);
 		border-radius: 4px;
 		color: var(--colour-text);
@@ -367,7 +367,7 @@
 	}
 
 	.preset-btn:hover {
-		background: var(--colour-button-hover);
+		background: var(--button-bg-hover);
 	}
 
 	.preset-btn.active {
@@ -393,7 +393,7 @@
 
 	.info-label {
 		font-size: 12px;
-		color: var(--colour-text-secondary);
+		color: var(--colour-text-muted);
 	}
 
 	.info-value {
@@ -469,7 +469,7 @@
 	.face-selector legend {
 		font-size: 12px;
 		font-weight: 600;
-		color: var(--colour-text-secondary);
+		color: var(--colour-text-muted);
 		text-transform: uppercase;
 		letter-spacing: 0.5px;
 		padding: 0 4px;

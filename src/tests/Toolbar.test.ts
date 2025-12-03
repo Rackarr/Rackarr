@@ -5,28 +5,7 @@ import ToolbarButton from '$lib/components/ToolbarButton.svelte';
 import { resetLayoutStore } from '$lib/stores/layout.svelte';
 import { resetSelectionStore } from '$lib/stores/selection.svelte';
 import { resetUIStore } from '$lib/stores/ui.svelte';
-import { resetCanvasStore, getCanvasStore, ZOOM_MIN, ZOOM_MAX } from '$lib/stores/canvas.svelte';
-
-// Helper to create mock panzoom instance at a specific zoom level
-function createMockPanzoom(initialScale = 1) {
-	let transform = { x: 0, y: 0, scale: initialScale };
-	const listeners: Record<string, Array<() => void>> = {};
-
-	return {
-		getTransform: () => ({ ...transform }),
-		zoomAbs: vi.fn((x: number, y: number, scale: number) => {
-			transform = { x, y, scale };
-			listeners['zoom']?.forEach((cb) => cb());
-		}),
-		smoothZoomAbs: vi.fn(),
-		moveTo: vi.fn(),
-		on: vi.fn((event: string, callback: () => void) => {
-			if (!listeners[event]) listeners[event] = [];
-			listeners[event].push(callback);
-		}),
-		dispose: vi.fn()
-	} as unknown as ReturnType<typeof import('panzoom').default>;
-}
+import { resetCanvasStore } from '$lib/stores/canvas.svelte';
 
 describe('Toolbar Component', () => {
 	beforeEach(() => {
@@ -40,23 +19,15 @@ describe('Toolbar Component', () => {
 		it('renders all action buttons', () => {
 			render(Toolbar);
 
-			// Center section buttons
+			// All toolbar action buttons with text labels
 			expect(screen.getByRole('button', { name: /new rack/i })).toBeInTheDocument();
+			expect(screen.getByRole('button', { name: /load layout/i })).toBeInTheDocument();
 			expect(screen.getByRole('button', { name: /save/i })).toBeInTheDocument();
-			expect(screen.getByRole('button', { name: /load/i })).toBeInTheDocument();
 			expect(screen.getByRole('button', { name: /export/i })).toBeInTheDocument();
 			expect(screen.getByRole('button', { name: /delete/i })).toBeInTheDocument();
-
-			// Right section
-			expect(screen.getByRole('button', { name: /zoom out/i })).toBeInTheDocument();
-			expect(screen.getByRole('button', { name: /zoom in/i })).toBeInTheDocument();
+			expect(screen.getByRole('button', { name: /fit all/i })).toBeInTheDocument();
 			expect(screen.getByRole('button', { name: /toggle theme/i })).toBeInTheDocument();
-			expect(screen.getByRole('button', { name: 'Help' })).toBeInTheDocument();
-		});
-
-		it('shows zoom level display', () => {
-			render(Toolbar);
-			expect(screen.getByText('100%')).toBeInTheDocument();
+			expect(screen.getByRole('button', { name: /help/i })).toBeInTheDocument();
 		});
 	});
 
@@ -84,18 +55,20 @@ describe('Toolbar Component', () => {
 	});
 
 	describe('Theme toggle', () => {
-		it('theme toggle shows sun icon in dark mode', () => {
+		it('theme toggle shows Light text in dark mode', () => {
 			render(Toolbar, { props: { theme: 'dark' } });
+			// In dark mode, button shows "Light" to switch to light
 			const themeBtn = screen.getByRole('button', { name: /toggle theme/i });
-			// In dark mode, we show sun to switch to light
-			expect(themeBtn.querySelector('[data-icon="sun"]')).toBeInTheDocument();
+			expect(themeBtn).toBeInTheDocument();
+			expect(themeBtn.textContent).toContain('Light');
 		});
 
-		it('theme toggle shows moon icon in light mode', () => {
+		it('theme toggle shows Dark text in light mode', () => {
 			render(Toolbar, { props: { theme: 'light' } });
+			// In light mode, button shows "Dark" to switch to dark
 			const themeBtn = screen.getByRole('button', { name: /toggle theme/i });
-			// In light mode, we show moon to switch to dark
-			expect(themeBtn.querySelector('[data-icon="moon"]')).toBeInTheDocument();
+			expect(themeBtn).toBeInTheDocument();
+			expect(themeBtn.textContent).toContain('Dark');
 		});
 	});
 
@@ -111,45 +84,6 @@ describe('Toolbar Component', () => {
 
 			await fireEvent.click(screen.getByRole('button', { name: /fit all/i }));
 			expect(onFitAll).toHaveBeenCalledTimes(1);
-		});
-	});
-
-	describe('Zoom controls', () => {
-		it('zoom in disabled at ZOOM_MAX', () => {
-			const store = getCanvasStore();
-			store.setPanzoomInstance(createMockPanzoom(ZOOM_MAX));
-
-			render(Toolbar);
-			const zoomInBtn = screen.getByRole('button', { name: /zoom in/i });
-			expect(zoomInBtn).toBeDisabled();
-		});
-
-		it('zoom out disabled at ZOOM_MIN', () => {
-			const store = getCanvasStore();
-			store.setPanzoomInstance(createMockPanzoom(ZOOM_MIN));
-
-			render(Toolbar);
-			const zoomOutBtn = screen.getByRole('button', { name: /zoom out/i });
-			expect(zoomOutBtn).toBeDisabled();
-		});
-
-		it('zoom controls enabled at default zoom (100%)', () => {
-			const store = getCanvasStore();
-			store.setPanzoomInstance(createMockPanzoom(1));
-
-			render(Toolbar);
-			const zoomInBtn = screen.getByRole('button', { name: /zoom in/i });
-			const zoomOutBtn = screen.getByRole('button', { name: /zoom out/i });
-			expect(zoomInBtn).not.toBeDisabled();
-			expect(zoomOutBtn).not.toBeDisabled();
-		});
-
-		it('displays current zoom level', () => {
-			const store = getCanvasStore();
-			store.setPanzoomInstance(createMockPanzoom(1.5));
-
-			render(Toolbar);
-			expect(screen.getByText('150%')).toBeInTheDocument();
 		});
 	});
 
@@ -194,22 +128,6 @@ describe('Toolbar Component', () => {
 			expect(onDelete).toHaveBeenCalledTimes(1);
 		});
 
-		it('dispatches zoomIn event when Zoom In clicked', async () => {
-			const onZoomIn = vi.fn();
-			render(Toolbar, { props: { onzoomin: onZoomIn } });
-
-			await fireEvent.click(screen.getByRole('button', { name: /zoom in/i }));
-			expect(onZoomIn).toHaveBeenCalledTimes(1);
-		});
-
-		it('dispatches zoomOut event when Zoom Out clicked', async () => {
-			const onZoomOut = vi.fn();
-			render(Toolbar, { props: { onzoomout: onZoomOut } });
-
-			await fireEvent.click(screen.getByRole('button', { name: /zoom out/i }));
-			expect(onZoomOut).toHaveBeenCalledTimes(1);
-		});
-
 		it('dispatches toggleTheme event when Theme clicked', async () => {
 			const onToggleTheme = vi.fn();
 			render(Toolbar, { props: { ontoggletheme: onToggleTheme } });
@@ -222,7 +140,7 @@ describe('Toolbar Component', () => {
 			const onHelp = vi.fn();
 			render(Toolbar, { props: { onhelp: onHelp } });
 
-			await fireEvent.click(screen.getByRole('button', { name: 'Help' }));
+			await fireEvent.click(screen.getByRole('button', { name: /help/i }));
 			expect(onHelp).toHaveBeenCalledTimes(1);
 		});
 	});
@@ -230,44 +148,40 @@ describe('Toolbar Component', () => {
 	describe('Display Mode Toggle', () => {
 		it('has display mode toggle button', () => {
 			render(Toolbar);
-			expect(screen.getByRole('button', { name: /display mode/i })).toBeInTheDocument();
+			expect(screen.getByRole('button', { name: /label|image/i })).toBeInTheDocument();
 		});
 
-		it('shows Label icon when displayMode is label', () => {
+		it('shows Label text when displayMode is label', () => {
 			render(Toolbar, { props: { displayMode: 'label' } });
-			const button = screen.getByRole('button', { name: /display mode/i });
-			expect(button.querySelector('[data-icon="label"]')).toBeInTheDocument();
+			expect(screen.getByRole('button', { name: /label/i })).toBeInTheDocument();
 		});
 
-		it('shows Image icon when displayMode is image', () => {
+		it('shows Image text when displayMode is image', () => {
 			render(Toolbar, { props: { displayMode: 'image' } });
-			const button = screen.getByRole('button', { name: /display mode/i });
-			expect(button.querySelector('[data-icon="image"]')).toBeInTheDocument();
+			expect(screen.getByRole('button', { name: /image/i })).toBeInTheDocument();
 		});
 
 		it('dispatches toggleDisplayMode event when clicked', async () => {
 			const onToggleDisplayMode = vi.fn();
 			render(Toolbar, { props: { ontoggledisplaymode: onToggleDisplayMode } });
 
-			await fireEvent.click(screen.getByRole('button', { name: /display mode/i }));
+			await fireEvent.click(screen.getByRole('button', { name: /label/i }));
 			expect(onToggleDisplayMode).toHaveBeenCalledTimes(1);
-		});
-
-		it('has correct aria-label describing current mode', () => {
-			render(Toolbar, { props: { displayMode: 'label' } });
-			const button = screen.getByRole('button', { name: /display mode.*label/i });
-			expect(button).toBeInTheDocument();
 		});
 	});
 
-	describe('Accessibility', () => {
-		it('all buttons have aria-labels', () => {
-			render(Toolbar);
+	describe('New Rack CTA state', () => {
+		it('New Rack button is primary (blue) when no racks', () => {
+			const { container } = render(Toolbar, { props: { hasRacks: false } });
+			const newRackBtn = container.querySelector('.toolbar-action-btn.primary');
+			expect(newRackBtn).toBeInTheDocument();
+			expect(newRackBtn?.textContent).toContain('New Rack');
+		});
 
-			const buttons = screen.getAllByRole('button');
-			buttons.forEach((button) => {
-				expect(button).toHaveAttribute('aria-label');
-			});
+		it('New Rack button is not primary when racks exist', () => {
+			render(Toolbar, { props: { hasRacks: true } });
+			const newRackBtn = screen.getByRole('button', { name: /new rack/i });
+			expect(newRackBtn).not.toHaveClass('primary');
 		});
 	});
 });

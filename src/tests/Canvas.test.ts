@@ -16,29 +16,19 @@ describe('Canvas Component', () => {
 
 	describe('Empty State', () => {
 		it('shows WelcomeScreen when no racks exist', () => {
-			render(Canvas);
+			const { container } = render(Canvas);
 
-			// WelcomeScreen shows app name and description
-			expect(screen.getByRole('heading', { name: /rackarr/i })).toBeInTheDocument();
-			expect(screen.getByText(/visualize.*rack.*layout/i)).toBeInTheDocument();
+			// WelcomeScreen shows ghost rack background
+			expect(container.querySelector('.welcome-screen')).toBeInTheDocument();
+			expect(container.querySelector('.ghost-rack')).toBeInTheDocument();
 		});
 
-		it('WelcomeScreen has New Rack button', () => {
-			render(Canvas);
+		it('WelcomeScreen has ghost rack with 42U grid lines', () => {
+			const { container } = render(Canvas);
 
-			const newRackButton = screen.getByRole('button', { name: /new rack/i });
-			expect(newRackButton).toBeInTheDocument();
-		});
-
-		it('WelcomeScreen New Rack button dispatches newRack event', async () => {
-			const handleNewRack = vi.fn();
-
-			render(Canvas, { props: { onnewrack: handleNewRack } });
-
-			const newRackButton = screen.getByRole('button', { name: /new rack/i });
-			await fireEvent.click(newRackButton);
-
-			expect(handleNewRack).toHaveBeenCalledTimes(1);
+			// 43 grid lines for 42U rack (one line at each U boundary)
+			const unitLines = container.querySelectorAll('.rack-line');
+			expect(unitLines.length).toBe(43);
 		});
 	});
 
@@ -68,10 +58,10 @@ describe('Canvas Component', () => {
 			const layoutStore = getLayoutStore();
 			layoutStore.addRack('Test Rack', 12);
 
-			render(Canvas);
+			const { container } = render(Canvas);
 
 			// WelcomeScreen should not be visible
-			expect(screen.queryByText(/rack layout designer/i)).not.toBeInTheDocument();
+			expect(container.querySelector('.welcome-screen')).not.toBeInTheDocument();
 		});
 	});
 

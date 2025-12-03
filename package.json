@@ -33,6 +33,7 @@
 		"@sveltejs/vite-plugin-svelte": "^6.2.1",
 		"@testing-library/jest-dom": "^6.6.3",
 		"@testing-library/svelte": "^5.2.6",
+		"@types/js-yaml": "^4.0.9",
 		"@types/jszip": "^3.4.0",
 		"@types/node": "^24",
 		"eslint": "^9.39.1",
@@ -61,6 +62,7 @@
 		]
 	},
 	"dependencies": {
+		"js-yaml": "^4.1.1",
 		"jszip": "^3.10.1",
 		"panzoom": "^9.4.3",
 		"zod": "^4.1.13"

@@ -8,16 +8,14 @@ A browser-based visual tool for planning and documenting server rack layouts. De
 
 ## Features
 
-- **Visual Rack Editor**: Single rack editing with heights from 1U to 100U, supporting both 10" and 19" rack widths
-- **Drag-and-Drop**: Intuitive device placement from a fixed device library sidebar
-- **Device Library**: 12 device categories with starter devices, plus custom device creation
-- **Device Images**: Upload front/rear images for devices with label/image display toggle
-- **Smart Collision Detection**: Prevents device overlap with visual feedback
-- **Export Options**: PNG, JPEG, SVG, and PDF export with bundled metadata option
+- **Drag-and-Drop**: Intuitive device placement from the device library sidebar
+- **Rack Width Support**: Both 10" and 19" rack form factors
+- **Device Images**: Upload front/rear images with label/image display toggle
+- **Export Options**: PNG, JPEG, SVG export with optional bundled metadata
 - **Save/Load**: ZIP archive format (`.rackarr.zip`) with embedded device images
+- **Device Library**: 12 device categories with starter devices, plus custom device creation
 - **Dark/Light Themes**: Full theme support with system preference detection
 - **Keyboard Shortcuts**: Full keyboard navigation for power users
-- **Session Persistence**: Auto-saves work to browser storage
 - **Offline Ready**: Runs entirely in the browser, no server required
 
 ## AI Transparency

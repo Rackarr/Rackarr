@@ -539,7 +539,7 @@
 	}
 
 	.rack-interior {
-		fill: var(--colour-rack-interior, #2d2d2d);
+		fill: var(--rack-interior);
 	}
 
 	/* U slot backgrounds */
@@ -565,16 +565,16 @@
 	}
 
 	.rack-rail {
-		fill: var(--colour-rack-rail, #404040);
+		fill: var(--rack-rail);
 	}
 
 	.rack-grid-line {
-		stroke: var(--colour-rack-border, #505050);
+		stroke: var(--rack-grid);
 		stroke-width: 1;
 	}
 
 	.u-label {
-		fill: var(--colour-text-muted, #b0b0b0);
+		fill: var(--rack-text);
 		font-size: 10px;
 		text-anchor: middle;
 		font-family: var(--font-mono, monospace);
@@ -584,15 +584,15 @@
 
 	.u-label-highlight {
 		font-weight: var(--font-weight-semibold, 600);
-		fill: var(--colour-text, #ffffff);
+		fill: var(--rack-text-highlight);
 	}
 
 	.rack-hole {
-		fill: var(--colour-rack-border, #505050);
+		fill: var(--rack-grid);
 	}
 
 	.rack-name {
-		fill: var(--colour-text, #ffffff);
+		fill: var(--colour-text);
 		font-size: 15px;
 		font-weight: 500;
 		text-anchor: middle;

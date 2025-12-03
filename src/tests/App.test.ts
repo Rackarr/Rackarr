@@ -4,7 +4,7 @@ import App from '../App.svelte';
 import { resetLayoutStore, getLayoutStore } from '$lib/stores/layout.svelte';
 import { resetSelectionStore, getSelectionStore } from '$lib/stores/selection.svelte';
 import { resetUIStore } from '$lib/stores/ui.svelte';
-import { resetCanvasStore, getCanvasStore } from '$lib/stores/canvas.svelte';
+import { resetCanvasStore } from '$lib/stores/canvas.svelte';
 
 describe('App Component', () => {
 	beforeEach(() => {
@@ -23,18 +23,16 @@ describe('App Component', () => {
 		it('renders toolbar', () => {
 			render(App);
 			// Toolbar should exist with action buttons
-			// 'Rackarr' text appears in both toolbar and welcome screen
-			const rackarrElements = screen.getAllByText('Rackarr');
-			expect(rackarrElements.length).toBeGreaterThanOrEqual(1);
-			// And main action buttons - use getAllByRole since there's also a button in welcome screen
-			const newRackButtons = screen.getAllByRole('button', { name: /new rack/i });
-			expect(newRackButtons.length).toBeGreaterThanOrEqual(1);
+			// 'Rackarr' text appears in toolbar branding
+			expect(screen.getByText('Rackarr')).toBeInTheDocument();
+			// And main action buttons in toolbar
+			expect(screen.getByRole('button', { name: /new rack/i })).toBeInTheDocument();
 		});
 
 		it('renders canvas with welcome screen when no racks', () => {
-			render(App);
+			const { container } = render(App);
 			// Canvas shows welcome screen when no racks
-			expect(screen.getByText(/rack layout designer/i)).toBeInTheDocument();
+			expect(container.querySelector('.welcome-screen')).toBeInTheDocument();
 		});
 
 		it('renders with correct layout structure', () => {
@@ -170,60 +168,6 @@ describe('App Component', () => {
 		});
 	});
 
-	describe('Zoom Controls', () => {
-		it('zoom in updates zoom level', async () => {
-			// Need a rack so panzoom initializes (Canvas needs panzoom-container)
-			const layoutStore = getLayoutStore();
-			layoutStore.addRack('Test Rack', 12);
-
-			render(App);
-
-			// Wait for panzoom to initialize
-			const canvasStore = getCanvasStore();
-			await waitFor(() => {
-				expect(canvasStore.hasPanzoom).toBe(true);
-			});
-
-			// Initial zoom should be 100%
-			expect(screen.getByText('100%')).toBeInTheDocument();
-
-			// Click zoom in
-			const zoomInBtn = screen.getByRole('button', { name: /zoom in/i });
-			await fireEvent.click(zoomInBtn);
-
-			// Should increase by 25%
-			await waitFor(() => {
-				expect(screen.getByText('125%')).toBeInTheDocument();
-			});
-		});
-
-		it('zoom out updates zoom level', async () => {
-			// Need a rack so panzoom initializes
-			const layoutStore = getLayoutStore();
-			layoutStore.addRack('Test Rack', 12);
-
-			render(App);
-
-			// Wait for panzoom to initialize
-			const canvasStore = getCanvasStore();
-			await waitFor(() => {
-				expect(canvasStore.hasPanzoom).toBe(true);
-			});
-
-			// Start at 100%
-			expect(screen.getByText('100%')).toBeInTheDocument();
-
-			// Click zoom out
-			const zoomOutBtn = screen.getByRole('button', { name: /zoom out/i });
-			await fireEvent.click(zoomOutBtn);
-
-			// Should decrease by 25%
-			await waitFor(() => {
-				expect(screen.getByText('75%')).toBeInTheDocument();
-			});
-		});
-	});
-
 	describe('Beforeunload Handler', () => {
 		it('shows confirmation when dirty and leaving page', () => {
 			const layoutStore = getLayoutStore();
@@ -267,12 +211,10 @@ describe('App Component', () => {
 
 	describe('New Rack Action', () => {
 		it('new rack button opens form dialog', async () => {
-			const { container } = render(App);
+			render(App);
 
-			// Click the "New Rack" button in welcome screen (primary button with btn-primary class)
-			const welcomeScreen = container.querySelector('.welcome-screen');
-			expect(welcomeScreen).toBeInTheDocument();
-			const newRackBtn = welcomeScreen?.querySelector('.btn-primary') as HTMLButtonElement;
+			// Click the "New Rack" button in toolbar (primary button when no racks)
+			const newRackBtn = screen.getByRole('button', { name: /new rack/i });
 			expect(newRackBtn).toBeInTheDocument();
 			await fireEvent.click(newRackBtn);
 
@@ -286,14 +228,13 @@ describe('App Component', () => {
 		it('new rack form creates a rack when submitted', async () => {
 			const layoutStore = getLayoutStore();
 
-			const { container } = render(App);
+			render(App);
 
 			// Initially no racks
 			expect(layoutStore.rackCount).toBe(0);
 
-			// Click the "New Rack" button in welcome screen
-			const welcomeScreen = container.querySelector('.welcome-screen');
-			const newRackBtn = welcomeScreen?.querySelector('.btn-primary') as HTMLButtonElement;
+			// Click the "New Rack" button in toolbar
+			const newRackBtn = screen.getByRole('button', { name: /new rack/i });
 			await fireEvent.click(newRackBtn);
 
 			// Fill out the form

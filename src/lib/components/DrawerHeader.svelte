@@ -59,7 +59,7 @@
 		height: 32px;
 		border-radius: 6px;
 		background: transparent;
-		color: var(--colour-text-secondary);
+		color: var(--colour-text-muted);
 		transition:
 			background-color var(--transition-fast),
 			color var(--transition-fast);

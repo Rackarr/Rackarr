@@ -174,16 +174,16 @@
 		width: 100%;
 		padding: 8px 12px;
 		font-size: 13px;
-		color: var(--colour-text, #ffffff);
-		background-color: var(--colour-input-bg, #2d2d2d);
-		border: 1px solid var(--colour-border, #404040);
+		color: var(--colour-text);
+		background-color: var(--input-bg);
+		border: 1px solid var(--input-border);
 		border-radius: 4px;
 		outline: none;
 		transition: border-color 0.15s ease;
 	}
 
 	.search-input::placeholder {
-		color: var(--colour-text-secondary, #808080);
+		color: var(--input-placeholder);
 	}
 
 	.search-input:focus {
@@ -207,7 +207,7 @@
 		font-weight: 600;
 		text-transform: uppercase;
 		letter-spacing: 0.5px;
-		color: var(--colour-text-secondary, #808080);
+		color: var(--colour-text-muted);
 	}
 
 	.category-devices {
@@ -233,7 +233,7 @@
 	.empty-hint {
 		margin: 4px 0 0;
 		font-size: 12px;
-		color: var(--colour-text-secondary, #808080);
+		color: var(--colour-text-muted);
 	}
 
 	.actions {
@@ -256,9 +256,9 @@
 		padding: 10px 12px;
 		font-size: 13px;
 		font-weight: 500;
-		color: var(--colour-text, #ffffff);
-		background-color: var(--colour-button-bg, #3a3a3a);
-		border: 1px solid var(--colour-border, #404040);
+		color: var(--colour-text);
+		background-color: var(--button-bg);
+		border: 1px solid var(--button-border);
 		border-radius: 4px;
 		cursor: pointer;
 		transition:
@@ -268,7 +268,7 @@
 
 	.import-button:hover,
 	.add-device-button:hover {
-		background-color: var(--colour-button-hover, #4a4a4a);
+		background-color: var(--button-bg-hover);
 	}
 
 	.import-button:active,

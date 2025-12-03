@@ -1,9 +1,8 @@
 <!--
   Toolbar Component
-  Main application toolbar with actions, zoom controls, and theme toggle
+  Main application toolbar with actions and theme toggle
 -->
 <script lang="ts">
-	import ToolbarButton from './ToolbarButton.svelte';
 	import Tooltip from './Tooltip.svelte';
 	import {
 		IconPlus,
@@ -11,8 +10,6 @@
 		IconLoad,
 		IconExport,
 		IconTrash,
-		IconZoomIn,
-		IconZoomOut,
 		IconFitAll,
 		IconSun,
 		IconMoon,
@@ -21,11 +18,11 @@
 		IconImage,
 		IconLogo
 	} from './icons';
-	import { getCanvasStore } from '$lib/stores/canvas.svelte';
 	import type { DisplayMode } from '$lib/types';
 
 	interface Props {
 		hasSelection?: boolean;
+		hasRacks?: boolean;
 		theme?: 'dark' | 'light';
 		displayMode?: DisplayMode;
 		showLabelsOnImages?: boolean;
@@ -34,8 +31,6 @@
 		onload?: () => void;
 		onexport?: () => void;
 		ondelete?: () => void;
-		onzoomin?: () => void;
-		onzoomout?: () => void;
 		onfitall?: () => void;
 		ontoggletheme?: () => void;
 		ontoggledisplaymode?: () => void;
@@ -45,6 +40,7 @@
 
 	let {
 		hasSelection = false,
+		hasRacks = false,
 		theme = 'dark',
 		displayMode = 'label',
 		showLabelsOnImages = false,
@@ -53,8 +49,6 @@
 		onload,
 		onexport,
 		ondelete,
-		onzoomin,
-		onzoomout,
 		onfitall,
 		ontoggletheme,
 		ontoggledisplaymode,
@@ -63,57 +57,70 @@
 	}: Props = $props();
 
 	const displayModeLabel = $derived(displayMode === 'label' ? 'Label' : 'Image');
-
-	const canvasStore = getCanvasStore();
 </script>
 
 <header class="toolbar">
 	<!-- Left section: Branding -->
 	<div class="toolbar-section toolbar-left">
 		<div class="toolbar-brand">
-			<IconLogo size={26} />
-			<span>Rackarr</span>
+			<IconLogo size={36} />
+			<span class="brand-name">Rackarr</span>
+			<span class="brand-tagline">Rack Layout Designer for Homelabbers</span>
 		</div>
 	</div>
 
 	<!-- Center section: Main actions -->
 	<div class="toolbar-section toolbar-center">
 		<Tooltip text="New Rack" shortcut="N" position="bottom">
-			<ToolbarButton label="New Rack" onclick={onnewrack}>
-				<IconPlus />
-			</ToolbarButton>
+			<button
+				class="toolbar-action-btn"
+				class:primary={!hasRacks}
+				aria-label="New Rack"
+				onclick={onnewrack}
+			>
+				<IconPlus size={16} />
+				<span>New Rack</span>
+			</button>
+		</Tooltip>
+
+		<Tooltip text="Load Layout" shortcut="Ctrl+O" position="bottom">
+			<button class="toolbar-action-btn" aria-label="Load Layout" onclick={onload}>
+				<IconLoad size={16} />
+				<span>Load Layout</span>
+			</button>
 		</Tooltip>
 
 		<div class="separator" aria-hidden="true"></div>
 
 		<Tooltip text="Save Layout" shortcut="Ctrl+S" position="bottom">
-			<ToolbarButton label="Save" onclick={onsave}>
-				<IconSave />
-			</ToolbarButton>
-		</Tooltip>
-
-		<Tooltip text="Load Layout" shortcut="Ctrl+O" position="bottom">
-			<ToolbarButton label="Load" onclick={onload}>
-				<IconLoad />
-			</ToolbarButton>
+			<button class="toolbar-action-btn" aria-label="Save" onclick={onsave}>
+				<IconSave size={16} />
+				<span>Save</span>
+			</button>
 		</Tooltip>
 
 		<Tooltip text="Export Image" shortcut="Ctrl+E" position="bottom">
-			<ToolbarButton label="Export" onclick={onexport}>
-				<IconExport />
-			</ToolbarButton>
+			<button class="toolbar-action-btn" aria-label="Export" onclick={onexport}>
+				<IconExport size={16} />
+				<span>Export</span>
+			</button>
 		</Tooltip>
 
 		<div class="separator" aria-hidden="true"></div>
 
 		<Tooltip text="Display Mode: {displayModeLabel}" shortcut="I" position="bottom">
-			<ToolbarButton label="Display Mode: {displayModeLabel}" onclick={ontoggledisplaymode}>
+			<button
+				class="toolbar-action-btn"
+				aria-label="Display Mode: {displayModeLabel}"
+				onclick={ontoggledisplaymode}
+			>
 				{#if displayMode === 'label'}
-					<IconLabel />
+					<IconLabel size={16} />
 				{:else}
-					<IconImage />
+					<IconImage size={16} />
 				{/if}
-			</ToolbarButton>
+				<span>{displayModeLabel}</span>
+			</button>
 		</Tooltip>
 
 		{#if displayMode === 'image'}
@@ -133,52 +140,48 @@
 		<div class="separator" aria-hidden="true"></div>
 
 		<Tooltip text="Delete Selected" shortcut="Del" position="bottom">
-			<ToolbarButton label="Delete" disabled={!hasSelection} onclick={ondelete}>
-				<IconTrash />
-			</ToolbarButton>
-		</Tooltip>
-	</div>
-
-	<!-- Right section: Zoom, theme, help -->
-	<div class="toolbar-section toolbar-right">
-		<Tooltip text="Zoom Out" shortcut="-" position="bottom">
-			<ToolbarButton label="Zoom Out" disabled={!canvasStore.canZoomOut} onclick={onzoomout}>
-				<IconZoomOut />
-			</ToolbarButton>
-		</Tooltip>
-
-		<span class="zoom-display">{canvasStore.zoomPercentage}%</span>
-
-		<Tooltip text="Zoom In" shortcut="+" position="bottom">
-			<ToolbarButton label="Zoom In" disabled={!canvasStore.canZoomIn} onclick={onzoomin}>
-				<IconZoomIn />
-			</ToolbarButton>
+			<button
+				class="toolbar-action-btn"
+				aria-label="Delete"
+				disabled={!hasSelection}
+				onclick={ondelete}
+			>
+				<IconTrash size={16} />
+				<span>Delete</span>
+			</button>
 		</Tooltip>
 
 		<Tooltip text="Fit All Racks" shortcut="F" position="bottom">
-			<ToolbarButton label="Fit All" onclick={onfitall}>
-				<IconFitAll />
-			</ToolbarButton>
+			<button class="toolbar-action-btn" aria-label="Fit All" onclick={onfitall}>
+				<IconFitAll size={16} />
+				<span>Fit All</span>
+			</button>
 		</Tooltip>
 
 		<div class="separator" aria-hidden="true"></div>
 
 		<Tooltip text="Toggle Theme" position="bottom">
-			<ToolbarButton label="Toggle Theme" onclick={ontoggletheme}>
+			<button class="toolbar-action-btn" aria-label="Toggle Theme" onclick={ontoggletheme}>
 				{#if theme === 'dark'}
-					<IconSun />
+					<IconSun size={16} />
+					<span>Light</span>
 				{:else}
-					<IconMoon />
+					<IconMoon size={16} />
+					<span>Dark</span>
 				{/if}
-			</ToolbarButton>
+			</button>
 		</Tooltip>
 
 		<Tooltip text="Help & Shortcuts" shortcut="?" position="bottom">
-			<ToolbarButton label="Help" onclick={onhelp}>
-				<IconHelp />
-			</ToolbarButton>
+			<button class="toolbar-action-btn" aria-label="Help" onclick={onhelp}>
+				<IconHelp size={16} />
+				<span>Help</span>
+			</button>
 		</Tooltip>
 	</div>
+
+	<!-- Right section: Spacer for balance -->
+	<div class="toolbar-section toolbar-right"></div>
 </header>
 
 <style>
@@ -191,6 +194,7 @@
 		background: var(--colour-toolbar-bg, var(--toolbar-bg));
 		border-bottom: 1px solid var(--colour-toolbar-border, var(--toolbar-border));
 		flex-shrink: 0;
+		position: relative;
 	}
 
 	.toolbar-section {
@@ -201,25 +205,86 @@
 
 	.toolbar-left {
 		flex: 0 0 auto;
+		z-index: 1;
 	}
 
 	.toolbar-center {
-		flex: 1;
-		justify-content: center;
+		position: absolute;
+		left: 50%;
+		transform: translateX(-50%);
+		display: flex;
+		align-items: center;
+		gap: var(--space-1);
 	}
 
 	.toolbar-right {
 		flex: 0 0 auto;
+		z-index: 1;
 	}
 
 	.toolbar-brand {
 		display: flex;
 		align-items: center;
 		gap: var(--space-2);
-		font-size: var(--font-size-lg);
-		font-weight: var(--font-weight-bold);
 		color: var(--colour-text);
 		padding: var(--space-2) var(--space-4);
+	}
+
+	.brand-name {
+		font-size: 1.265rem; /* ~18px × 1.15 = 20.7px */
+		font-weight: var(--font-weight-bold);
+	}
+
+	.brand-tagline {
+		font-size: 0.8rem;
+		font-weight: var(--font-weight-normal);
+		color: var(--colour-text-muted);
+		margin-left: var(--space-2);
+	}
+
+	.toolbar-action-btn {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-1);
+		padding: var(--space-2) var(--space-3);
+		border: 1px solid var(--colour-border);
+		border-radius: var(--radius-md);
+		background: transparent;
+		color: var(--colour-text);
+		font-size: var(--font-size-sm);
+		font-weight: var(--font-weight-medium);
+		cursor: pointer;
+		transition:
+			background-color var(--duration-fast) var(--ease-out),
+			border-color var(--duration-fast) var(--ease-out),
+			opacity var(--duration-fast) var(--ease-out);
+	}
+
+	.toolbar-action-btn:hover:not(:disabled) {
+		background-color: var(--colour-surface-hover);
+	}
+
+	.toolbar-action-btn:focus-visible {
+		outline: none;
+		box-shadow:
+			0 0 0 2px var(--colour-bg),
+			0 0 0 4px var(--colour-focus-ring);
+	}
+
+	.toolbar-action-btn:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+
+	.toolbar-action-btn.primary {
+		background: var(--colour-selection);
+		border-color: var(--colour-selection);
+		color: var(--colour-text-on-primary, #ffffff);
+	}
+
+	.toolbar-action-btn.primary:hover:not(:disabled) {
+		background: var(--colour-selection-hover);
+		border-color: var(--colour-selection-hover);
 	}
 
 	.separator {
@@ -227,14 +292,6 @@
 		height: var(--space-6);
 		background: var(--colour-border);
 		margin: 0 var(--space-2);
-	}
-
-	.zoom-display {
-		min-width: var(--space-12);
-		text-align: center;
-		font-size: var(--font-size-sm);
-		color: var(--colour-text-muted);
-		font-variant-numeric: tabular-nums;
 	}
 
 	.checkbox-toggle {
