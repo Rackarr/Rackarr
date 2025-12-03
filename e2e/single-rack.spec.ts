@@ -18,24 +18,32 @@ async function fillRackForm(page: Page, name: string, height: number) {
 	}
 }
 
-test.describe('Single Rack Mode (v0.1.1)', () => {
+/**
+ * Helper to replace the current rack (v0.2 flow)
+ * In v0.2, a rack always exists. To create a new one, we go through the replace dialog.
+ */
+async function replaceRack(page: Page, name: string, height: number) {
+	await page.click('button[aria-label="New Rack"]');
+	await page.click('button:has-text("Replace")');
+	await fillRackForm(page, name, height);
+	await page.click('button:has-text("Create")');
+}
+
+test.describe('Single Rack Mode (v0.2)', () => {
 	test.beforeEach(async ({ page }) => {
 		await page.goto('/');
 		await page.evaluate(() => sessionStorage.clear());
 		await page.reload();
 	});
 
-	test('shows confirmation dialog when creating second rack', async ({ page }) => {
-		// Create first rack
-		await page.click('.btn-primary:has-text("New Rack")');
-		await fillRackForm(page, 'My Rack', 42);
-		await page.click('button:has-text("Create")');
-
-		// Verify rack exists
+	test('rack exists on initial load (v0.2 always has a rack)', async ({ page }) => {
+		// In v0.2, a rack always exists - verify this
 		await expect(page.locator('.rack-container')).toHaveCount(1);
-		await expect(page.locator('text=My Rack')).toBeVisible();
+		await expect(page.locator('.rack-name')).toBeVisible();
+	});
 
-		// Try to create second rack
+	test('shows confirmation dialog when clicking New Rack', async ({ page }) => {
+		// In v0.2, clicking New Rack shows replace confirmation
 		await page.click('button[aria-label="New Rack"]');
 
 		// Should show confirmation dialog
@@ -46,13 +54,11 @@ test.describe('Single Rack Mode (v0.1.1)', () => {
 	});
 
 	test('Replace button clears rack and opens form', async ({ page }) => {
-		// Create rack
-		await page.click('.btn-primary:has-text("New Rack")');
-		await fillRackForm(page, 'Old Rack', 24);
-		await page.click('button:has-text("Create")');
+		// First replace the default rack with a named one
+		await replaceRack(page, 'Old Rack', 24);
 
 		// Verify rack exists
-		await expect(page.locator('text=Old Rack')).toBeVisible();
+		await expect(page.locator('.rack-name')).toContainText('Old Rack');
 
 		// Click New Rack, then Replace
 		await page.click('button[aria-label="New Rack"]');
@@ -77,13 +83,11 @@ test.describe('Single Rack Mode (v0.1.1)', () => {
 	});
 
 	test('Cancel preserves existing rack', async ({ page }) => {
-		// Create rack
-		await page.click('.btn-primary:has-text("New Rack")');
-		await fillRackForm(page, 'My Rack', 42);
-		await page.click('button:has-text("Create")');
+		// First replace the default rack with a named one
+		await replaceRack(page, 'My Rack', 42);
 
 		// Verify rack exists
-		await expect(page.locator('text=My Rack')).toBeVisible();
+		await expect(page.locator('.rack-name')).toContainText('My Rack');
 
 		// Click New Rack, then Cancel
 		await page.click('button[aria-label="New Rack"]');
@@ -95,17 +99,15 @@ test.describe('Single Rack Mode (v0.1.1)', () => {
 
 		// Rack should still exist
 		await expect(page.locator('.rack-container')).toHaveCount(1);
-		await expect(page.locator('text=My Rack')).toBeVisible();
+		await expect(page.locator('.rack-name')).toContainText('My Rack');
 
 		// New Rack form should NOT be open
 		await expect(page.locator('h2:has-text("New Rack")')).not.toBeVisible();
 	});
 
 	test('Escape key triggers Cancel', async ({ page }) => {
-		// Create rack
-		await page.click('.btn-primary:has-text("New Rack")');
-		await fillRackForm(page, 'Test Rack', 24);
-		await page.click('button:has-text("Create")');
+		// First replace the default rack with a named one
+		await replaceRack(page, 'Test Rack', 24);
 
 		// Click New Rack to show dialog
 		await page.click('button[aria-label="New Rack"]');
@@ -119,16 +121,11 @@ test.describe('Single Rack Mode (v0.1.1)', () => {
 
 		// Rack should still exist
 		await expect(page.locator('.rack-container')).toHaveCount(1);
-		await expect(page.locator('text=Test Rack')).toBeVisible();
+		await expect(page.locator('.rack-name')).toContainText('Test Rack');
 	});
 
 	test('enforces maximum 1 rack', async ({ page }) => {
-		// Create first rack
-		await page.click('.btn-primary:has-text("New Rack")');
-		await fillRackForm(page, 'Rack 1', 12);
-		await page.click('button:has-text("Create")');
-
-		// Verify 1 rack exists
+		// Verify 1 rack exists initially
 		await expect(page.locator('.rack-container')).toHaveCount(1);
 
 		// Try to create a 2nd rack should show confirmation dialog
@@ -145,10 +142,8 @@ test.describe('Single Rack Mode (v0.1.1)', () => {
 	});
 
 	test('dialog shows correct rack name and device count', async ({ page }) => {
-		// Create rack
-		await page.click('.btn-primary:has-text("New Rack")');
-		await fillRackForm(page, 'Production Server Rack', 42);
-		await page.click('button:has-text("Create")');
+		// Replace default rack with a named one
+		await replaceRack(page, 'Production Server Rack', 42);
 
 		// Try to create second rack
 		await page.click('button[aria-label="New Rack"]');

@@ -19,6 +19,17 @@ async function fillRackForm(page: Page, name: string, height: number) {
 }
 
 /**
+ * Helper to replace the current rack (v0.2 flow)
+ * In v0.2, a rack always exists. To create a new one, we go through the replace dialog.
+ */
+async function replaceRack(page: Page, name: string, height: number) {
+	await page.click('button[aria-label="New Rack"]');
+	await page.click('button:has-text("Replace")');
+	await fillRackForm(page, name, height);
+	await page.click('button:has-text("Create")');
+}
+
+/**
  * Helper to drag a device from palette to rack using manual events
  * Manually dispatches HTML5 drag events for more reliable DnD testing
  */
@@ -28,7 +39,7 @@ async function dragDeviceToRack(page: Page) {
 
 	// Get element handles using Playwright locators
 	const deviceHandle = await page.locator('.device-palette-item').first().elementHandle();
-	const rackHandle = await page.locator('.rack-container svg').elementHandle();
+	const rackHandle = await page.locator('.rack-svg').elementHandle();
 
 	if (!deviceHandle || !rackHandle) {
 		throw new Error('Could not find device item or rack');
@@ -62,45 +73,53 @@ test.describe('Keyboard Shortcuts', () => {
 		await page.evaluate(() => sessionStorage.clear());
 		await page.reload();
 
-		// Create a rack for testing
-		await page.click('.btn-primary:has-text("New Rack")');
-		await fillRackForm(page, 'Test Rack', 12);
-		await page.click('button:has-text("Create")');
+		// In v0.2, rack already exists. Replace it with a specific one for testing.
+		await replaceRack(page, 'Test Rack', 12);
 	});
 
-	test('Delete key removes selected rack', async ({ page }) => {
+	test('Delete key clears rack devices (v0.2 cannot remove the rack)', async ({ page }) => {
+		// Add a device first
+		await dragDeviceToRack(page);
+		await expect(page.locator('.rack-device')).toBeVisible();
+
 		// Select the rack
-		await page.locator('.rack-container svg').click();
+		await page.locator('.rack-svg').click();
 
 		// Press Delete
 		await page.keyboard.press('Delete');
 
-		// Confirm deletion
+		// Confirm deletion - button text is "Delete Rack" for racks
 		await expect(page.locator('.dialog')).toBeVisible();
-		await page.click('.btn-destructive');
+		await page.click('[role="dialog"] button:has-text("Delete Rack")');
 
-		// Rack should be removed
-		await expect(page.locator('.rack-container')).not.toBeVisible();
+		// In v0.2, rack still exists but devices are cleared
+		await expect(page.locator('.rack-container')).toBeVisible();
+		await expect(page.locator('.rack-device')).not.toBeVisible();
 	});
 
-	test('Backspace key removes selected rack', async ({ page }) => {
+	test('Backspace key clears rack devices (v0.2 cannot remove the rack)', async ({ page }) => {
+		// Add a device first
+		await dragDeviceToRack(page);
+		await expect(page.locator('.rack-device')).toBeVisible();
+
 		// Select the rack
-		await page.locator('.rack-container svg').click();
+		await page.locator('.rack-svg').click();
 
 		// Press Backspace
 		await page.keyboard.press('Backspace');
 
-		// Confirm deletion
+		// Confirm deletion - button text is "Delete Rack" for racks
 		await expect(page.locator('.dialog')).toBeVisible();
-		await page.click('.btn-destructive');
+		await page.click('[role="dialog"] button:has-text("Delete Rack")');
 
-		// Rack should be removed
-		await expect(page.locator('.rack-container')).not.toBeVisible();
+		// In v0.2, rack still exists but devices are cleared
+		await expect(page.locator('.rack-container')).toBeVisible();
+		await expect(page.locator('.rack-device')).not.toBeVisible();
 	});
 
 	test('Escape clears selection', async ({ page }) => {
 		// Select the rack
-		await page.locator('.rack-container svg').click();
+		await page.locator('.rack-svg').click();
 
 		// Edit panel should open
 		await expect(page.locator('.drawer-right.open')).toBeVisible();
@@ -136,7 +155,7 @@ test.describe('Keyboard Shortcuts', () => {
 	});
 
 	test('Escape closes dialogs', async ({ page }) => {
-		// Open new rack dialog
+		// Open new rack dialog (this shows replace dialog in v0.2)
 		await page.click('button[aria-label="New Rack"]');
 		await expect(page.locator('.dialog')).toBeVisible();
 

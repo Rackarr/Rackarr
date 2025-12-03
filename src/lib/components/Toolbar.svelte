@@ -215,6 +215,7 @@
 		display: flex;
 		align-items: center;
 		gap: var(--space-1);
+		z-index: 2; /* Above toolbar-left to ensure buttons are clickable */
 	}
 
 	.toolbar-right {
@@ -240,6 +241,7 @@
 		font-weight: var(--font-weight-normal);
 		color: var(--colour-text-muted);
 		margin-left: var(--space-2);
+		pointer-events: none; /* Prevent intercepting clicks on toolbar buttons */
 	}
 
 	.toolbar-action-btn {

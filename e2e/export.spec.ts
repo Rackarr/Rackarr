@@ -19,6 +19,17 @@ async function fillRackForm(page: Page, name: string, height: number) {
 }
 
 /**
+ * Helper to replace the current rack (v0.2 flow)
+ */
+async function replaceRack(page: Page, name: string, height: number) {
+	await page.click('button[aria-label="New Rack"]');
+	await page.click('button:has-text("Replace")');
+	await fillRackForm(page, name, height);
+	await page.click('button:has-text("Create")');
+	await expect(page.locator('.rack-container')).toBeVisible();
+}
+
+/**
  * Helper to drag a device from palette to rack using manual events
  * Manually dispatches HTML5 drag events for more reliable DnD testing
  */
@@ -28,7 +39,7 @@ async function dragDeviceToRack(page: Page) {
 
 	// Get element handles using Playwright locators
 	const deviceHandle = await page.locator('.device-palette-item').first().elementHandle();
-	const rackHandle = await page.locator('.rack-container svg').elementHandle();
+	const rackHandle = await page.locator('.rack-svg').elementHandle();
 
 	if (!deviceHandle || !rackHandle) {
 		throw new Error('Could not find device item or rack');
@@ -62,10 +73,8 @@ test.describe('Export Functionality', () => {
 		await page.evaluate(() => sessionStorage.clear());
 		await page.reload();
 
-		// Create a rack for testing
-		await page.click('.btn-primary:has-text("New Rack")');
-		await fillRackForm(page, 'Export Test Rack', 12);
-		await page.click('button:has-text("Create")');
+		// In v0.2, rack already exists. Replace it with a test rack for consistency.
+		await replaceRack(page, 'Export Test Rack', 12);
 
 		// Add a device
 		await dragDeviceToRack(page);

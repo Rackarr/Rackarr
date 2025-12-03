@@ -3,10 +3,13 @@ import path from 'path';
 import fs from 'fs';
 
 /**
- * Helper to create a rack
+ * Helper to replace the current rack (v0.2 flow)
+ * In v0.2, a rack always exists. To create a new one, we go through the replace dialog.
  */
-async function createRack(page: Page, name: string, height: number = 24) {
-	await page.click('.btn-primary:has-text("New Rack")');
+async function _replaceRack(page: Page, name: string, height: number = 24) {
+	await page.click('button[aria-label="New Rack"]');
+	await page.click('button:has-text("Replace")');
+
 	await page.fill('#rack-name', name);
 
 	const presetHeights = [12, 18, 24, 42];
@@ -81,15 +84,16 @@ test.describe('Device Images', () => {
 	});
 
 	test('display mode toggle exists in toolbar', async ({ page }) => {
-		// Create a rack
-		await createRack(page, 'Display Test', 24);
+		// In v0.2, rack already exists - no need to create one
+		await expect(page.locator('.rack-container')).toBeVisible();
 
 		// Should have toolbar with display mode related controls
 		await expect(page.locator('.toolbar')).toBeVisible();
 	});
 
 	test('keyboard shortcut I triggers display mode toggle', async ({ page }) => {
-		await createRack(page, 'Keyboard Test', 24);
+		// In v0.2, rack already exists
+		await expect(page.locator('.rack-container')).toBeVisible();
 
 		// Press I to toggle display mode - should not throw error
 		await page.keyboard.press('i');
@@ -102,7 +106,8 @@ test.describe('Device Images', () => {
 	});
 
 	test('labels toggle visible when in image mode', async ({ page }) => {
-		await createRack(page, 'Labels Test', 24);
+		// In v0.2, rack already exists
+		await expect(page.locator('.rack-container')).toBeVisible();
 
 		// Toggle to image mode with I key
 		await page.keyboard.press('i');

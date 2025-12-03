@@ -1,10 +1,13 @@
 import { test, expect, Page } from '@playwright/test';
 
 /**
- * Helper to create a rack with given name
+ * Helper to replace the current rack (v0.2 flow)
+ * In v0.2, a rack always exists. To create a new one, we go through the replace dialog.
  */
-async function createRack(page: Page, name: string, height: number = 24) {
-	await page.click('.btn-primary:has-text("New Rack")');
+async function replaceRack(page: Page, name: string, height: number = 24) {
+	await page.click('button[aria-label="New Rack"]');
+	await page.click('button:has-text("Replace")');
+
 	await page.fill('#rack-name', name);
 
 	const presetHeights = [12, 18, 24, 42];
@@ -29,7 +32,7 @@ async function dragDeviceToRack(page: Page, deviceName: string) {
 
 	// Get the element handle and use evaluate on it
 	const deviceHandle = await deviceLocator.elementHandle();
-	const rackHandle = await page.locator('.rack-container svg').elementHandle();
+	const rackHandle = await page.locator('.rack-svg').elementHandle();
 
 	if (!deviceHandle || !rackHandle) {
 		throw new Error(`Could not find device "${deviceName}" or rack`);
@@ -79,8 +82,8 @@ test.describe('Shelf Category', () => {
 	});
 
 	test('can add shelf device to rack', async ({ page }) => {
-		// Create a rack first
-		await createRack(page, 'Shelf Test Rack', 24);
+		// In v0.2, rack already exists. Replace it with a specific one.
+		await replaceRack(page, 'Shelf Test Rack', 24);
 
 		// Filter to shelf category
 		const searchInput = page.locator('.search-input');
@@ -109,8 +112,8 @@ test.describe('Shelf Category', () => {
 	});
 
 	test('shelf has correct colour (#8B4513)', async ({ page }) => {
-		// Create a rack
-		await createRack(page, 'Colour Test Rack', 24);
+		// In v0.2, rack already exists. Replace it with a specific one.
+		await replaceRack(page, 'Colour Test Rack', 24);
 
 		// Filter to shelf
 		const searchInput = page.locator('.search-input');

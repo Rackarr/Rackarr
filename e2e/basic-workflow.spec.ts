@@ -1,10 +1,17 @@
 import { test, expect, Page } from '@playwright/test';
 
 /**
- * Helper to fill the rack creation form
- * Uses #rack-name for name and height preset buttons or custom input
+ * Helper to replace the current rack with a new one (v0.2 flow)
+ * In v0.2, a rack always exists. To create a new one, we go through the replace dialog.
  */
-async function fillRackForm(page: Page, name: string, height: number) {
+async function replaceRack(page: Page, name: string, height: number) {
+	// Click "New Rack" in toolbar to open replace dialog
+	await page.click('button[aria-label="New Rack"]');
+
+	// Click "Replace" to open the new rack form
+	await page.click('button:has-text("Replace")');
+
+	// Now fill the rack form
 	await page.fill('#rack-name', name);
 
 	const presetHeights = [12, 18, 24, 42];
@@ -16,6 +23,8 @@ async function fillRackForm(page: Page, name: string, height: number) {
 		await page.click('.height-btn:has-text("Custom")');
 		await page.fill('#custom-height', String(height));
 	}
+
+	await page.click('button:has-text("Create")');
 }
 
 /**
@@ -29,7 +38,7 @@ async function dragDeviceToRack(page: Page) {
 	// Use evaluate to simulate drag and drop via JavaScript
 	await page.evaluate(() => {
 		const deviceItem = document.querySelector('.device-palette-item');
-		const rack = document.querySelector('.rack-container svg');
+		const rack = document.querySelector('.rack-svg');
 
 		if (!deviceItem || !rack) {
 			throw new Error('Could not find device item or rack');
@@ -84,29 +93,28 @@ test.describe('Basic Workflow', () => {
 		await page.reload();
 	});
 
-	test('can create a new rack', async ({ page }) => {
-		// Click the New Rack button in the welcome screen
-		await page.click('.btn-primary:has-text("New Rack")');
+	test('rack is visible on initial load (v0.2 always has a rack)', async ({ page }) => {
+		// In v0.2, a rack is always visible - no welcome screen
+		await expect(page.locator('.rack-container')).toBeVisible();
+		// Default rack name
+		await expect(page.locator('.rack-name')).toBeVisible();
+	});
 
-		// Fill out the rack form
-		await fillRackForm(page, 'Main Rack', 18);
-
-		// Create the rack
-		await page.click('button:has-text("Create")');
+	test('can replace current rack with a new one', async ({ page }) => {
+		// Replace the default rack with a new one
+		await replaceRack(page, 'Main Rack', 18);
 
 		// Verify rack appears on canvas
 		await expect(page.locator('.rack-container')).toBeVisible();
 		await expect(page.locator('text=Main Rack')).toBeVisible();
 	});
 
-	test('rack appears on canvas after creation', async ({ page }) => {
-		// Create a rack
-		await page.click('.btn-primary:has-text("New Rack")');
-		await fillRackForm(page, 'Test Rack', 24);
-		await page.click('button:has-text("Create")');
+	test('rack appears on canvas after replacement', async ({ page }) => {
+		// Replace the default rack
+		await replaceRack(page, 'Test Rack', 24);
 
 		// Verify the rack is visible
-		const rackSvg = page.locator('.rack-container svg');
+		const rackSvg = page.locator('.rack-svg');
 		await expect(rackSvg).toBeVisible();
 
 		// Verify the rack name is displayed
@@ -114,10 +122,8 @@ test.describe('Basic Workflow', () => {
 	});
 
 	test('can drag device from palette to rack', async ({ page }) => {
-		// First create a rack
-		await page.click('.btn-primary:has-text("New Rack")');
-		await fillRackForm(page, 'My Rack', 24);
-		await page.click('button:has-text("Create")');
+		// In v0.2, rack already exists - no need to create one
+		await expect(page.locator('.rack-container')).toBeVisible();
 
 		// Drag device using helper
 		await dragDeviceToRack(page);
@@ -127,10 +133,8 @@ test.describe('Basic Workflow', () => {
 	});
 
 	test('device appears at correct position in rack', async ({ page }) => {
-		// Create a rack
-		await page.click('.btn-primary:has-text("New Rack")');
-		await fillRackForm(page, 'Position Test', 12);
-		await page.click('button:has-text("Create")');
+		// Rack already exists in v0.2
+		await expect(page.locator('.rack-container')).toBeVisible();
 
 		// Drag device
 		await dragDeviceToRack(page);
@@ -140,10 +144,8 @@ test.describe('Basic Workflow', () => {
 	});
 
 	test('can move device within rack', async ({ page }) => {
-		// Create rack and add device
-		await page.click('.btn-primary:has-text("New Rack")');
-		await fillRackForm(page, 'Move Test', 24);
-		await page.click('button:has-text("Create")');
+		// Rack exists by default
+		await expect(page.locator('.rack-container')).toBeVisible();
 
 		// Drag device
 		await dragDeviceToRack(page);
@@ -161,10 +163,8 @@ test.describe('Basic Workflow', () => {
 	});
 
 	test('can delete device from rack', async ({ page }) => {
-		// Create rack and add device
-		await page.click('.btn-primary:has-text("New Rack")');
-		await fillRackForm(page, 'Delete Test', 12);
-		await page.click('button:has-text("Create")');
+		// Rack exists by default
+		await expect(page.locator('.rack-container')).toBeVisible();
 
 		// Drag device
 		await dragDeviceToRack(page);
@@ -178,32 +178,29 @@ test.describe('Basic Workflow', () => {
 		// Click delete button
 		await page.click('button[aria-label="Delete"]');
 
-		// Confirm deletion
-		await page.click('.btn-destructive');
+		// Confirm deletion - button text is "Remove" for devices
+		await page.click('[role="dialog"] button:has-text("Remove")');
 
 		// Device should be removed
 		await expect(page.locator('.rack-device')).not.toBeVisible();
 	});
 
-	test('can delete rack', async ({ page }) => {
-		// Create a rack
-		await page.click('.btn-primary:has-text("New Rack")');
-		await fillRackForm(page, 'Delete Rack Test', 12);
-		await page.click('button:has-text("Create")');
-
-		await expect(page.locator('.rack-container')).toBeVisible();
+	test('can clear rack (v0.2 does not remove the rack)', async ({ page }) => {
+		// Add a device first
+		await dragDeviceToRack(page);
+		await expect(page.locator('.rack-device')).toBeVisible();
 
 		// Click on rack to select it
-		await page.locator('.rack-container svg').click();
+		await page.locator('.rack-svg').click();
 
 		// Click delete button
 		await page.click('button[aria-label="Delete"]');
 
-		// Confirm deletion
-		await page.click('.btn-destructive');
+		// Confirm deletion - button text is "Delete Rack" for racks
+		await page.click('[role="dialog"] button:has-text("Delete Rack")');
 
-		// Rack should be removed, welcome screen should appear
-		await expect(page.locator('.rack-container')).not.toBeVisible();
-		await expect(page.locator('.welcome-screen')).toBeVisible();
+		// In v0.2, rack still exists but devices are cleared
+		await expect(page.locator('.rack-container')).toBeVisible();
+		await expect(page.locator('.rack-device')).not.toBeVisible();
 	});
 });

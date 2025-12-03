@@ -123,6 +123,8 @@
 		max-height: 90vh;
 		display: flex;
 		flex-direction: column;
+		position: relative;
+		z-index: 1; /* Above backdrop for reliable click targeting */
 	}
 
 	.dialog-header {

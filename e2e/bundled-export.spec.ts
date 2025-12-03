@@ -4,10 +4,13 @@ import fs from 'fs';
 import JSZip from 'jszip';
 
 /**
- * Helper to create a rack
+ * Helper to replace the current rack (v0.2 flow)
+ * In v0.2, a rack always exists. To create a new one, we go through the replace dialog.
  */
-async function createRack(page: Page, name: string, height: number = 24) {
-	await page.click('.btn-primary:has-text("New Rack")');
+async function replaceRack(page: Page, name: string, height: number = 24) {
+	await page.click('button[aria-label="New Rack"]');
+	await page.click('button:has-text("Replace")');
+
 	await page.fill('#rack-name', name);
 
 	const presetHeights = [12, 18, 24, 42];
@@ -48,7 +51,8 @@ test.describe('Bundled Export', () => {
 	});
 
 	test('export dialog shows export mode options', async ({ page }) => {
-		await createRack(page, 'Export Test Rack', 24);
+		// In v0.2, rack already exists. Replace it with a named one for testing.
+		await replaceRack(page, 'Export Test Rack', 24);
 
 		// Open export dialog
 		await page.click('button[aria-label="Export"]');
@@ -66,7 +70,7 @@ test.describe('Bundled Export', () => {
 	});
 
 	test('bundled mode shows include source option', async ({ page }) => {
-		await createRack(page, 'Export Test Rack', 24);
+		await replaceRack(page, 'Export Test Rack', 24);
 
 		await page.click('button[aria-label="Export"]');
 
@@ -82,7 +86,7 @@ test.describe('Bundled Export', () => {
 	});
 
 	test('quick export produces single image file', async ({ page }) => {
-		await createRack(page, 'Quick Export Rack', 24);
+		await replaceRack(page, 'Quick Export Rack', 24);
 
 		const downloadPromise = page.waitForEvent('download');
 
@@ -100,7 +104,7 @@ test.describe('Bundled Export', () => {
 	});
 
 	test('bundled export produces ZIP with image and metadata', async ({ page }) => {
-		await createRack(page, 'Bundled Export Rack', 24);
+		await replaceRack(page, 'Bundled Export Rack', 24);
 
 		const downloadPromise = page.waitForEvent('download');
 
@@ -151,7 +155,7 @@ test.describe('Bundled Export', () => {
 	});
 
 	test('bundled export with source includes .rackarr.zip', async ({ page }) => {
-		await createRack(page, 'Source Export Rack', 24);
+		await replaceRack(page, 'Source Export Rack', 24);
 
 		const downloadPromise = page.waitForEvent('download');
 
@@ -187,12 +191,15 @@ test.describe('Bundled Export', () => {
 		const sourceBuffer = await zip.file('source.rackarr.zip')?.async('uint8array');
 		expect(sourceBuffer).toBeDefined();
 
+		// v0.2 archives contain YAML, not layout.json
 		const sourceZip = await JSZip.loadAsync(sourceBuffer!);
-		expect(sourceZip.file('layout.json')).not.toBeNull();
+		const files = Object.keys(sourceZip.files);
+		// Should have a YAML file in the archive (v0.2 format)
+		expect(files.some((f) => f.endsWith('.yaml'))).toBe(true);
 	});
 
 	test('bundled export not available for SVG format', async ({ page }) => {
-		await createRack(page, 'SVG Test Rack', 24);
+		await replaceRack(page, 'SVG Test Rack', 24);
 
 		await page.click('button[aria-label="Export"]');
 		const dialog = page.locator('.dialog');
