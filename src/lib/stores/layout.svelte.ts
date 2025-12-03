@@ -42,9 +42,35 @@ import {
 	type RackCommandStore
 } from './commands';
 
+// localStorage key for tracking if user has started (created/loaded a rack)
+const HAS_STARTED_KEY = 'rackarr_has_started';
+
+// Check if user has previously started (created or loaded a rack)
+function loadHasStarted(): boolean {
+	try {
+		return localStorage.getItem(HAS_STARTED_KEY) === 'true';
+	} catch {
+		return false;
+	}
+}
+
+// Persist the hasStarted flag to localStorage
+function saveHasStarted(value: boolean): void {
+	try {
+		if (value) {
+			localStorage.setItem(HAS_STARTED_KEY, 'true');
+		} else {
+			localStorage.removeItem(HAS_STARTED_KEY);
+		}
+	} catch {
+		// localStorage not available
+	}
+}
+
 // Module-level state (using $state rune)
 let layout = $state<LayoutV02>(createLayoutV02('Untitled'));
 let isDirty = $state(false);
+let hasStarted = $state(loadHasStarted());
 
 // Derived values (using $derived rune)
 const rack = $derived(layout.rack);
@@ -76,15 +102,21 @@ const deviceLibrary = $derived(
 		notes: dt.comments
 	}))
 );
-const rackCount = $derived(1); // Always 1 in v0.2
+// rackCount returns 0 until user has started (shows WelcomeScreen)
+const rackCount = $derived(hasStarted ? 1 : 0);
 const canAddRack = $derived(false); // No multi-rack in v0.2
 
 /**
  * Reset the store to initial state (primarily for testing)
+ * @param clearStarted - If true, also clears the hasStarted flag (default: true)
  */
-export function resetLayoutStore(): void {
+export function resetLayoutStore(clearStarted: boolean = true): void {
 	layout = createLayoutV02('Untitled');
 	isDirty = false;
+	if (clearStarted) {
+		hasStarted = false;
+		saveHasStarted(false);
+	}
 }
 
 /**
@@ -123,6 +155,9 @@ export function getLayoutStore() {
 		},
 		get canAddRack() {
 			return canAddRack;
+		},
+		get hasStarted() {
+			return hasStarted;
 		},
 
 		// Layout actions
@@ -164,6 +199,9 @@ export function getLayoutStore() {
 		// Dirty tracking
 		markDirty,
 		markClean,
+
+		// Start tracking (for WelcomeScreen flow)
+		markStarted,
 
 		// Raw actions for undo/redo system (bypass dirty tracking)
 		addDeviceTypeRaw,
@@ -233,6 +271,10 @@ function loadLayoutV02(layoutData: LayoutV02): void {
 		}
 	};
 	isDirty = false;
+
+	// Mark as started (user has loaded a layout)
+	hasStarted = true;
+	saveHasStarted(true);
 }
 
 /**
@@ -258,6 +300,10 @@ function loadLayout(layoutData: Layout): number {
 		}
 	};
 	isDirty = false;
+
+	// Mark as started (user has loaded a layout)
+	hasStarted = true;
+	saveHasStarted(true);
 
 	return originalRackCount;
 }
@@ -296,6 +342,10 @@ function addRack(
 		rack: newRack
 	};
 	isDirty = true;
+
+	// Mark as started (user has created a rack)
+	hasStarted = true;
+	saveHasStarted(true);
 
 	// Return with synthetic id for compatibility
 	return { ...newRack, id: 'rack-0' };
@@ -644,6 +694,15 @@ function markDirty(): void {
  */
 function markClean(): void {
 	isDirty = false;
+}
+
+/**
+ * Mark that the user has started (created or loaded a rack)
+ * This hides the WelcomeScreen and persists to localStorage
+ */
+function markStarted(): void {
+	hasStarted = true;
+	saveHasStarted(true);
 }
 
 /**

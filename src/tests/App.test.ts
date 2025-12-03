@@ -13,6 +13,8 @@ describe('App Component', () => {
 		resetUIStore();
 		resetCanvasStore();
 		// Note: resetUIStore applies the theme to the document
+		// Mark as started so WelcomeScreen is not shown (tests assume rack is visible)
+		getLayoutStore().markStarted();
 	});
 
 	afterEach(() => {

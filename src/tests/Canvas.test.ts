@@ -12,14 +12,33 @@ describe('Canvas Component', () => {
 		resetSelectionStore();
 		resetUIStore();
 		resetCanvasStore();
+		// Most tests assume user has already started (rack visible)
+		getLayoutStore().markStarted();
 	});
 
-	// Note: v0.2 always has a rack, so WelcomeScreen is not shown by default
-	describe('Initial State (v0.2)', () => {
-		it('shows rack immediately after reset (v0.2 always has a rack)', () => {
+	// WelcomeScreen is shown when user hasn't started yet
+	describe('WelcomeScreen (fresh start)', () => {
+		it('shows WelcomeScreen when hasStarted is false', () => {
+			// Reset to clear markStarted from beforeEach
+			resetLayoutStore();
+			const layoutStore = getLayoutStore();
+			expect(layoutStore.hasStarted).toBe(false);
+
 			const { container } = render(Canvas);
 
-			// v0.2: rack is always present
+			// WelcomeScreen should be visible
+			expect(container.querySelector('.welcome-screen')).toBeInTheDocument();
+			// Rack should not be visible
+			expect(container.querySelector('.rack-container')).not.toBeInTheDocument();
+		});
+	});
+
+	// After user has started, rack is shown
+	describe('Initial State (v0.2)', () => {
+		it('shows rack after user has started (v0.2 always has a rack)', () => {
+			const { container } = render(Canvas);
+
+			// v0.2: rack is always present after user starts
 			const rackContainer = container.querySelector('.rack-container');
 			expect(rackContainer).toBeInTheDocument();
 			// WelcomeScreen should not be visible
@@ -168,6 +187,7 @@ describe('Canvas Layout with Fixed Sidebar (v0.1.0)', () => {
 		resetSelectionStore();
 		resetUIStore();
 		resetCanvasStore();
+		getLayoutStore().markStarted();
 	});
 
 	describe('Canvas positioning', () => {

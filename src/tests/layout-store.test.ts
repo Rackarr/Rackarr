@@ -31,9 +31,15 @@ describe('Layout Store (v0.2)', () => {
 			expect(store.hasRack).toBe(true);
 		});
 
-		it('compatibility: rackCount is 1', () => {
+		it('compatibility: rackCount is 0 before user starts, 1 after', () => {
 			const store = getLayoutStore();
+			// Before user starts, rackCount is 0 (WelcomeScreen shown)
+			expect(store.rackCount).toBe(0);
+			expect(store.hasStarted).toBe(false);
+			// After user starts, rackCount is 1
+			store.markStarted();
 			expect(store.rackCount).toBe(1);
+			expect(store.hasStarted).toBe(true);
 		});
 
 		it('compatibility: canAddRack is false', () => {
