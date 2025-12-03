@@ -4,8 +4,9 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { migrateToV02, detectLayoutVersion } from '$lib/utils/migrate-v02';
+import { migrateToV02, detectLayoutVersion, migrateImages } from '$lib/utils/migrate-v02';
 import type { Layout, Device } from '$lib/types';
+import type { ImageStoreMap, ImageData } from '$lib/types/images';
 import { isValidSlug } from '$lib/utils/slug';
 
 // Helper to create a minimal legacy layout
@@ -561,5 +562,170 @@ describe('migrateToV02', () => {
 			expect(layout.device_types[0].slug).toBeTruthy();
 			expect(isValidSlug(layout.device_types[0].slug)).toBe(true);
 		});
+	});
+});
+
+describe('migrateImages', () => {
+	// Helper to create mock image data
+	function createMockImageData(content: string = 'test'): ImageData {
+		const blob = new Blob([content], { type: 'image/png' });
+		return {
+			blob,
+			dataUrl: `data:image/png;base64,${btoa(content)}`,
+			filename: `${content}.png`
+		};
+	}
+
+	it('returns empty map for empty input', () => {
+		const oldImages: ImageStoreMap = new Map();
+		const idToSlugMap = new Map<string, string>();
+		const result = migrateImages(oldImages, idToSlugMap);
+		expect(result.size).toBe(0);
+	});
+
+	it('maps single device images correctly', () => {
+		const frontImage = createMockImageData('front');
+		const oldImages: ImageStoreMap = new Map([['device-uuid-1', { front: frontImage }]]);
+		const idToSlugMap = new Map([['device-uuid-1', 'my-server']]);
+
+		const result = migrateImages(oldImages, idToSlugMap);
+
+		expect(result.has('my-server')).toBe(true);
+		expect(result.get('my-server')?.front).toBeDefined();
+		expect(result.get('my-server')?.front?.dataUrl).toBe(frontImage.dataUrl);
+	});
+
+	it('maps multiple devices correctly', () => {
+		const img1 = createMockImageData('img1');
+		const img2 = createMockImageData('img2');
+		const oldImages: ImageStoreMap = new Map([
+			['uuid-1', { front: img1 }],
+			['uuid-2', { rear: img2 }]
+		]);
+		const idToSlugMap = new Map([
+			['uuid-1', 'server-one'],
+			['uuid-2', 'server-two']
+		]);
+
+		const result = migrateImages(oldImages, idToSlugMap);
+
+		expect(result.size).toBe(2);
+		expect(result.get('server-one')?.front).toBeDefined();
+		expect(result.get('server-two')?.rear).toBeDefined();
+	});
+
+	it('preserves both front and rear images', () => {
+		const frontImage = createMockImageData('front');
+		const rearImage = createMockImageData('rear');
+		const oldImages: ImageStoreMap = new Map([
+			['device-id', { front: frontImage, rear: rearImage }]
+		]);
+		const idToSlugMap = new Map([['device-id', 'my-device']]);
+
+		const result = migrateImages(oldImages, idToSlugMap);
+
+		expect(result.get('my-device')?.front).toBeDefined();
+		expect(result.get('my-device')?.rear).toBeDefined();
+		expect(result.get('my-device')?.front?.dataUrl).toBe(frontImage.dataUrl);
+		expect(result.get('my-device')?.rear?.dataUrl).toBe(rearImage.dataUrl);
+	});
+
+	it('skips devices with unknown IDs', () => {
+		const img = createMockImageData('img');
+		const oldImages: ImageStoreMap = new Map([
+			['known-id', { front: img }],
+			['unknown-id', { front: img }]
+		]);
+		const idToSlugMap = new Map([['known-id', 'known-device']]);
+
+		const result = migrateImages(oldImages, idToSlugMap);
+
+		expect(result.size).toBe(1);
+		expect(result.has('known-device')).toBe(true);
+		expect(result.has('unknown-id')).toBe(false);
+	});
+
+	it('handles empty image data for a device', () => {
+		const oldImages: ImageStoreMap = new Map([['device-id', {}]]);
+		const idToSlugMap = new Map([['device-id', 'my-device']]);
+
+		const result = migrateImages(oldImages, idToSlugMap);
+
+		expect(result.has('my-device')).toBe(true);
+		expect(result.get('my-device')?.front).toBeUndefined();
+		expect(result.get('my-device')?.rear).toBeUndefined();
+	});
+});
+
+describe('migrateToV02 integration with images', () => {
+	it('returns idToSlugMap that can be used with migrateImages', () => {
+		const legacy = createLegacyLayout({
+			deviceLibrary: [
+				createLegacyDevice({ id: 'dev-1', name: 'Server One' }),
+				createLegacyDevice({ id: 'dev-2', name: 'Server Two' })
+			]
+		});
+
+		const { idToSlugMap } = migrateToV02(legacy);
+
+		// Create test images keyed by old IDs
+		const img1: ImageData = {
+			blob: new Blob(['1'], { type: 'image/png' }),
+			dataUrl: 'data:image/png;base64,MQ==',
+			filename: 'test1.png'
+		};
+		const img2: ImageData = {
+			blob: new Blob(['2'], { type: 'image/png' }),
+			dataUrl: 'data:image/png;base64,Mg==',
+			filename: 'test2.png'
+		};
+		const oldImages: ImageStoreMap = new Map([
+			['dev-1', { front: img1 }],
+			['dev-2', { rear: img2 }]
+		]);
+
+		// Migrate images using the mapping
+		const migratedImages = migrateImages(oldImages, idToSlugMap);
+
+		// Verify images are now keyed by slugs
+		expect(migratedImages.has('server-one')).toBe(true);
+		expect(migratedImages.has('server-two')).toBe(true);
+		expect(migratedImages.get('server-one')?.front?.dataUrl).toBe(img1.dataUrl);
+		expect(migratedImages.get('server-two')?.rear?.dataUrl).toBe(img2.dataUrl);
+	});
+
+	it('handles duplicate device names in id-to-slug mapping', () => {
+		const legacy = createLegacyLayout({
+			deviceLibrary: [
+				createLegacyDevice({ id: 'dev-1', name: 'Server' }),
+				createLegacyDevice({ id: 'dev-2', name: 'Server' })
+			]
+		});
+
+		const { idToSlugMap } = migrateToV02(legacy);
+
+		const img1: ImageData = {
+			blob: new Blob(['1'], { type: 'image/png' }),
+			dataUrl: 'data:1',
+			filename: '1.png'
+		};
+		const img2: ImageData = {
+			blob: new Blob(['2'], { type: 'image/png' }),
+			dataUrl: 'data:2',
+			filename: '2.png'
+		};
+		const oldImages: ImageStoreMap = new Map([
+			['dev-1', { front: img1 }],
+			['dev-2', { front: img2 }]
+		]);
+
+		const migratedImages = migrateImages(oldImages, idToSlugMap);
+
+		// Both should be present with unique slugs
+		expect(migratedImages.size).toBe(2);
+		// The slugs should be server and server-2
+		const slugs = Array.from(migratedImages.keys());
+		expect(slugs).toContain('server');
+		expect(slugs).toContain('server-2');
 	});
 });

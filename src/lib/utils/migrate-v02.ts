@@ -5,6 +5,7 @@
 
 import type { Layout, Device } from '$lib/types';
 import type { LayoutV02, DeviceTypeV02, DeviceV02, RackV02 } from '$lib/types/v02';
+import type { ImageStoreMap, DeviceImageData } from '$lib/types/images';
 import { generateDeviceSlug, ensureUniqueSlug } from './slug';
 
 /**
@@ -187,4 +188,39 @@ export function migrateToV02(legacy: Layout): MigrationResult {
 	};
 
 	return { layout, idToSlugMap };
+}
+
+/**
+ * Migrate images from UUID-keyed map to slug-keyed map
+ * @param oldImages - Map of device UUIDs to their images
+ * @param idToSlugMap - Map of UUIDs to slugs (from migrateToV02)
+ * @returns New map keyed by device slugs
+ */
+export function migrateImages(
+	oldImages: ImageStoreMap,
+	idToSlugMap: Map<string, string>
+): ImageStoreMap {
+	const newImages: ImageStoreMap = new Map();
+
+	for (const [deviceId, imageData] of oldImages) {
+		const slug = idToSlugMap.get(deviceId);
+
+		// Skip devices with unknown IDs (no mapping exists)
+		if (!slug) {
+			continue;
+		}
+
+		// Copy the image data to the new map with slug as key
+		const newImageData: DeviceImageData = {};
+		if (imageData.front) {
+			newImageData.front = imageData.front;
+		}
+		if (imageData.rear) {
+			newImageData.rear = imageData.rear;
+		}
+
+		newImages.set(slug, newImageData);
+	}
+
+	return newImages;
 }
