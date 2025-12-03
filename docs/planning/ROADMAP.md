@@ -74,24 +74,26 @@ Single source of truth for version planning.
 
 ---
 
+### v0.3.0 — Archive Format & Polish
+
+**Status:** Released
+**Released:** 2025-12-03
+
+**Delivered:**
+
+- [x] `.rackarr.zip` YAML folder-based archive format
+- [x] Legacy format migration (v0.1/v0.2 → v0.3)
+- [x] Device images (front/rear) embedded in archive
+- [x] Label/image display mode toggle (I key)
+- [x] Shelf category with starter devices (1U, 2U, 4U)
+- [x] Fixed device library sidebar (always visible)
+- [x] 10" rack width option
+- [x] Bundled export option (image + metadata.json)
+- [x] Single-rack mode enforced
+
+---
+
 ## Planned
-
-### Next — Core Enhancements
-
-**Status:** In Progress
-**Spec:** docs/planning/spec-combined.md
-
-**Scope:**
-
-- [ ] `.rackarr.zip` archive format (replaces JSON)
-- [ ] Device images (front/rear)
-- [ ] Auto-resize images on upload
-- [ ] Label/image display mode toggle
-- [ ] User-controlled label overlay in image mode
-- [ ] Shelf category with starter devices (1U, 2U, 4U)
-- [ ] Fixed device library sidebar (always visible)
-- [ ] 10" rack width option
-- [ ] Bundled export option (image + metadata)
 
 ---
 
@@ -215,6 +217,7 @@ Backlog → Future Roadmap → Planned (current) → Released
 | 2025-11-30 | v0.2.0 released                                 |
 | 2025-12-01 | v0.2.1 released (accessibility & design polish) |
 | 2025-12-02 | Consolidated spec; single-rack permanent scope  |
+| 2025-12-03 | v0.3.0 released (YAML archive format)           |
 
 ---
 

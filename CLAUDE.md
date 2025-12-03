@@ -1,19 +1,21 @@
 # CLAUDE.md — Rackarr
 
 **Project:** Rackarr — Rack Layout Designer for Homelabbers
-**Version:** 0.1.0
+**Version:** 0.3.0
 
 ---
 
-## v0.1.0 Features
+## v0.3.0 Features
 
+- YAML folder-based `.rackarr.zip` archive format
+- Legacy format migration (v0.1/v0.2 → v0.3)
 - 11 device categories (+ shelf category)
-- Save/load as ZIP archive (`.rackarr.zip`) with embedded images
-- Device images (front/rear) stored in archive
+- Device images (front/rear) embedded in archive
 - Label/image display mode toggle (keyboard: `I`)
 - Fixed device library sidebar (always visible)
 - 10" and 19" rack width options
 - Bundled export with metadata (ZIP containing image + metadata.json)
+- Single-rack mode (one rack per project)
 - Zod schema validation
 
 ## Planning Docs
