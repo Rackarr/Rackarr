@@ -2,13 +2,15 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import Toolbar from '$lib/components/Toolbar.svelte';
 import ToolbarButton from '$lib/components/ToolbarButton.svelte';
-import { resetLayoutStore } from '$lib/stores/layout.svelte';
+import { resetLayoutStore, getLayoutStore } from '$lib/stores/layout.svelte';
 import { resetSelectionStore } from '$lib/stores/selection.svelte';
 import { resetUIStore } from '$lib/stores/ui.svelte';
 import { resetCanvasStore } from '$lib/stores/canvas.svelte';
+import { resetHistoryStore } from '$lib/stores/history.svelte';
 
 describe('Toolbar Component', () => {
 	beforeEach(() => {
+		resetHistoryStore();
 		resetLayoutStore();
 		resetSelectionStore();
 		resetUIStore();
@@ -182,6 +184,104 @@ describe('Toolbar Component', () => {
 			render(Toolbar, { props: { hasRacks: true } });
 			const newRackBtn = screen.getByRole('button', { name: /new rack/i });
 			expect(newRackBtn).not.toHaveClass('primary');
+		});
+	});
+
+	describe('Undo/Redo button states', () => {
+		it('renders undo and redo buttons', () => {
+			render(Toolbar);
+			expect(screen.getByRole('button', { name: /undo/i })).toBeInTheDocument();
+			expect(screen.getByRole('button', { name: /redo/i })).toBeInTheDocument();
+		});
+
+		it('undo button is disabled initially (no history)', () => {
+			render(Toolbar);
+			const undoBtn = screen.getByRole('button', { name: /undo/i });
+			expect(undoBtn).toBeDisabled();
+		});
+
+		it('redo button is disabled initially (no future)', () => {
+			render(Toolbar);
+			const redoBtn = screen.getByRole('button', { name: /redo/i });
+			expect(redoBtn).toBeDisabled();
+		});
+
+		it('undo button becomes enabled after placing a device', () => {
+			const layoutStore = getLayoutStore();
+			// Add a device type first
+			layoutStore.addDeviceType({
+				name: 'Test Server',
+				category: 'server',
+				height: 2
+			});
+
+			render(Toolbar);
+
+			// Place a device - this should record to history
+			layoutStore.placeDevice('rack-1', 'test-server', 1, 'front');
+
+			// Re-render to get updated state
+			const { unmount } = render(Toolbar);
+			const undoBtn = screen.getAllByRole('button', { name: /undo/i })[1]; // Second render
+			expect(undoBtn).not.toBeDisabled();
+			unmount();
+		});
+
+		it('redo button becomes enabled after undo', () => {
+			const layoutStore = getLayoutStore();
+			// Add a device type and place a device
+			layoutStore.addDeviceType({
+				name: 'Test Server',
+				category: 'server',
+				height: 2
+			});
+			layoutStore.placeDevice('rack-1', 'test-server', 1, 'front');
+
+			// Perform undo
+			layoutStore.undo();
+
+			render(Toolbar);
+			const redoBtn = screen.getByRole('button', { name: /redo/i });
+			expect(redoBtn).not.toBeDisabled();
+		});
+
+		it('undo button is disabled after undoing all actions', () => {
+			const layoutStore = getLayoutStore();
+			// Add a device type and place a device
+			layoutStore.addDeviceType({
+				name: 'Test Server',
+				category: 'server',
+				height: 2
+			});
+			layoutStore.placeDevice('rack-1', 'test-server', 1, 'front');
+
+			// Undo both actions (place device and add device type)
+			layoutStore.undo(); // Undo place device
+			layoutStore.undo(); // Undo add device type
+
+			render(Toolbar);
+			const undoBtn = screen.getByRole('button', { name: /undo/i });
+			expect(undoBtn).toBeDisabled();
+		});
+
+		it('redo button is disabled after redoing all actions', () => {
+			const layoutStore = getLayoutStore();
+			// Add a device type and place a device
+			layoutStore.addDeviceType({
+				name: 'Test Server',
+				category: 'server',
+				height: 2
+			});
+			layoutStore.placeDevice('rack-1', 'test-server', 1, 'front');
+
+			// Undo
+			layoutStore.undo();
+			// Redo
+			layoutStore.redo();
+
+			render(Toolbar);
+			const redoBtn = screen.getByRole('button', { name: /redo/i });
+			expect(redoBtn).toBeDisabled();
 		});
 	});
 });

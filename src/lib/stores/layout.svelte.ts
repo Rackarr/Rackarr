@@ -18,10 +18,6 @@ import { createLayoutV02, createRackV02 } from '$lib/utils/serialization-v02';
 import {
 	createDeviceType as createDeviceTypeHelper,
 	findDeviceType,
-	addDeviceTypeToLayout,
-	removeDeviceTypeFromLayout,
-	placeDeviceInRack,
-	removeDeviceFromRack as removeDeviceFromRackHelper,
 	type CreateDeviceTypeInput
 } from '$lib/stores/layout-helpers-v02';
 import { migrateToV02 } from '$lib/utils/migrate-v02';
@@ -353,22 +349,26 @@ function addRack(
 
 /**
  * Update a rack's properties
+ * Uses undo/redo support via updateRackRecorded (except for view changes)
  * In v0.2, there's only one rack, so id is ignored
  * @param _id - Rack ID (ignored in v0.2)
  * @param updates - Properties to update
  */
 function updateRack(_id: string, updates: Partial<RackV02>): void {
-	layout = {
-		...layout,
-		rack: { ...layout.rack, ...updates }
-	};
-
-	// Sync layout name with rack name
-	if (updates.name !== undefined) {
-		layout = { ...layout, name: updates.name };
+	// Handle view separately (doesn't need undo/redo)
+	if (updates.view !== undefined) {
+		layout = {
+			...layout,
+			rack: { ...layout.rack, view: updates.view }
+		};
+		isDirty = true;
 	}
 
-	isDirty = true;
+	// For other properties, use recorded version for undo/redo support
+	const { view: _view, devices: _devices, ...recordableUpdates } = updates;
+	if (Object.keys(recordableUpdates).length > 0) {
+		updateRackRecorded(recordableUpdates);
+	}
 }
 
 /**
@@ -416,47 +416,35 @@ function duplicateRack(_id: string): { error?: string } {
 
 /**
  * Add a device type to the library
+ * Uses undo/redo support via addDeviceTypeRecorded
  * @param data - Device type data
  * @returns The created device type
  */
 function addDeviceType(data: CreateDeviceTypeInput): DeviceTypeV02 {
-	const deviceType = createDeviceTypeHelper(data);
-
-	try {
-		layout = addDeviceTypeToLayout(layout, deviceType);
-		isDirty = true;
-		return deviceType;
-	} catch {
-		// Slug collision - try with modified slug
-		const modifiedData = { ...data, name: `${data.name} (copy)` };
-		const modifiedDeviceType = createDeviceTypeHelper(modifiedData);
-		layout = addDeviceTypeToLayout(layout, modifiedDeviceType);
-		isDirty = true;
-		return modifiedDeviceType;
-	}
+	// Delegate to recorded version for undo/redo support
+	return addDeviceTypeRecorded(data);
 }
 
 /**
  * Update a device type in the library
+ * Uses undo/redo support via updateDeviceTypeRecorded
  * @param slug - Device type slug
  * @param updates - Properties to update
  */
 function updateDeviceType(slug: string, updates: Partial<DeviceTypeV02>): void {
-	layout = {
-		...layout,
-		device_types: layout.device_types.map((dt) => (dt.slug === slug ? { ...dt, ...updates } : dt))
-	};
-	isDirty = true;
+	// Delegate to recorded version for undo/redo support
+	updateDeviceTypeRecorded(slug, updates);
 }
 
 /**
  * Delete a device type from the library
  * Also removes all placed devices referencing it
+ * Uses undo/redo support via deleteDeviceTypeRecorded
  * @param slug - Device type slug
  */
 function deleteDeviceType(slug: string): void {
-	layout = removeDeviceTypeFromLayout(layout, slug);
-	isDirty = true;
+	// Delegate to recorded version for undo/redo support
+	deleteDeviceTypeRecorded(slug);
 }
 
 // Legacy device library actions (compatibility wrappers)
@@ -530,6 +518,7 @@ function deleteDeviceFromLibrary(id: string): void {
 
 /**
  * Place a device from the library into the rack
+ * Uses undo/redo support via placeDeviceRecorded
  * @param _rackId - Target rack ID (ignored in v0.2)
  * @param deviceTypeSlug - Device type slug (or legacy libraryId)
  * @param position - U position (bottom of device)
@@ -542,95 +531,21 @@ function placeDevice(
 	position: number,
 	face: DeviceFaceV02 = DEFAULT_DEVICE_FACE
 ): boolean {
-	const deviceType = findDeviceType(layout.device_types, deviceTypeSlug);
-	if (!deviceType) return false;
-
-	// Check bounds
-	if (position < 1 || position + deviceType.u_height - 1 > layout.rack.height) {
-		return false;
-	}
-
-	// Check for collisions
-	for (const existingDevice of layout.rack.devices) {
-		const existingType = findDeviceType(layout.device_types, existingDevice.device_type);
-		if (!existingType) continue;
-
-		const existingStart = existingDevice.position;
-		const existingEnd = existingDevice.position + existingType.u_height - 1;
-		const newStart = position;
-		const newEnd = position + deviceType.u_height - 1;
-
-		if (newStart <= existingEnd && newEnd >= existingStart) {
-			return false; // Collision
-		}
-	}
-
-	// Create the device placement
-	const device: DeviceV02 = {
-		device_type: deviceTypeSlug,
-		position,
-		face
-	};
-
-	try {
-		layout = placeDeviceInRack(layout, device);
-		isDirty = true;
-		return true;
-	} catch {
-		return false;
-	}
+	// Delegate to recorded version for undo/redo support
+	return placeDeviceRecorded(deviceTypeSlug, position, face);
 }
 
 /**
  * Move a device within the rack
+ * Uses undo/redo support via moveDeviceRecorded
  * @param _rackId - Rack ID (ignored in v0.2)
  * @param deviceIndex - Index of device in rack's devices array
  * @param newPosition - New U position
  * @returns true if moved successfully, false otherwise
  */
 function moveDevice(_rackId: string, deviceIndex: number, newPosition: number): boolean {
-	if (deviceIndex < 0 || deviceIndex >= layout.rack.devices.length) return false;
-
-	const device = layout.rack.devices[deviceIndex]!;
-	const deviceType = findDeviceType(layout.device_types, device.device_type);
-	if (!deviceType) return false;
-
-	// Check bounds
-	if (newPosition < 1 || newPosition + deviceType.u_height - 1 > layout.rack.height) {
-		return false;
-	}
-
-	// Check for collisions (excluding the device being moved)
-	for (let i = 0; i < layout.rack.devices.length; i++) {
-		if (i === deviceIndex) continue;
-
-		const existingDevice = layout.rack.devices[i]!;
-		const existingType = findDeviceType(layout.device_types, existingDevice.device_type);
-		if (!existingType) continue;
-
-		const existingStart = existingDevice.position;
-		const existingEnd = existingDevice.position + existingType.u_height - 1;
-		const newStart = newPosition;
-		const newEnd = newPosition + deviceType.u_height - 1;
-
-		if (newStart <= existingEnd && newEnd >= existingStart) {
-			return false; // Collision
-		}
-	}
-
-	// Update device position
-	layout = {
-		...layout,
-		rack: {
-			...layout.rack,
-			devices: layout.rack.devices.map((d, idx) =>
-				idx === deviceIndex ? { ...d, position: newPosition } : d
-			)
-		}
-	};
-	isDirty = true;
-
-	return true;
+	// Delegate to recorded version for undo/redo support
+	return moveDeviceRecorded(deviceIndex, newPosition);
 }
 
 /**
@@ -653,33 +568,25 @@ function moveDeviceToRack(
 
 /**
  * Remove a device from the rack
+ * Uses undo/redo support via removeDeviceRecorded
  * @param _rackId - Rack ID (ignored in v0.2)
  * @param deviceIndex - Index of device in rack's devices array
  */
 function removeDeviceFromRack(_rackId: string, deviceIndex: number): void {
-	if (deviceIndex < 0 || deviceIndex >= layout.rack.devices.length) return;
-
-	layout = removeDeviceFromRackHelper(layout, deviceIndex);
-	isDirty = true;
+	// Delegate to recorded version for undo/redo support
+	removeDeviceRecorded(deviceIndex);
 }
 
 /**
  * Update a device's face property
+ * Uses undo/redo support via updateDeviceFaceRecorded
  * @param _rackId - Rack ID (ignored in v0.2)
  * @param deviceIndex - Index of device in rack's devices array
  * @param face - New face value
  */
 function updateDeviceFace(_rackId: string, deviceIndex: number, face: DeviceFaceV02): void {
-	if (deviceIndex < 0 || deviceIndex >= layout.rack.devices.length) return;
-
-	layout = {
-		...layout,
-		rack: {
-			...layout.rack,
-			devices: layout.rack.devices.map((d, idx) => (idx === deviceIndex ? { ...d, face } : d))
-		}
-	};
-	isDirty = true;
+	// Delegate to recorded version for undo/redo support
+	updateDeviceFaceRecorded(deviceIndex, face);
 }
 
 /**
