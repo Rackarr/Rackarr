@@ -134,9 +134,6 @@
 		})
 	);
 
-	// Determine if U labels should be on the right (for rear view)
-	const uLabelsOnRight = $derived(faceFilter === 'rear');
-
 	// Calculate blocked slots for this view (only when faceFilter is set)
 	const blockedSlots = $derived(faceFilter ? getBlockedSlots(rack, faceFilter, deviceLibrary) : []);
 
@@ -418,10 +415,10 @@
 			<circle cx={RACK_WIDTH - RAIL_WIDTH / 2} cy={baseY + 14} r="1.8" class="rack-hole" />
 		{/each}
 
-		<!-- U labels (on left rail for front view, right rail for rear view) -->
+		<!-- U labels (always on left rail) -->
 		{#each uLabels as { uNumber, yPosition } (uNumber)}
 			<text
-				x={uLabelsOnRight ? RACK_WIDTH - RAIL_WIDTH / 2 : RAIL_WIDTH / 2}
+				x={RAIL_WIDTH / 2}
 				y={yPosition}
 				class="u-label"
 				class:u-label-highlight={uNumber % 5 === 0}
@@ -493,7 +490,7 @@
 		{#if !hideRackName}
 			<text
 				x={RACK_WIDTH / 2}
-				y={-NAME_Y_OFFSET}
+				y={-NAME_Y_OFFSET + 20}
 				class="rack-name"
 				text-anchor="middle"
 				dominant-baseline="text-before-edge"
@@ -502,14 +499,14 @@
 			</text>
 		{/if}
 
-		<!-- View label (e.g., "FRONT" or "REAR") - shown when viewLabel is provided -->
+		<!-- View label (e.g., "FRONT" or "REAR") - shown when viewLabel is provided, positioned on top rail -->
 		{#if viewLabel}
 			<text
 				x={RACK_WIDTH / 2}
-				y={-NAME_Y_OFFSET}
+				y={RACK_PADDING + RAIL_WIDTH / 2}
 				class="rack-view-label"
 				text-anchor="middle"
-				dominant-baseline="text-before-edge"
+				dominant-baseline="central"
 			>
 				{viewLabel}
 			</text>

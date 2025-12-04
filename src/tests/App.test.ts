@@ -212,6 +212,35 @@ describe('App Component', () => {
 		});
 	});
 
+	describe('Welcome Screen / Fresh Start', () => {
+		it('fresh start shows new rack form directly (not replace dialog)', async () => {
+			// Don't call markStarted - simulating fresh start
+			resetLayoutStore();
+			const layoutStore = getLayoutStore();
+
+			// Before user starts, rackCount is 0
+			expect(layoutStore.rackCount).toBe(0);
+			expect(layoutStore.hasStarted).toBe(false);
+
+			render(App);
+
+			// Click the "New Rack" button in toolbar
+			const newRackBtn = screen.getByRole('button', { name: /new rack/i });
+			await fireEvent.click(newRackBtn);
+
+			// Should open NewRackForm directly, NOT replace dialog
+			const dialog = screen.getByRole('dialog');
+			expect(dialog).toBeInTheDocument();
+
+			// NewRackForm has title "New Rack" and name input
+			expect(dialog.querySelector('.dialog-title')).toHaveTextContent('New Rack');
+			expect(screen.getByLabelText(/rack name/i)).toBeInTheDocument();
+
+			// Replace dialog has "Replace Current Rack?" - should NOT be present
+			expect(dialog.textContent).not.toMatch(/replace current rack/i);
+		});
+	});
+
 	describe('New Rack Action', () => {
 		it('new rack button opens replace dialog (v0.2 always has a rack)', async () => {
 			render(App);

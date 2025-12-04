@@ -666,32 +666,8 @@ describe('Rack SVG Component', () => {
 		});
 	});
 
-	describe('U Labels Position for Rear View', () => {
-		it('mirrors U labels to right rail when faceFilter=rear', () => {
-			const { container } = render(Rack, {
-				props: {
-					rack: mockRack,
-					deviceLibrary: [],
-					selected: false,
-					faceFilter: 'rear'
-				}
-			});
-
-			// In rear view, U labels should be on the right side
-			const uLabels = container.querySelectorAll('.u-label');
-			expect(uLabels.length).toBeGreaterThan(0);
-
-			// Check that labels are positioned to the right
-			// RACK_WIDTH for 19" rack is 220, RAIL_WIDTH is 17
-			// Right rail center would be around 220 - 17/2 = ~211.5
-			const firstLabel = uLabels[0];
-			const labelX = parseFloat(firstLabel?.getAttribute('x') ?? '0');
-
-			// For rear view, labels should be on right side (x > RACK_WIDTH / 2)
-			expect(labelX).toBeGreaterThan(110); // More than half of 220
-		});
-
-		it('keeps U labels on left rail when faceFilter=front', () => {
+	describe('U Labels Position', () => {
+		it('U labels are always on left rail for front view', () => {
 			const { container } = render(Rack, {
 				props: {
 					rack: mockRack,
@@ -704,12 +680,33 @@ describe('Rack SVG Component', () => {
 			const uLabels = container.querySelectorAll('.u-label');
 			expect(uLabels.length).toBeGreaterThan(0);
 
-			// For front view, labels should be on left side
 			// Left rail center would be around 17/2 = 8.5
 			const firstLabel = uLabels[0];
 			const labelX = parseFloat(firstLabel?.getAttribute('x') ?? '0');
 
-			// For front view, labels should be on left side (x < RACK_WIDTH / 2)
+			// Labels should be on left side (x < RACK_WIDTH / 2 = 110)
+			expect(labelX).toBeLessThan(110);
+		});
+
+		it('U labels are always on left rail for rear view', () => {
+			const { container } = render(Rack, {
+				props: {
+					rack: mockRack,
+					deviceLibrary: [],
+					selected: false,
+					faceFilter: 'rear'
+				}
+			});
+
+			// In rear view, U labels should ALSO be on the left side (not mirrored)
+			const uLabels = container.querySelectorAll('.u-label');
+			expect(uLabels.length).toBeGreaterThan(0);
+
+			// Left rail center would be around 17/2 = 8.5
+			const firstLabel = uLabels[0];
+			const labelX = parseFloat(firstLabel?.getAttribute('x') ?? '0');
+
+			// Labels should be on left side (x < RACK_WIDTH / 2 = 110)
 			expect(labelX).toBeLessThan(110);
 		});
 	});

@@ -12,7 +12,7 @@ describe('Layout Store (v0.2)', () => {
 	describe('initial state', () => {
 		it('initializes with a v0.2 layout', () => {
 			const store = getLayoutStore();
-			expect(store.layout.name).toBe('Untitled');
+			expect(store.layout.name).toBe('Racky McRackface');
 			expect(store.layout.version).toBe('0.2.0');
 			// v0.2 has a single rack, not an array
 			expect(store.layout.rack).toBeDefined();
@@ -50,7 +50,7 @@ describe('Layout Store (v0.2)', () => {
 		it('compatibility: racks returns single rack in array', () => {
 			const store = getLayoutStore();
 			expect(store.racks).toHaveLength(1);
-			expect(store.racks[0].name).toBe('Untitled');
+			expect(store.racks[0].name).toBe('Racky McRackface');
 		});
 	});
 
@@ -880,7 +880,7 @@ describe('Layout Store (v0.2)', () => {
 			resetLayoutStore();
 			const freshStore = getLayoutStore();
 
-			expect(freshStore.layout.name).toBe('Untitled');
+			expect(freshStore.layout.name).toBe('Racky McRackface');
 			expect(freshStore.layout.rack.devices).toEqual([]);
 			// Starter library has 27 device types
 			expect(freshStore.device_types.length).toBe(27);

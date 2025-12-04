@@ -13,6 +13,9 @@ const RAIL_WIDTH = 17; // Width of rails and top/bottom bars
 const RACK_PADDING = 18; // Space at top for rack name (must match Rack.svelte)
 const RACK_GAP = 24; // Gap between racks (unused in v0.1.1 single-rack mode)
 const RACK_ROW_PADDING = 16; // Padding around rack-row
+const DUAL_VIEW_GAP = 24; // Gap between front/rear views in dual-view mode (--spacing-lg)
+// Dual-view wrapper adds extra height: padding (12+12) + gap (8) + name (~20) + margin (4) = ~56px
+const DUAL_VIEW_EXTRA_HEIGHT = 56;
 
 /**
  * Bounding box interface
@@ -153,7 +156,7 @@ export function calculateFitAll(
 
 /**
  * Convert racks to RackPosition array for bounding box calculation.
- * v0.1.1: Single-rack mode simplifies to single rack centering.
+ * v0.4: Dual-view mode shows front and rear side-by-side.
  * Multi-rack layout logic preserved for v0.3 restoration.
  *
  * @param racks - Array of racks from the layout store (max 1 in v0.1.1)
@@ -168,7 +171,13 @@ export function racksToPositions(racks: Rack[]): RackPosition[] {
 	// Calculate total rendered height
 	// SVG viewBoxHeight = RACK_PADDING + RAIL_WIDTH * 2 + rack.height * U_HEIGHT
 	// (rack name padding + top bar + U slots + bottom bar)
-	const getRackHeight = (rack: Rack) => RACK_PADDING + RAIL_WIDTH * 2 + rack.height * U_HEIGHT;
+	// Plus dual-view wrapper extra height (v0.4)
+	const getRackHeight = (rack: Rack) =>
+		RACK_PADDING + RAIL_WIDTH * 2 + rack.height * U_HEIGHT + DUAL_VIEW_EXTRA_HEIGHT;
+
+	// v0.4: Dual-view mode shows two racks side by side
+	// Visual width = 2 * RACK_WIDTH + DUAL_VIEW_GAP
+	const getDualViewWidth = () => RACK_WIDTH * 2 + DUAL_VIEW_GAP;
 
 	// Find max height for vertical alignment (single value in v0.1.1)
 	const maxHeight = Math.max(...sorted.map(getRackHeight));
@@ -182,11 +191,11 @@ export function racksToPositions(racks: Rack[]): RackPosition[] {
 		const position: RackPosition = {
 			x: currentX,
 			y: startY + (maxHeight - height),
-			width: RACK_WIDTH,
+			width: getDualViewWidth(), // v0.4: Use dual-view width
 			height
 		};
 		// Gap only applied between racks (none in single-rack mode)
-		currentX += RACK_WIDTH + RACK_GAP;
+		currentX += getDualViewWidth() + RACK_GAP;
 		return position;
 	});
 }

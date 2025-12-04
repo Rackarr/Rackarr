@@ -111,7 +111,6 @@
 	<div class="rack-dual-view-container">
 		<!-- Front view -->
 		<div class="rack-front" role="presentation">
-			<div class="rack-view-label">FRONT</div>
 			<Rack
 				{rack}
 				{deviceLibrary}
@@ -121,6 +120,7 @@
 				{showLabelsOnImages}
 				faceFilter="front"
 				hideRackName={true}
+				viewLabel="FRONT"
 				onselect={() => handleSelect()}
 				{ondeviceselect}
 				ondevicedrop={handleFrontDeviceDrop}
@@ -131,7 +131,6 @@
 
 		<!-- Rear view -->
 		<div class="rack-rear" role="presentation">
-			<div class="rack-view-label">REAR</div>
 			<Rack
 				{rack}
 				{deviceLibrary}
@@ -141,6 +140,7 @@
 				{showLabelsOnImages}
 				faceFilter="rear"
 				hideRackName={true}
+				viewLabel="REAR"
 				onselect={() => handleSelect()}
 				{ondeviceselect}
 				ondevicedrop={handleRearDeviceDrop}
@@ -194,16 +194,6 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: var(--spacing-xs, 4px);
-	}
-
-	.rack-view-label {
-		font-size: 11px;
-		font-weight: 500;
-		color: var(--colour-text-muted);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		font-family: var(--font-family, system-ui, sans-serif);
 	}
 
 	/* Remove individual rack selection styling since we handle it at container level */

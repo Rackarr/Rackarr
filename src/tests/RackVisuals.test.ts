@@ -128,9 +128,9 @@ describe('Rack Visual Enhancements', () => {
 			const rackName = container.querySelector('.rack-name');
 			expect(rackName).toBeInTheDocument();
 
-			// The y attribute should be negative (above the rack body, moved up 4px)
+			// The y attribute positions the rack name closer to the rack top bar
 			const yAttr = rackName?.getAttribute('y');
-			expect(yAttr).toBe('-4');
+			expect(yAttr).toBe('16');
 		});
 
 		it('rack title displays the rack name', () => {

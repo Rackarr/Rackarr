@@ -64,7 +64,7 @@
 
 	// Toolbar event handlers
 	function handleNewRack() {
-		if (layoutStore.racks.length > 0) {
+		if (layoutStore.rackCount > 0) {
 			showReplaceDialog = true;
 		} else {
 			newRackFormOpen = true;

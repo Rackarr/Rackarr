@@ -8,10 +8,10 @@ import { getStarterLibraryV02 } from '$lib/data/starterLibraryV02';
 
 /**
  * Create a new empty v0.2 layout
- * @param name - Layout name (default: "Untitled")
+ * @param name - Layout name (default: "Racky McRackface")
  * @returns New LayoutV02 object with starter device type library
  */
-export function createLayoutV02(name: string = 'Untitled'): LayoutV02 {
+export function createLayoutV02(name: string = 'Racky McRackface'): LayoutV02 {
 	return {
 		version: '0.2.0',
 		name,

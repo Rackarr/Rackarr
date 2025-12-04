@@ -68,7 +68,7 @@ function saveHasStarted(value: boolean): void {
 }
 
 // Module-level state (using $state rune)
-let layout = $state<LayoutV02>(createLayoutV02('Untitled'));
+let layout = $state<LayoutV02>(createLayoutV02('Racky McRackface'));
 let isDirty = $state(false);
 let hasStarted = $state(loadHasStarted());
 
@@ -111,7 +111,7 @@ const canAddRack = $derived(false); // No multi-rack in v0.2
  * @param clearStarted - If true, also clears the hasStarted flag (default: true)
  */
 export function resetLayoutStore(clearStarted: boolean = true): void {
-	layout = createLayoutV02('Untitled');
+	layout = createLayoutV02('Racky McRackface');
 	isDirty = false;
 	if (clearStarted) {
 		hasStarted = false;
