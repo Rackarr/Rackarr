@@ -15,6 +15,7 @@
 	} from '$lib/utils/dragdrop';
 	import { screenToSVG } from '$lib/utils/coordinates';
 	import { getCanvasStore } from '$lib/stores/canvas.svelte';
+	import { getBlockedSlots } from '$lib/utils/blocked-slots';
 
 	const canvasStore = getCanvasStore();
 
@@ -141,6 +142,9 @@
 
 	// Determine if U labels should be on the right (for rear view)
 	const uLabelsOnRight = $derived(faceFilter === 'rear');
+
+	// Calculate blocked slots for this view (only when faceFilter is set)
+	const blockedSlots = $derived(faceFilter ? getBlockedSlots(rack, faceFilter, deviceLibrary) : []);
 
 	function handleClick(_event: MouseEvent) {
 		// Don't select rack if we just finished panning
@@ -440,6 +444,23 @@
 				{uNumber}
 			</text>
 		{/each}
+
+		<!-- Blocked Slots Overlay (renders before devices so devices appear on top) -->
+		{#if blockedSlots.length > 0}
+			<g class="blocked-slots-layer" transform="translate(0, {RACK_PADDING + RAIL_WIDTH})">
+				{#each blockedSlots as slot (slot.bottom + '-' + slot.top)}
+					<rect
+						class="blocked-slot"
+						x={RAIL_WIDTH}
+						y={(rack.height - slot.top) * U_HEIGHT}
+						width={RACK_WIDTH - 2 * RAIL_WIDTH}
+						height={(slot.top - slot.bottom + 1) * U_HEIGHT}
+						fill="var(--colour-rack-blocked, rgba(128, 128, 128, 0.3))"
+						opacity="0.15"
+					/>
+				{/each}
+			</g>
+		{/if}
 
 		<!-- Devices -->
 		<g transform="translate(0, {RACK_PADDING + RAIL_WIDTH})">

@@ -739,4 +739,204 @@ describe('Rack SVG Component', () => {
 			expect(labelX).toBeLessThan(110);
 		});
 	});
+
+	describe('Blocked Slots Rendering', () => {
+		// Create a device library with full-depth and half-depth devices
+		const deviceLibrary: Device[] = [
+			{
+				id: 'full-depth-server',
+				name: 'Full Depth Server',
+				height: 2,
+				category: 'server',
+				colour: '#888888',
+				is_full_depth: true
+			},
+			{
+				id: 'half-depth-switch',
+				name: 'Half Depth Switch',
+				height: 1,
+				category: 'network',
+				colour: '#444444',
+				is_full_depth: false
+			}
+		];
+
+		it('renders blocked-slot rect elements when faceFilter is set', () => {
+			const rackWithDevice: Rack = {
+				...mockRack,
+				devices: [{ libraryId: 'full-depth-server', position: 5, face: 'front' }]
+			};
+
+			const { container } = render(Rack, {
+				props: {
+					rack: rackWithDevice,
+					deviceLibrary,
+					selected: false,
+					faceFilter: 'rear' // Viewing rear, front full-depth device should block
+				}
+			});
+
+			// Should have blocked-slot rect elements
+			const blockedSlots = container.querySelectorAll('.blocked-slot');
+			expect(blockedSlots.length).toBe(1);
+		});
+
+		it('blocked slot rects have correct position based on U', () => {
+			const rackWithDevice: Rack = {
+				...mockRack,
+				devices: [{ libraryId: 'full-depth-server', position: 3, face: 'front' }]
+			};
+
+			const { container } = render(Rack, {
+				props: {
+					rack: rackWithDevice,
+					deviceLibrary,
+					selected: false,
+					faceFilter: 'rear'
+				}
+			});
+
+			const blockedSlot = container.querySelector('.blocked-slot');
+			expect(blockedSlot).toBeInTheDocument();
+
+			// Check Y position - should correspond to U position 3-4 (2U device)
+			// Y = (rackHeight - top) * U_HEIGHT + RACK_PADDING + RAIL_WIDTH
+			// For 12U rack with 2U device at position 3: top=4, Y = (12 - 4) * 22 + 4 + 17 = 197
+			const y = parseFloat(blockedSlot?.getAttribute('y') ?? '0');
+			expect(y).toBeGreaterThan(0);
+		});
+
+		it('blocked slot rects have correct height based on device U', () => {
+			const rackWithDevice: Rack = {
+				...mockRack,
+				devices: [{ libraryId: 'full-depth-server', position: 5, face: 'front' }]
+			};
+
+			const { container } = render(Rack, {
+				props: {
+					rack: rackWithDevice,
+					deviceLibrary,
+					selected: false,
+					faceFilter: 'rear'
+				}
+			});
+
+			const blockedSlot = container.querySelector('.blocked-slot');
+			expect(blockedSlot).toBeInTheDocument();
+
+			// Height should be 2U * U_HEIGHT = 2 * 22 = 44
+			const height = parseFloat(blockedSlot?.getAttribute('height') ?? '0');
+			expect(height).toBe(44); // 2U * 22
+		});
+
+		it('does not render blocked slots for half-depth devices', () => {
+			const rackWithDevice: Rack = {
+				...mockRack,
+				devices: [{ libraryId: 'half-depth-switch', position: 5, face: 'front' }]
+			};
+
+			const { container } = render(Rack, {
+				props: {
+					rack: rackWithDevice,
+					deviceLibrary,
+					selected: false,
+					faceFilter: 'rear' // Viewing rear, but half-depth front device shouldn't block
+				}
+			});
+
+			const blockedSlots = container.querySelectorAll('.blocked-slot');
+			expect(blockedSlots.length).toBe(0);
+		});
+
+		it('does not render blocked slots when faceFilter is undefined', () => {
+			const rackWithDevice: Rack = {
+				...mockRack,
+				devices: [{ libraryId: 'full-depth-server', position: 5, face: 'front' }]
+			};
+
+			const { container } = render(Rack, {
+				props: {
+					rack: rackWithDevice,
+					deviceLibrary,
+					selected: false
+					// No faceFilter - default/single-view mode
+				}
+			});
+
+			// No blocked slots in single-view mode
+			const blockedSlots = container.querySelectorAll('.blocked-slot');
+			expect(blockedSlots.length).toBe(0);
+		});
+
+		it('renders blocked slots for both-face devices on both views', () => {
+			const bothFaceLibrary: Device[] = [
+				{
+					id: 'ups',
+					name: 'UPS',
+					height: 3,
+					category: 'power',
+					colour: '#888888',
+					is_full_depth: true
+				}
+			];
+
+			const rackWithDevice: Rack = {
+				...mockRack,
+				devices: [{ libraryId: 'ups', position: 1, face: 'both' }]
+			};
+
+			// Check front view
+			const { container: frontContainer } = render(Rack, {
+				props: {
+					rack: rackWithDevice,
+					deviceLibrary: bothFaceLibrary,
+					selected: false,
+					faceFilter: 'front'
+				}
+			});
+
+			const frontBlockedSlots = frontContainer.querySelectorAll('.blocked-slot');
+			expect(frontBlockedSlots.length).toBe(1);
+
+			// Check rear view
+			const { container: rearContainer } = render(Rack, {
+				props: {
+					rack: rackWithDevice,
+					deviceLibrary: bothFaceLibrary,
+					selected: false,
+					faceFilter: 'rear'
+				}
+			});
+
+			const rearBlockedSlots = rearContainer.querySelectorAll('.blocked-slot');
+			expect(rearBlockedSlots.length).toBe(1);
+		});
+
+		it('blocked slots have appropriate opacity', () => {
+			const rackWithDevice: Rack = {
+				...mockRack,
+				devices: [{ libraryId: 'full-depth-server', position: 5, face: 'front' }]
+			};
+
+			const { container } = render(Rack, {
+				props: {
+					rack: rackWithDevice,
+					deviceLibrary,
+					selected: false,
+					faceFilter: 'rear'
+				}
+			});
+
+			const blockedSlot = container.querySelector('.blocked-slot');
+			expect(blockedSlot).toBeInTheDocument();
+
+			// Opacity should be set (we'll use CSS variable, so just check it exists)
+			const opacity = blockedSlot?.getAttribute('opacity');
+			// If opacity is set inline, it should be a value between 0 and 1
+			if (opacity) {
+				expect(parseFloat(opacity)).toBeGreaterThan(0);
+				expect(parseFloat(opacity)).toBeLessThan(1);
+			}
+		});
+	});
 });

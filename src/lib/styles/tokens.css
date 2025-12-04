@@ -178,6 +178,9 @@
 	--rack-text: var(--neutral-400); /* U label text - stays light on dark rack */
 	--rack-text-highlight: var(--neutral-200); /* Highlighted U labels (multiples of 5) */
 
+	/* Blocked Slots (dual-view mode) */
+	--colour-rack-blocked: rgba(128, 128, 128, 0.3); /* Dark theme - subtle gray */
+
 	/* Toolbar */
 	--toolbar-height: 56px;
 	--toolbar-bg: var(--neutral-900);
@@ -261,6 +264,9 @@
 
 	/* Component Overrides */
 	/* NOTE: Rack tokens intentionally NOT overridden - racks stay dark in all themes */
+
+	/* Blocked Slots - slightly lighter for light theme (rack stays dark) */
+	--colour-rack-blocked: rgba(0, 0, 0, 0.1);
 
 	--toolbar-bg: #ffffff;
 	--toolbar-border: var(--neutral-200);
