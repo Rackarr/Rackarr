@@ -516,4 +516,227 @@ describe('Rack SVG Component', () => {
 			expect(u10Y).toBeLessThan(u12Y);
 		});
 	});
+
+	describe('Face Filter (faceFilter prop)', () => {
+		const deviceLibrary: Device[] = [
+			{
+				id: 'front-device',
+				name: 'Front Device',
+				height: 2,
+				colour: '#4A90D9',
+				category: 'server'
+			},
+			{
+				id: 'rear-device',
+				name: 'Rear Device',
+				height: 1,
+				colour: '#7B68EE',
+				category: 'network'
+			},
+			{
+				id: 'both-device',
+				name: 'Full Depth Device',
+				height: 3,
+				colour: '#50C878',
+				category: 'storage'
+			}
+		];
+
+		const rackWithDevices: RackType = {
+			...mockRack,
+			devices: [
+				{ libraryId: 'front-device', position: 1, face: 'front' },
+				{ libraryId: 'rear-device', position: 5, face: 'rear' },
+				{ libraryId: 'both-device', position: 8, face: 'both' }
+			]
+		};
+
+		it('shows only front and both-face devices when faceFilter=front', () => {
+			const { container } = render(Rack, {
+				props: {
+					rack: rackWithDevices,
+					deviceLibrary,
+					selected: false,
+					faceFilter: 'front'
+				}
+			});
+
+			const devices = container.querySelectorAll('[data-device-id]');
+			// Should show front-device and both-device, NOT rear-device
+			expect(devices).toHaveLength(2);
+
+			const deviceIds = Array.from(devices).map((d) => d.getAttribute('data-device-id'));
+			expect(deviceIds).toContain('front-device');
+			expect(deviceIds).toContain('both-device');
+			expect(deviceIds).not.toContain('rear-device');
+		});
+
+		it('shows only rear and both-face devices when faceFilter=rear', () => {
+			const { container } = render(Rack, {
+				props: {
+					rack: rackWithDevices,
+					deviceLibrary,
+					selected: false,
+					faceFilter: 'rear'
+				}
+			});
+
+			const devices = container.querySelectorAll('[data-device-id]');
+			// Should show rear-device and both-device, NOT front-device
+			expect(devices).toHaveLength(2);
+
+			const deviceIds = Array.from(devices).map((d) => d.getAttribute('data-device-id'));
+			expect(deviceIds).toContain('rear-device');
+			expect(deviceIds).toContain('both-device');
+			expect(deviceIds).not.toContain('front-device');
+		});
+
+		it('shows all devices when faceFilter is undefined (backwards compat)', () => {
+			const { container } = render(Rack, {
+				props: {
+					rack: rackWithDevices,
+					deviceLibrary,
+					selected: false
+					// faceFilter not provided
+				}
+			});
+
+			// Without faceFilter, falls back to rack.view filtering
+			// rack.view defaults to 'front', so should show front-device and both-device
+			const devices = container.querySelectorAll('[data-device-id]');
+			expect(devices.length).toBeGreaterThanOrEqual(2);
+		});
+
+		it('renders viewLabel when provided', () => {
+			render(Rack, {
+				props: {
+					rack: mockRack,
+					deviceLibrary: [],
+					selected: false,
+					viewLabel: 'FRONT'
+				}
+			});
+
+			expect(screen.getByText('FRONT')).toBeInTheDocument();
+		});
+
+		it('does not render viewLabel when not provided', () => {
+			render(Rack, {
+				props: {
+					rack: mockRack,
+					deviceLibrary: [],
+					selected: false
+					// viewLabel not provided
+				}
+			});
+
+			expect(screen.queryByText('FRONT')).not.toBeInTheDocument();
+			expect(screen.queryByText('REAR')).not.toBeInTheDocument();
+		});
+
+		it('viewLabel has correct styling class', () => {
+			const { container } = render(Rack, {
+				props: {
+					rack: mockRack,
+					deviceLibrary: [],
+					selected: false,
+					viewLabel: 'REAR'
+				}
+			});
+
+			const label = container.querySelector('.rack-view-label');
+			expect(label).toBeInTheDocument();
+			expect(label?.textContent).toBe('REAR');
+		});
+
+		it('hides rack name when hideRackName=true', () => {
+			render(Rack, {
+				props: {
+					rack: mockRack,
+					deviceLibrary: [],
+					selected: false,
+					hideRackName: true
+				}
+			});
+
+			// Rack name should not be visible
+			expect(screen.queryByText('Test Rack')).not.toBeInTheDocument();
+		});
+
+		it('shows rack name when hideRackName=false (default)', () => {
+			render(Rack, {
+				props: {
+					rack: mockRack,
+					deviceLibrary: [],
+					selected: false
+					// hideRackName not provided (defaults to false)
+				}
+			});
+
+			expect(screen.getByText('Test Rack')).toBeInTheDocument();
+		});
+
+		it('hides view toggle when hideViewToggle=true', () => {
+			const { container } = render(Rack, {
+				props: {
+					rack: mockRack,
+					deviceLibrary: [],
+					selected: false,
+					hideViewToggle: true
+				}
+			});
+
+			// View toggle should not be visible
+			const viewToggle = container.querySelector('.view-toggle-overlay');
+			expect(viewToggle).toBeNull();
+		});
+	});
+
+	describe('U Labels Position for Rear View', () => {
+		it('mirrors U labels to right rail when faceFilter=rear', () => {
+			const { container } = render(Rack, {
+				props: {
+					rack: mockRack,
+					deviceLibrary: [],
+					selected: false,
+					faceFilter: 'rear'
+				}
+			});
+
+			// In rear view, U labels should be on the right side
+			const uLabels = container.querySelectorAll('.u-label');
+			expect(uLabels.length).toBeGreaterThan(0);
+
+			// Check that labels are positioned to the right
+			// RACK_WIDTH for 19" rack is 220, RAIL_WIDTH is 17
+			// Right rail center would be around 220 - 17/2 = ~211.5
+			const firstLabel = uLabels[0];
+			const labelX = parseFloat(firstLabel?.getAttribute('x') ?? '0');
+
+			// For rear view, labels should be on right side (x > RACK_WIDTH / 2)
+			expect(labelX).toBeGreaterThan(110); // More than half of 220
+		});
+
+		it('keeps U labels on left rail when faceFilter=front', () => {
+			const { container } = render(Rack, {
+				props: {
+					rack: mockRack,
+					deviceLibrary: [],
+					selected: false,
+					faceFilter: 'front'
+				}
+			});
+
+			const uLabels = container.querySelectorAll('.u-label');
+			expect(uLabels.length).toBeGreaterThan(0);
+
+			// For front view, labels should be on left side
+			// Left rail center would be around 17/2 = 8.5
+			const firstLabel = uLabels[0];
+			const labelX = parseFloat(firstLabel?.getAttribute('x') ?? '0');
+
+			// For front view, labels should be on left side (x < RACK_WIDTH / 2)
+			expect(labelX).toBeLessThan(110);
+		});
+	});
 });

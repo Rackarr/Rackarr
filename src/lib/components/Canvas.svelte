@@ -12,7 +12,7 @@
 	import { getCanvasStore, ZOOM_MIN, ZOOM_MAX } from '$lib/stores/canvas.svelte';
 	import { getUIStore } from '$lib/stores/ui.svelte';
 	import { debug } from '$lib/utils/debug';
-	import Rack from './Rack.svelte';
+	import RackDualView from './RackDualView.svelte';
 	import WelcomeScreen from './WelcomeScreen.svelte';
 
 	interface Props {
@@ -21,7 +21,12 @@
 		onrackselect?: (event: CustomEvent<{ rackId: string }>) => void;
 		ondeviceselect?: (event: CustomEvent<{ libraryId: string; position: number }>) => void;
 		ondevicedrop?: (
-			event: CustomEvent<{ rackId: string; libraryId: string; position: number }>
+			event: CustomEvent<{
+				rackId: string;
+				libraryId: string;
+				position: number;
+				face: 'front' | 'rear';
+			}>
 		) => void;
 		ondevicemove?: (
 			event: CustomEvent<{ rackId: string; deviceIndex: number; newPosition: number }>
@@ -158,10 +163,15 @@
 	}
 
 	function handleDeviceDrop(
-		event: CustomEvent<{ rackId: string; libraryId: string; position: number }>
+		event: CustomEvent<{
+			rackId: string;
+			libraryId: string;
+			position: number;
+			face: 'front' | 'rear';
+		}>
 	) {
-		const { rackId, libraryId, position } = event.detail;
-		layoutStore.placeDevice(rackId, libraryId, position);
+		const { rackId, libraryId, position, face } = event.detail;
+		layoutStore.placeDevice(rackId, libraryId, position, face);
 		ondevicedrop?.(event);
 	}
 
@@ -186,12 +196,8 @@
 		ondevicemoverack?.(event);
 	}
 
-	function handleRackViewChange(event: CustomEvent<{ rackId: string; view: 'front' | 'rear' }>) {
-		const { rackId, view } = event.detail;
-		layoutStore.updateRackView(rackId, view);
-	}
-
 	// NOTE: Rack reordering handlers removed in v0.1.1 (single-rack mode)
+	// NOTE: handleRackViewChange removed in v0.4 (dual-view mode - always show both)
 	// Restore in v0.3 when multi-rack support returns
 </script>
 
@@ -206,9 +212,9 @@
 >
 	{#if hasRacks && rack}
 		<div class="panzoom-container" bind:this={panzoomContainer}>
-			<!-- Single-rack mode: direct rack reference (v0.1.1) -->
+			<!-- Single-rack mode with dual-view: front and rear side-by-side (v0.4) -->
 			<div class="rack-wrapper">
-				<Rack
+				<RackDualView
 					{rack}
 					deviceLibrary={layoutStore.deviceLibrary}
 					selected={selectionStore.selectedType === 'rack' && selectionStore.selectedId === rack.id}
@@ -222,7 +228,6 @@
 					ondevicedrop={(e) => handleDeviceDrop(e)}
 					ondevicemove={(e) => handleDeviceMove(e)}
 					ondevicemoverack={(e) => handleDeviceMoveRack(e)}
-					onrackviewchange={(e) => handleRackViewChange(e)}
 				/>
 			</div>
 		</div>

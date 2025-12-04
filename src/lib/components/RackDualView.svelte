@@ -51,17 +51,7 @@
 		ondevicemoverack
 	}: Props = $props();
 
-	// Create virtual racks with different views for rendering
-	// This is a temporary approach until Rack.svelte is updated with faceFilter prop
-	const frontRack = $derived<RackType>({
-		...rack,
-		view: 'front'
-	});
-
-	const rearRack = $derived<RackType>({
-		...rack,
-		view: 'rear'
-	});
+	// Now using faceFilter prop instead of virtual racks
 
 	function handleSelect() {
 		onselect?.(new CustomEvent('select', { detail: { rackId: rack.id } }));
@@ -74,16 +64,8 @@
 		}
 	}
 
-	function handleFrontClick(event: MouseEvent) {
-		// Prevent bubbling so we can control selection at dual-view level
-		event.stopPropagation();
-		handleSelect();
-	}
-
-	function handleRearClick(event: MouseEvent) {
-		event.stopPropagation();
-		handleSelect();
-	}
+	// Note: Selection is handled by the Rack component's onselect callback
+	// No need for separate click handlers on wrapper divs
 
 	// Handle device drop on front view - add face: 'front' to the event
 	function handleFrontDeviceDrop(
@@ -128,15 +110,18 @@
 
 	<div class="rack-dual-view-container">
 		<!-- Front view -->
-		<div class="rack-front" onclick={handleFrontClick} role="presentation">
+		<div class="rack-front" role="presentation">
 			<div class="rack-view-label">FRONT</div>
 			<Rack
-				rack={frontRack}
+				{rack}
 				{deviceLibrary}
 				selected={false}
 				{selectedDeviceId}
 				{displayMode}
 				{showLabelsOnImages}
+				faceFilter="front"
+				hideRackName={true}
+				hideViewToggle={true}
 				onselect={() => handleSelect()}
 				{ondeviceselect}
 				ondevicedrop={handleFrontDeviceDrop}
@@ -146,15 +131,18 @@
 		</div>
 
 		<!-- Rear view -->
-		<div class="rack-rear" onclick={handleRearClick} role="presentation">
+		<div class="rack-rear" role="presentation">
 			<div class="rack-view-label">REAR</div>
 			<Rack
-				rack={rearRack}
+				{rack}
 				{deviceLibrary}
 				selected={false}
 				{selectedDeviceId}
 				{displayMode}
 				{showLabelsOnImages}
+				faceFilter="rear"
+				hideRackName={true}
+				hideViewToggle={true}
 				onselect={() => handleSelect()}
 				{ondeviceselect}
 				ondevicedrop={handleRearDeviceDrop}
@@ -218,18 +206,6 @@
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
 		font-family: var(--font-family, system-ui, sans-serif);
-	}
-
-	/* Hide the rack name inside individual Rack components since we show it at the container level */
-	.rack-front :global(.rack-name),
-	.rack-rear :global(.rack-name) {
-		display: none;
-	}
-
-	/* Hide the view toggle since we're showing both views */
-	.rack-front :global(.view-toggle-overlay),
-	.rack-rear :global(.view-toggle-overlay) {
-		display: none;
 	}
 
 	/* Remove individual rack selection styling since we handle it at container level */

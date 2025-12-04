@@ -218,8 +218,9 @@ describe('RackDualView Component', () => {
 				}
 			});
 
-			const frontView = container.querySelector('.rack-front');
-			await fireEvent.click(frontView!);
+			// Click on the SVG inside the front view to trigger selection
+			const frontViewSvg = container.querySelector('.rack-front svg');
+			await fireEvent.click(frontViewSvg!);
 
 			expect(handleSelect).toHaveBeenCalledTimes(1);
 			expect(handleSelect.mock.calls[0][0].detail.rackId).toBe('rack-1');
@@ -238,8 +239,9 @@ describe('RackDualView Component', () => {
 				}
 			});
 
-			const rearView = container.querySelector('.rack-rear');
-			await fireEvent.click(rearView!);
+			// Click on the SVG inside the rear view to trigger selection
+			const rearViewSvg = container.querySelector('.rack-rear svg');
+			await fireEvent.click(rearViewSvg!);
 
 			expect(handleSelect).toHaveBeenCalledTimes(1);
 			expect(handleSelect.mock.calls[0][0].detail.rackId).toBe('rack-1');

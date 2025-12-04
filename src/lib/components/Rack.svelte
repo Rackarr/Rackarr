@@ -25,6 +25,14 @@
 		selectedDeviceId?: string | null;
 		displayMode?: DisplayMode;
 		showLabelsOnImages?: boolean;
+		/** Filter devices by face - when set, overrides rack.view for filtering */
+		faceFilter?: 'front' | 'rear';
+		/** Label to show above the rack (e.g., "FRONT" or "REAR") */
+		viewLabel?: string;
+		/** Hide the rack name (useful when container shows it instead) */
+		hideRackName?: boolean;
+		/** Hide the view toggle (useful in dual-view mode) */
+		hideViewToggle?: boolean;
 		onselect?: (event: CustomEvent<{ rackId: string }>) => void;
 		ondeviceselect?: (event: CustomEvent<{ libraryId: string; position: number }>) => void;
 		ondevicedrop?: (
@@ -51,6 +59,10 @@
 		selectedDeviceId = null,
 		displayMode = 'label',
 		showLabelsOnImages = false,
+		faceFilter,
+		viewLabel,
+		hideRackName = false,
+		hideViewToggle = false,
 		onselect,
 		ondeviceselect,
 		ondevicedrop,
@@ -116,14 +128,19 @@
 			: 0
 	);
 
-	// Filter devices by rack view and device face
+	// Filter devices by face - use faceFilter prop if provided, otherwise fall back to rack.view
+	const effectiveFaceFilter = $derived(faceFilter ?? rack.view);
+
 	const visibleDevices = $derived(
 		rack.devices.filter((placedDevice) => {
 			const { face } = placedDevice;
 			if (face === 'both') return true; // Both-face devices visible in all views
-			return face === rack.view; // Show front devices in front view, rear in rear view
+			return face === effectiveFaceFilter; // Show devices matching the filter
 		})
 	);
+
+	// Determine if U labels should be on the right (for rear view)
+	const uLabelsOnRight = $derived(faceFilter === 'rear');
 
 	function handleClick(_event: MouseEvent) {
 		// Don't select rack if we just finished panning
@@ -411,10 +428,10 @@
 			<circle cx={RACK_WIDTH - RAIL_WIDTH / 2} cy={baseY + 14} r="1.8" class="rack-hole" />
 		{/each}
 
-		<!-- U labels on left rail (rendered after holes for better visibility) -->
+		<!-- U labels (on left rail for front view, right rail for rear view) -->
 		{#each uLabels as { uNumber, yPosition } (uNumber)}
 			<text
-				x={RAIL_WIDTH / 2}
+				x={uLabelsOnRight ? RACK_WIDTH - RAIL_WIDTH / 2 : RAIL_WIDTH / 2}
 				y={yPosition}
 				class="u-label"
 				class:u-label-highlight={uNumber % 5 === 0}
@@ -465,29 +482,46 @@
 			/>
 		{/if}
 
-		<!-- View toggle in top bar (centered) -->
-		<foreignObject
-			x="0"
-			y={RACK_PADDING}
-			width={RACK_WIDTH}
-			height={RAIL_WIDTH}
-			class="view-toggle-overlay"
-		>
-			<div class="view-toggle-wrapper">
-				<RackViewToggle view={rack.view} onchange={handleViewChange} />
-			</div>
-		</foreignObject>
+		<!-- View toggle in top bar (centered) - hidden when hideViewToggle=true -->
+		{#if !hideViewToggle}
+			<foreignObject
+				x="0"
+				y={RACK_PADDING}
+				width={RACK_WIDTH}
+				height={RAIL_WIDTH}
+				class="view-toggle-overlay"
+			>
+				<div class="view-toggle-wrapper">
+					<RackViewToggle view={rack.view} onchange={handleViewChange} />
+				</div>
+			</foreignObject>
+		{/if}
 
-		<!-- Rack name at top (rendered last so it's on top) -->
-		<text
-			x={RACK_WIDTH / 2}
-			y={-NAME_Y_OFFSET}
-			class="rack-name"
-			text-anchor="middle"
-			dominant-baseline="text-before-edge"
-		>
-			{rack.name}
-		</text>
+		<!-- Rack name at top (rendered last so it's on top) - hidden when hideRackName=true -->
+		{#if !hideRackName}
+			<text
+				x={RACK_WIDTH / 2}
+				y={-NAME_Y_OFFSET}
+				class="rack-name"
+				text-anchor="middle"
+				dominant-baseline="text-before-edge"
+			>
+				{rack.name}
+			</text>
+		{/if}
+
+		<!-- View label (e.g., "FRONT" or "REAR") - shown when viewLabel is provided -->
+		{#if viewLabel}
+			<text
+				x={RACK_WIDTH / 2}
+				y={-NAME_Y_OFFSET}
+				class="rack-view-label"
+				text-anchor="middle"
+				dominant-baseline="text-before-edge"
+			>
+				{viewLabel}
+			</text>
+		{/if}
 	</svg>
 </div>
 
@@ -595,6 +629,16 @@
 		fill: var(--colour-text);
 		font-size: 15px;
 		font-weight: 500;
+		text-anchor: middle;
+		font-family: var(--font-family, system-ui, sans-serif);
+	}
+
+	.rack-view-label {
+		fill: var(--colour-text-muted);
+		font-size: 11px;
+		font-weight: 500;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
 		text-anchor: middle;
 		font-family: var(--font-family, system-ui, sans-serif);
 	}
