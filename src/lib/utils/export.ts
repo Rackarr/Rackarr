@@ -41,6 +41,17 @@ const DARK_GRID = '#505050';
 const LIGHT_GRID = '#a0a0a0';
 
 /**
+ * Filter devices by face for export
+ */
+function filterDevicesByFace(
+	devices: Rack['devices'],
+	faceFilter: 'front' | 'rear' | undefined
+): Rack['devices'] {
+	if (!faceFilter) return devices;
+	return devices.filter((d) => d.face === faceFilter || d.face === 'both');
+}
+
+/**
  * Generate an SVG element for export
  */
 export function generateExportSVG(
@@ -48,7 +59,10 @@ export function generateExportSVG(
 	deviceLibrary: Device[],
 	options: ExportOptions
 ): SVGElement {
-	const { includeNames, includeLegend, background } = options;
+	const { includeNames, includeLegend, background, exportView } = options;
+
+	// Determine if we're doing dual-view export
+	const isDualView = exportView === 'both';
 
 	// Get unique devices used in racks for legend
 	const usedDeviceIds = new Set<string>();
@@ -61,7 +75,11 @@ export function generateExportSVG(
 
 	// Calculate dimensions
 	const maxRackHeight = Math.max(...racks.map((r) => r.height), 0);
-	const totalRackWidth = racks.length * RACK_WIDTH + (racks.length - 1) * RACK_GAP;
+	// For dual view: each rack takes 2x width + gap between front/rear
+	const singleRackWidth = racks.length * RACK_WIDTH + (racks.length - 1) * RACK_GAP;
+	const totalRackWidth = isDualView
+		? racks.length * (RACK_WIDTH * 2 + RACK_GAP) + (racks.length - 1) * RACK_GAP
+		: singleRackWidth;
 
 	const rackAreaHeight = maxRackHeight * U_HEIGHT + RACK_PADDING * 2;
 	const legendWidth = includeLegend ? 180 : 0;
@@ -113,13 +131,16 @@ export function generateExportSVG(
 		svg.appendChild(bgRect);
 	}
 
-	// Render each rack
-	racks.forEach((rack, index) => {
-		const rackX = EXPORT_PADDING + index * (RACK_WIDTH + RACK_GAP);
-		const rackY = EXPORT_PADDING + (maxRackHeight - rack.height) * U_HEIGHT;
-
+	// Helper function to render a single rack view
+	function renderRackView(
+		rack: Rack,
+		xOffset: number,
+		yOffset: number,
+		faceFilter: 'front' | 'rear' | undefined,
+		viewLabel?: string
+	): SVGGElement {
 		const rackGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-		rackGroup.setAttribute('transform', `translate(${rackX}, ${rackY})`);
+		rackGroup.setAttribute('transform', `translate(${xOffset}, ${yOffset})`);
 
 		const rackHeight = rack.height * U_HEIGHT;
 
@@ -214,8 +235,9 @@ export function generateExportSVG(
 			rackGroup.appendChild(label);
 		}
 
-		// Devices
-		for (const placedDevice of rack.devices) {
+		// Filter and render devices
+		const filteredDevices = filterDevicesByFace(rack.devices, faceFilter);
+		for (const placedDevice of filteredDevices) {
 			const device = deviceLibrary.find((d) => d.id === placedDevice.libraryId);
 			if (!device) continue;
 
@@ -250,8 +272,22 @@ export function generateExportSVG(
 			rackGroup.appendChild(deviceName);
 		}
 
-		// Rack name (positioned above rack)
-		if (includeNames) {
+		// View label (FRONT/REAR) for dual-view export
+		if (viewLabel) {
+			const viewLabelText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+			viewLabelText.setAttribute('x', String(RACK_WIDTH / 2));
+			viewLabelText.setAttribute('y', '-8');
+			viewLabelText.setAttribute('fill', textColor);
+			viewLabelText.setAttribute('font-size', '11');
+			viewLabelText.setAttribute('text-anchor', 'middle');
+			viewLabelText.setAttribute('font-family', 'system-ui, sans-serif');
+			viewLabelText.setAttribute('font-weight', '500');
+			viewLabelText.textContent = viewLabel;
+			rackGroup.appendChild(viewLabelText);
+		}
+
+		// Rack name (positioned above rack, or above view label if present)
+		if (includeNames && !viewLabel) {
 			const nameText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
 			nameText.setAttribute('class', 'rack-name');
 			nameText.setAttribute('x', String(RACK_WIDTH / 2));
@@ -264,7 +300,62 @@ export function generateExportSVG(
 			rackGroup.appendChild(nameText);
 		}
 
-		svg.appendChild(rackGroup);
+		return rackGroup;
+	}
+
+	// Render each rack (single or dual view)
+	racks.forEach((rack, index) => {
+		const rackY = EXPORT_PADDING + (maxRackHeight - rack.height) * U_HEIGHT;
+
+		if (isDualView) {
+			// Dual view: render front and rear side-by-side
+			const dualRackWidth = RACK_WIDTH * 2 + RACK_GAP;
+			const baseX = EXPORT_PADDING + index * (dualRackWidth + RACK_GAP);
+
+			// Render rack name centered above both views
+			if (includeNames) {
+				const nameText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+				nameText.setAttribute('class', 'rack-name');
+				nameText.setAttribute('x', String(baseX + dualRackWidth / 2));
+				nameText.setAttribute('y', String(rackY - 5));
+				nameText.setAttribute('fill', textColor);
+				nameText.setAttribute('font-size', '13');
+				nameText.setAttribute('text-anchor', 'middle');
+				nameText.setAttribute('font-family', 'system-ui, sans-serif');
+				nameText.textContent = rack.name;
+				svg.appendChild(nameText);
+			}
+
+			// Front view on the left
+			const frontGroup = renderRackView(rack, baseX, rackY, 'front', 'FRONT');
+			svg.appendChild(frontGroup);
+
+			// Rear view on the right
+			const rearX = baseX + RACK_WIDTH + RACK_GAP;
+			const rearGroup = renderRackView(rack, rearX, rackY, 'rear', 'REAR');
+			svg.appendChild(rearGroup);
+		} else {
+			// Single view: render with optional face filter
+			const rackX = EXPORT_PADDING + index * (RACK_WIDTH + RACK_GAP);
+			const faceFilter = exportView === 'front' || exportView === 'rear' ? exportView : undefined;
+			const rackGroup = renderRackView(rack, rackX, rackY, faceFilter);
+
+			// Add rack name for single view (not handled in renderRackView when viewLabel is not present)
+			if (includeNames) {
+				const nameText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+				nameText.setAttribute('class', 'rack-name');
+				nameText.setAttribute('x', String(RACK_WIDTH / 2));
+				nameText.setAttribute('y', '2');
+				nameText.setAttribute('fill', textColor);
+				nameText.setAttribute('font-size', '13');
+				nameText.setAttribute('text-anchor', 'middle');
+				nameText.setAttribute('font-family', 'system-ui, sans-serif');
+				nameText.textContent = rack.name;
+				rackGroup.appendChild(nameText);
+			}
+
+			svg.appendChild(rackGroup);
+		}
 	});
 
 	// Legend

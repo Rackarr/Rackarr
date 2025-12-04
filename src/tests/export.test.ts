@@ -592,3 +592,295 @@ describe('Export Legend', () => {
 		expect(legendItems?.length).toBe(1);
 	});
 });
+
+describe('Dual-View Export', () => {
+	const mockDevices: Device[] = [
+		{
+			id: 'front-server',
+			name: 'Front Server',
+			height: 2,
+			colour: '#4A90D9',
+			category: 'server',
+			is_full_depth: true
+		},
+		{
+			id: 'rear-patch',
+			name: 'Rear Patch Panel',
+			height: 1,
+			colour: '#7B68EE',
+			category: 'network',
+			is_full_depth: false
+		},
+		{
+			id: 'both-ups',
+			name: 'UPS',
+			height: 4,
+			colour: '#22C55E',
+			category: 'power'
+		}
+	];
+
+	const mockRacks: Rack[] = [
+		{
+			id: 'rack-1',
+			name: 'Test Rack',
+			height: 12,
+			width: 19,
+			position: 0,
+			view: 'front',
+			devices: [
+				{ libraryId: 'front-server', position: 1, face: 'front' },
+				{ libraryId: 'rear-patch', position: 5, face: 'rear' },
+				{ libraryId: 'both-ups', position: 8, face: 'both' }
+			]
+		}
+	];
+
+	describe('exportView option', () => {
+		it('exports only front-facing devices when exportView is "front"', () => {
+			const options: ExportOptions = {
+				format: 'png',
+				scope: 'all',
+				includeNames: false,
+				includeLegend: false,
+				background: 'dark',
+				exportView: 'front'
+			};
+
+			const svg = generateExportSVG(mockRacks, mockDevices, options);
+			const svgString = svg.outerHTML;
+
+			// Should include front and both-face devices
+			expect(svgString).toContain('#4A90D9'); // front-server (front)
+			expect(svgString).toContain('#22C55E'); // both-ups (both)
+			// Should NOT include rear-only devices
+			expect(svgString).not.toContain('#7B68EE'); // rear-patch (rear)
+		});
+
+		it('exports only rear-facing devices when exportView is "rear"', () => {
+			const options: ExportOptions = {
+				format: 'png',
+				scope: 'all',
+				includeNames: false,
+				includeLegend: false,
+				background: 'dark',
+				exportView: 'rear'
+			};
+
+			const svg = generateExportSVG(mockRacks, mockDevices, options);
+			const svgString = svg.outerHTML;
+
+			// Should include rear and both-face devices
+			expect(svgString).toContain('#7B68EE'); // rear-patch (rear)
+			expect(svgString).toContain('#22C55E'); // both-ups (both)
+			// Should NOT include front-only devices
+			expect(svgString).not.toContain('#4A90D9'); // front-server (front)
+		});
+
+		it('exports both views side-by-side when exportView is "both"', () => {
+			const options: ExportOptions = {
+				format: 'png',
+				scope: 'all',
+				includeNames: true,
+				includeLegend: false,
+				background: 'dark',
+				exportView: 'both'
+			};
+
+			const svg = generateExportSVG(mockRacks, mockDevices, options);
+			const svgString = svg.outerHTML;
+
+			// Check for FRONT and REAR labels
+			expect(svgString).toContain('FRONT');
+			expect(svgString).toContain('REAR');
+
+			// All device colours should be present (different faces in different views)
+			expect(svgString).toContain('#4A90D9'); // front-server
+			expect(svgString).toContain('#7B68EE'); // rear-patch
+			expect(svgString).toContain('#22C55E'); // both-ups (appears in both)
+		});
+
+		it('defaults to showing all devices when exportView is undefined', () => {
+			const options: ExportOptions = {
+				format: 'png',
+				scope: 'all',
+				includeNames: false,
+				includeLegend: false,
+				background: 'dark'
+				// exportView not specified
+			};
+
+			const svg = generateExportSVG(mockRacks, mockDevices, options);
+			const svgString = svg.outerHTML;
+
+			// Legacy behavior: all devices visible
+			expect(svgString).toContain('#4A90D9'); // front-server
+			expect(svgString).toContain('#7B68EE'); // rear-patch
+			expect(svgString).toContain('#22C55E'); // both-ups
+		});
+	});
+
+	describe('dual-view layout', () => {
+		it('positions front view on the left and rear view on the right', () => {
+			const options: ExportOptions = {
+				format: 'png',
+				scope: 'all',
+				includeNames: true,
+				includeLegend: false,
+				background: 'dark',
+				exportView: 'both'
+			};
+
+			const svg = generateExportSVG(mockRacks, mockDevices, options);
+
+			// Find the view labels to check positioning
+			const textElements = svg.querySelectorAll('text');
+			let frontLabelX: number | null = null;
+			let rearLabelX: number | null = null;
+
+			textElements.forEach((text) => {
+				if (text.textContent === 'FRONT') {
+					// Get the parent group's transform to find X position
+					const parent = text.parentElement;
+					const transform = parent?.getAttribute('transform');
+					if (transform) {
+						const match = transform.match(/translate\((\d+)/);
+						if (match) {
+							frontLabelX = parseInt(match[1]!, 10);
+						}
+					}
+				}
+				if (text.textContent === 'REAR') {
+					const parent = text.parentElement;
+					const transform = parent?.getAttribute('transform');
+					if (transform) {
+						const match = transform.match(/translate\((\d+)/);
+						if (match) {
+							rearLabelX = parseInt(match[1]!, 10);
+						}
+					}
+				}
+			});
+
+			// Front should be to the left of rear
+			if (frontLabelX !== null && rearLabelX !== null) {
+				expect(frontLabelX).toBeLessThan(rearLabelX);
+			}
+		});
+
+		it('doubles the width for dual-view export', () => {
+			// Single view
+			const singleOptions: ExportOptions = {
+				format: 'png',
+				scope: 'all',
+				includeNames: true,
+				includeLegend: false,
+				background: 'dark',
+				exportView: 'front'
+			};
+
+			const singleSvg = generateExportSVG(mockRacks, mockDevices, singleOptions);
+			const singleWidth = parseInt(singleSvg.getAttribute('width') || '0', 10);
+
+			// Dual view
+			const dualOptions: ExportOptions = {
+				format: 'png',
+				scope: 'all',
+				includeNames: true,
+				includeLegend: false,
+				background: 'dark',
+				exportView: 'both'
+			};
+
+			const dualSvg = generateExportSVG(mockRacks, mockDevices, dualOptions);
+			const dualWidth = parseInt(dualSvg.getAttribute('width') || '0', 10);
+
+			// Dual view should be wider (approximately 2x + gap)
+			expect(dualWidth).toBeGreaterThan(singleWidth);
+			// Should be at least 1.5x wider (accounting for gap)
+			expect(dualWidth).toBeGreaterThan(singleWidth * 1.5);
+		});
+
+		it('uses the same height for front and rear views', () => {
+			const options: ExportOptions = {
+				format: 'png',
+				scope: 'all',
+				includeNames: true,
+				includeLegend: false,
+				background: 'dark',
+				exportView: 'both'
+			};
+
+			const svg = generateExportSVG(mockRacks, mockDevices, options);
+			const height = parseInt(svg.getAttribute('height') || '0', 10);
+
+			// Should be the same height as single view (same rack)
+			const singleOptions: ExportOptions = { ...options, exportView: 'front' };
+			const singleSvg = generateExportSVG(mockRacks, mockDevices, singleOptions);
+			const singleHeight = parseInt(singleSvg.getAttribute('height') || '0', 10);
+
+			expect(height).toBe(singleHeight);
+		});
+	});
+
+	describe('view labels in export', () => {
+		it('adds FRONT label above front view in dual export', () => {
+			const options: ExportOptions = {
+				format: 'png',
+				scope: 'all',
+				includeNames: true,
+				includeLegend: false,
+				background: 'dark',
+				exportView: 'both'
+			};
+
+			const svg = generateExportSVG(mockRacks, mockDevices, options);
+			const viewLabels = Array.from(svg.querySelectorAll('text')).filter(
+				(t) => t.textContent === 'FRONT' || t.textContent === 'REAR'
+			);
+
+			expect(viewLabels.length).toBe(2);
+		});
+
+		it('does NOT add view labels for single view export', () => {
+			const options: ExportOptions = {
+				format: 'png',
+				scope: 'all',
+				includeNames: true,
+				includeLegend: false,
+				background: 'dark',
+				exportView: 'front'
+			};
+
+			const svg = generateExportSVG(mockRacks, mockDevices, options);
+
+			// Should not have FRONT/REAR labels for single view
+			const viewLabels = Array.from(svg.querySelectorAll('text')).filter(
+				(t) => t.textContent === 'FRONT' || t.textContent === 'REAR'
+			);
+			expect(viewLabels.length).toBe(0);
+		});
+	});
+
+	describe('legend with dual-view', () => {
+		it('shows all devices in legend regardless of view', () => {
+			const options: ExportOptions = {
+				format: 'png',
+				scope: 'all',
+				includeNames: true,
+				includeLegend: true,
+				background: 'dark',
+				exportView: 'both'
+			};
+
+			const svg = generateExportSVG(mockRacks, mockDevices, options);
+			const legend = svg.querySelector('.export-legend');
+
+			expect(legend).not.toBeNull();
+
+			// All devices should be in legend
+			const legendItems = legend?.querySelectorAll('.legend-item');
+			expect(legendItems?.length).toBe(3); // front-server, rear-patch, both-ups
+		});
+	});
+});

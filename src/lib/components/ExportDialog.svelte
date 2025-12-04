@@ -9,6 +9,7 @@
 		ExportBackground,
 		ExportOptions,
 		ExportMode,
+		ExportView,
 		BundledExportOptions
 	} from '$lib/types';
 	import Dialog from './Dialog.svelte';
@@ -29,6 +30,7 @@
 	let background = $state<ExportBackground>('dark');
 	let exportMode = $state<ExportMode>('quick');
 	let includeSource = $state(true);
+	let exportView = $state<ExportView>('both');
 
 	// Computed: Can select transparent background (only for SVG)
 	const canSelectTransparent = $derived(format === 'svg');
@@ -65,7 +67,8 @@
 				includeLegend,
 				background,
 				exportMode: 'bundled',
-				includeSource
+				includeSource,
+				exportView
 			};
 			onexport?.(new CustomEvent('export', { detail: options }));
 		} else {
@@ -75,7 +78,8 @@
 				includeNames: true,
 				includeLegend,
 				background,
-				exportMode: 'quick'
+				exportMode: 'quick',
+				exportView
 			};
 			onexport?.(new CustomEvent('export', { detail: options }));
 		}
@@ -111,6 +115,15 @@
 				<option value="jpeg">JPEG</option>
 				<option value="svg">SVG</option>
 				<option value="pdf">PDF</option>
+			</select>
+		</div>
+
+		<div class="form-group">
+			<label for="export-view">View</label>
+			<select id="export-view" bind:value={exportView}>
+				<option value="both">Front & Rear (Side-by-Side)</option>
+				<option value="front">Front Only</option>
+				<option value="rear">Rear Only</option>
 			</select>
 		</div>
 

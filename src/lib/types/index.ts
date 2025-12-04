@@ -207,6 +207,11 @@ export type ExportBackground = 'dark' | 'light' | 'transparent';
 export type ExportMode = 'quick' | 'bundled';
 
 /**
+ * Export view options - which rack face(s) to include
+ */
+export type ExportView = 'front' | 'rear' | 'both';
+
+/**
  * Export options for generating images/files
  */
 export interface ExportOptions {
@@ -222,6 +227,8 @@ export interface ExportOptions {
 	background: ExportBackground;
 	/** Export mode - quick or bundled (optional for backwards compat) */
 	exportMode?: ExportMode;
+	/** Which view(s) to export - front, rear, or both (optional, defaults to all devices) */
+	exportView?: ExportView;
 }
 
 /**
