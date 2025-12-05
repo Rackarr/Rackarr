@@ -49,11 +49,11 @@ Work through each top level heading one by one, mark with x only once complete.
   - [x] 20px padding around rack image
   - [x] front/rear/both view export options
 
-- [] Device Images: Upload front/rear images with label/image display toggle
-- - [] device images are specific to each placed device and are shown when the image view is toggled on
-- - [] device images are shown both in canvas view and export view with image view on
-  - [] device images are included in the full export and successfully import
-  - [] device images are shown correct per face: front face image is shown for front, rear for rear in the canvas, full export and successfully import
+- [x] Device Images: Upload front/rear images with label/image display toggle
+  - [x] device images per device type (library item), shown when image view toggled on
+  - [x] device images shown in canvas view with correct front/rear faces
+  - [x] device images included in save/load (.rackarr.zip) and import successfully
+  - [ ] TODO: device images in PNG/JPEG/SVG export (currently exports show labels only)
 
 ## Planned
 

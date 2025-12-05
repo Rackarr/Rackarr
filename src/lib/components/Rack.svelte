@@ -487,7 +487,7 @@
 						uHeight={U_HEIGHT}
 						rackWidth={RACK_WIDTH}
 						{displayMode}
-						rackView={rack.view}
+						rackView={effectiveFaceFilter}
 						{showLabelsOnImages}
 						placedDeviceName={placedDevice.name}
 						onselect={ondeviceselect}
