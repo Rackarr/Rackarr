@@ -8,9 +8,13 @@ import type {
 	ExportOptions,
 	ExportFormat,
 	ExportMetadata,
-	DeviceCategory
+	ExportDeviceMetadata,
+	DeviceCategory,
+	PlacedDevice
 } from '$lib/types';
+import type { ImageStoreMap } from '$lib/types/images';
 import JSZip from 'jszip';
+import { slugify } from './slug';
 
 // Interface for layout metadata (supports both Layout and Layout)
 interface LayoutLike {
@@ -22,7 +26,7 @@ interface LayoutLike {
 interface RackLike {
 	name: string;
 	height: number;
-	devices: { length: number };
+	devices: PlacedDevice[];
 }
 
 // Interface for multi-format export blobs
@@ -30,6 +34,18 @@ export interface ExportImageBlobs {
 	png: Blob;
 	jpeg: Blob;
 	svg: Blob;
+}
+
+// Interface for bundled export with device info
+export interface BundledExportData {
+	imageBlobs: ExportImageBlobs;
+	layout: LayoutLike;
+	rack: RackLike;
+	deviceLibrary: Device[];
+	images: ImageStoreMap;
+	options: ExportOptions;
+	includeSource: boolean;
+	sourceBlob?: Blob;
 }
 
 // Constants matching Rack.svelte dimensions
@@ -857,14 +873,47 @@ export function generateExportFilename(layoutName: string, format: ExportFormat)
 }
 
 /**
+ * Get file extension from MIME type
+ */
+function getImageExtension(mimeType: string): string {
+	const extensions: Record<string, string> = {
+		'image/png': 'png',
+		'image/jpeg': 'jpg',
+		'image/gif': 'gif',
+		'image/webp': 'webp'
+	};
+	return extensions[mimeType] || 'png';
+}
+
+/**
  * Generate metadata for bundled export
  */
 export function generateExportMetadata(
 	layout: LayoutLike,
 	rack: RackLike,
+	deviceLibrary: Device[],
+	images: ImageStoreMap,
 	options: ExportOptions,
 	includeSource: boolean
 ): ExportMetadata {
+	// Build device metadata array
+	const devices: ExportDeviceMetadata[] = rack.devices.map((placedDevice) => {
+		const libraryDevice = deviceLibrary.find((d) => d.id === placedDevice.libraryId);
+		const deviceSlug = slugify(libraryDevice?.name || placedDevice.libraryId);
+		const deviceImages = images.get(deviceSlug);
+
+		return {
+			libraryId: placedDevice.libraryId,
+			displayName: placedDevice.displayName || libraryDevice?.name || 'Unknown Device',
+			position: placedDevice.position,
+			height: libraryDevice?.height || 1,
+			category: libraryDevice?.category,
+			face: placedDevice.face || 'front',
+			hasFrontImage: !!deviceImages?.front,
+			hasRearImage: !!deviceImages?.rear
+		};
+	});
+
 	return {
 		version: layout.version,
 		exportedAt: new Date().toISOString(),
@@ -873,7 +922,8 @@ export function generateExportMetadata(
 		rackHeight: rack.height,
 		deviceCount: rack.devices.length,
 		exportOptions: options,
-		sourceIncluded: includeSource
+		sourceIncluded: includeSource,
+		devices
 	};
 }
 
@@ -895,25 +945,49 @@ export function generateBundledExportFilename(layoutName: string, _format: Expor
 }
 
 /**
- * Create a bundled export ZIP containing all image formats, metadata, and optionally source
+ * Create a bundled export ZIP containing all image formats, metadata, device images, and optionally source
  */
-export async function createBundledExport(
-	imageBlobs: ExportImageBlobs,
-	layout: LayoutLike,
-	rack: RackLike,
-	options: ExportOptions,
-	includeSource: boolean,
-	sourceBlob?: Blob
-): Promise<Blob> {
+export async function createBundledExport(data: BundledExportData): Promise<Blob> {
+	const { imageBlobs, layout, rack, deviceLibrary, images, options, includeSource, sourceBlob } =
+		data;
 	const zip = new JSZip();
 
-	// Add all image formats
+	// Add all rack image formats
 	zip.file('rack.png', imageBlobs.png);
 	zip.file('rack.jpg', imageBlobs.jpeg);
 	zip.file('rack.svg', imageBlobs.svg);
 
-	// Generate and add metadata
-	const metadata = generateExportMetadata(layout, rack, options, includeSource);
+	// Add device images if present
+	if (images.size > 0) {
+		const assetsFolder = zip.folder('assets');
+		const devicesFolder = assetsFolder?.folder('devices');
+
+		if (devicesFolder) {
+			for (const [deviceSlug, deviceImages] of images) {
+				const deviceFolder = devicesFolder.folder(deviceSlug);
+				if (deviceFolder) {
+					if (deviceImages.front) {
+						const ext = getImageExtension(deviceImages.front.blob.type);
+						deviceFolder.file(`front.${ext}`, deviceImages.front.blob);
+					}
+					if (deviceImages.rear) {
+						const ext = getImageExtension(deviceImages.rear.blob.type);
+						deviceFolder.file(`rear.${ext}`, deviceImages.rear.blob);
+					}
+				}
+			}
+		}
+	}
+
+	// Generate and add metadata with device info
+	const metadata = generateExportMetadata(
+		layout,
+		rack,
+		deviceLibrary,
+		images,
+		options,
+		includeSource
+	);
 	zip.file('metadata.json', JSON.stringify(metadata, null, 2));
 
 	// Add source layout if requested

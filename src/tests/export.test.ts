@@ -8,6 +8,8 @@ import {
 	generateExportFilename
 } from '$lib/utils/export';
 import type { Rack, Device, ExportOptions } from '$lib/types';
+import type { ImageStoreMap } from '$lib/types/images';
+import type { BundledExportData } from '$lib/utils/export';
 
 describe('Export Utilities', () => {
 	const mockDeviceLibrary: Device[] = [
@@ -271,6 +273,12 @@ describe('Bundled Export Utilities', () => {
 		category: 'server'
 	};
 
+	const mockDeviceLibrary: Device[] = [
+		{ id: 'device-1', name: 'Test Server', height: 2, colour: '#4A90D9', category: 'server' }
+	];
+
+	const emptyImages: ImageStoreMap = new Map();
+
 	const mockRack: Rack = {
 		id: 'rack-1',
 		name: 'Main Rack',
@@ -307,7 +315,14 @@ describe('Bundled Export Utilities', () => {
 				background: 'dark'
 			};
 
-			const metadata = generateExportMetadata(mockLayout, mockRack, options, false);
+			const metadata = generateExportMetadata(
+				mockLayout,
+				mockRack,
+				mockDeviceLibrary,
+				emptyImages,
+				options,
+				false
+			);
 
 			expect(metadata.version).toBe('0.1.0');
 			expect(metadata.layoutName).toBe('Test Layout');
@@ -316,6 +331,8 @@ describe('Bundled Export Utilities', () => {
 			expect(metadata.deviceCount).toBe(1);
 			expect(metadata.sourceIncluded).toBe(false);
 			expect(metadata.exportedAt).toBeDefined();
+			expect(metadata.devices).toBeDefined();
+			expect(metadata.devices?.length).toBe(1);
 		});
 
 		it('includes export options in metadata', async () => {
@@ -329,7 +346,14 @@ describe('Bundled Export Utilities', () => {
 				background: 'light'
 			};
 
-			const metadata = generateExportMetadata(mockLayout, mockRack, options, true);
+			const metadata = generateExportMetadata(
+				mockLayout,
+				mockRack,
+				mockDeviceLibrary,
+				emptyImages,
+				options,
+				true
+			);
 
 			expect(metadata.exportOptions.format).toBe('jpeg');
 			expect(metadata.exportOptions.scope).toBe('selected');
@@ -348,11 +372,50 @@ describe('Bundled Export Utilities', () => {
 				background: 'dark'
 			};
 
-			const metadata = generateExportMetadata(mockLayout, mockRack, options, false);
+			const metadata = generateExportMetadata(
+				mockLayout,
+				mockRack,
+				mockDeviceLibrary,
+				emptyImages,
+				options,
+				false
+			);
 
 			// Should be valid ISO date string
 			const date = new Date(metadata.exportedAt);
 			expect(date.toISOString()).toBe(metadata.exportedAt);
+		});
+
+		it('includes device metadata with image status', async () => {
+			const { generateExportMetadata } = await import('$lib/utils/export');
+
+			const options: ExportOptions = {
+				format: 'png',
+				scope: 'all',
+				includeNames: true,
+				includeLegend: false,
+				background: 'dark'
+			};
+
+			const metadata = generateExportMetadata(
+				mockLayout,
+				mockRack,
+				mockDeviceLibrary,
+				emptyImages,
+				options,
+				false
+			);
+
+			expect(metadata.devices).toBeDefined();
+			expect(metadata.devices?.[0]).toMatchObject({
+				libraryId: 'device-1',
+				displayName: 'Test Server',
+				position: 1,
+				height: 2,
+				category: 'server',
+				hasFrontImage: false,
+				hasRearImage: false
+			});
 		});
 	});
 
@@ -394,7 +457,17 @@ describe('Bundled Export Utilities', () => {
 				background: 'dark'
 			};
 
-			const zipBlob = await createBundledExport(imageBlobs, mockLayout, mockRack, options, false);
+			const exportData: BundledExportData = {
+				imageBlobs,
+				layout: mockLayout,
+				rack: mockRack,
+				deviceLibrary: mockDeviceLibrary,
+				images: emptyImages,
+				options,
+				includeSource: false
+			};
+
+			const zipBlob = await createBundledExport(exportData);
 
 			expect(zipBlob).toBeInstanceOf(Blob);
 			expect(zipBlob.type).toBe('application/zip');
@@ -425,14 +498,18 @@ describe('Bundled Export Utilities', () => {
 				background: 'dark'
 			};
 
-			const zipBlob = await createBundledExport(
+			const exportData: BundledExportData = {
 				imageBlobs,
-				mockLayout,
-				mockRack,
+				layout: mockLayout,
+				rack: mockRack,
+				deviceLibrary: mockDeviceLibrary,
+				images: emptyImages,
 				options,
-				true,
+				includeSource: true,
 				sourceBlob
-			);
+			};
+
+			const zipBlob = await createBundledExport(exportData);
 
 			// Verify ZIP contents include source
 			const zip = await JSZip.loadAsync(zipBlob);
@@ -456,7 +533,17 @@ describe('Bundled Export Utilities', () => {
 				background: 'dark'
 			};
 
-			const zipBlob = await createBundledExport(imageBlobs, mockLayout, mockRack, options, false);
+			const exportData: BundledExportData = {
+				imageBlobs,
+				layout: mockLayout,
+				rack: mockRack,
+				deviceLibrary: mockDeviceLibrary,
+				images: emptyImages,
+				options,
+				includeSource: false
+			};
+
+			const zipBlob = await createBundledExport(exportData);
 
 			const zip = await JSZip.loadAsync(zipBlob);
 
@@ -477,6 +564,58 @@ describe('Bundled Export Utilities', () => {
 			expect(pngContent).toBe('png-content');
 			expect(jpgContent).toBe('jpeg-content');
 			expect(svgContent).toBe('<svg>svg-content</svg>');
+		});
+
+		it('includes device images in assets folder', async () => {
+			const { createBundledExport } = await import('$lib/utils/export');
+			const JSZip = (await import('jszip')).default;
+
+			const imageBlobs = {
+				png: new Blob(['fake-png-data'], { type: 'image/png' }),
+				jpeg: new Blob(['fake-jpeg-data'], { type: 'image/jpeg' }),
+				svg: new Blob(['<svg></svg>'], { type: 'image/svg+xml' })
+			};
+			const options: ExportOptions = {
+				format: 'png',
+				scope: 'all',
+				includeNames: true,
+				includeLegend: false,
+				background: 'dark'
+			};
+
+			// Create images map with a device image (using proper ImageData structure)
+			// Note: key must be the slugified device name ('test-server' for 'Test Server')
+			const testImageBlob = new Blob(['test-image-data'], { type: 'image/png' });
+			const imagesWithDevice: ImageStoreMap = new Map([
+				[
+					'test-server',
+					{
+						front: {
+							blob: testImageBlob,
+							dataUrl: 'data:image/png;base64,dGVzdC1pbWFnZS1kYXRh',
+							filename: 'test-server-front.png'
+						}
+					}
+				]
+			]);
+
+			const exportData: BundledExportData = {
+				imageBlobs,
+				layout: mockLayout,
+				rack: mockRack,
+				deviceLibrary: mockDeviceLibrary,
+				images: imagesWithDevice,
+				options,
+				includeSource: false
+			};
+
+			const zipBlob = await createBundledExport(exportData);
+
+			const zip = await JSZip.loadAsync(zipBlob);
+
+			// Verify device images are in assets folder
+			const deviceFrontImage = zip.file('assets/devices/test-server/front.png');
+			expect(deviceFrontImage).not.toBeNull();
 		});
 	});
 });

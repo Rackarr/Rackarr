@@ -42,7 +42,8 @@
 		generateExportFilename,
 		createBundledExport,
 		generateBundledExportFilename,
-		type ExportImageBlobs
+		type ExportImageBlobs,
+		type BundledExportData
 	} from '$lib/utils/export';
 	import type { ExportOptions, BundledExportOptions } from '$lib/types';
 
@@ -296,22 +297,28 @@
 	}
 
 	async function handleBundledExport(imageBlobs: ExportImageBlobs, options: BundledExportOptions) {
+		// Get device images
+		const images = imageStore.getAllImages();
+
 		// Get source layout if requested (use v0.2 folder archive)
 		let sourceBlob: Blob | undefined;
 		if (options.includeSource) {
-			const images = imageStore.getAllImages();
 			sourceBlob = await createFolderArchive(layoutStore.layout, images);
 		}
 
-		// Create bundled export with all formats
-		const zipBlob = await createBundledExport(
+		// Create bundled export with all formats, device images, and metadata
+		const exportData: BundledExportData = {
 			imageBlobs,
-			layoutStore.layout,
-			layoutStore.rack,
+			layout: layoutStore.layout,
+			rack: layoutStore.rack,
+			deviceLibrary: layoutStore.deviceLibrary,
+			images,
 			options,
-			options.includeSource,
+			includeSource: options.includeSource,
 			sourceBlob
-		);
+		};
+
+		const zipBlob = await createBundledExport(exportData);
 
 		// Download the ZIP
 		const filename = generateBundledExportFilename(layoutStore.layout.name, options.format);

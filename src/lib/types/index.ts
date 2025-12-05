@@ -244,6 +244,28 @@ export interface BundledExportOptions extends ExportOptions {
 }
 
 /**
+ * Device metadata for bundled exports
+ */
+export interface ExportDeviceMetadata {
+	/** Device library ID */
+	libraryId: string;
+	/** Display name (custom or from library) */
+	displayName: string;
+	/** Position in rack (1-based from bottom) */
+	position: number;
+	/** Height in U */
+	height: number;
+	/** Category */
+	category?: DeviceCategory;
+	/** Face: front, rear, or both */
+	face: 'front' | 'rear' | 'both';
+	/** Whether device has front image */
+	hasFrontImage: boolean;
+	/** Whether device has rear image */
+	hasRearImage: boolean;
+}
+
+/**
  * Export metadata for bundled exports
  */
 export interface ExportMetadata {
@@ -263,4 +285,6 @@ export interface ExportMetadata {
 	exportOptions: ExportOptions;
 	/** Whether source layout is included in bundle */
 	sourceIncluded: boolean;
+	/** Device details (optional, included in bundled exports) */
+	devices?: ExportDeviceMetadata[];
 }
