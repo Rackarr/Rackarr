@@ -33,27 +33,16 @@ For each of these, we should create a new branch. Then we will write a spec and 
 
 Work through each top level heading one by one, mark with x only once complete.
 
-- [x] DeviceV02 mention - remove the "V02" in all instances, it is unnecessary
+- [x] edit panel is transparent - when panning canvas to a place where the rack is behind the panel, it is for some reason visible through the edit panel. expectation is the panel should be opaque and same as device library
+  - [x] remove X button from edit panel to close - only way to close is to click outside panel
 
-- [x] Rack device placement - improved blocked slots visual indicator with diagonal stripe pattern
+- [x] move Rackarr title and icon and tagline in toolbar left by 10px
+  - [x] move tagline down by 2px to be in alignment with title
 
-- [x] repo community standards
-  - [x] code of conduct - Contributor Covenant v2.1 with AI agent guidelines
-  - [x] issue template - bug report and feature request templates
-  - [x] pull request template - with testing checklist
+- [x] change Fit All button to Reset View (and update tooltip)
 
-- [x] export simplified (KISS principle):
-  - [x] removed bundled export mode - single image export only (PNG, JPEG, SVG)
-  - [x] simplified export dialog UI
-  - [x] transparent background option for PNG/SVG
-  - [x] 20px padding around rack image
-  - [x] front/rear/both view export options
-
-- [x] Device Images: Upload front/rear images with label/image display toggle
-  - [x] device images per device type (library item), shown when image view toggled on
-  - [x] device images shown in canvas view with correct front/rear faces
-  - [x] device images included in save/load (.rackarr.zip) and import successfully
-  - [x] device images in PNG/JPEG/SVG export (when display mode is "image")
+- [] current layout is not tolerant of small screens or responsive context
+  - [] help me brainstorm approaches to make the app responsive and capable of handling smaller screens
 
 ## Planned
 

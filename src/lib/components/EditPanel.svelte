@@ -182,7 +182,13 @@
 	}
 </script>
 
-<Drawer side="right" open={uiStore.rightDrawerOpen} title="Edit" onclose={handleClose}>
+<Drawer
+	side="right"
+	open={uiStore.rightDrawerOpen}
+	title="Edit"
+	showClose={false}
+	onclose={handleClose}
+>
 	{#if selectedRack}
 		<!-- Rack editing form -->
 		<div class="edit-form">

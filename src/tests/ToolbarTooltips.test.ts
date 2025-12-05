@@ -23,7 +23,7 @@ describe('Toolbar Tooltips', () => {
 
 			// All action buttons should be wrapped in tooltip-wrapper
 			const tooltipWrappers = container.querySelectorAll('.tooltip-wrapper');
-			// New Rack, Load Layout, Save, Export, Display Mode, Delete, Fit All, Theme, Help = 9 buttons
+			// New Rack, Load Layout, Save, Export, Display Mode, Delete, Reset View, Theme, Help = 9 buttons
 			expect(tooltipWrappers.length).toBeGreaterThanOrEqual(9);
 		});
 	});

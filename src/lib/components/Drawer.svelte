@@ -46,7 +46,7 @@
 		top: var(--toolbar-height, 52px);
 		bottom: 0;
 		width: var(--drawer-width, 300px);
-		background: var(--colour-drawer-bg);
+		background: var(--drawer-bg, var(--colour-bg));
 		border: 1px solid var(--colour-border);
 		display: flex;
 		flex-direction: column;

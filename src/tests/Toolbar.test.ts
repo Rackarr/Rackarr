@@ -27,7 +27,7 @@ describe('Toolbar Component', () => {
 			expect(screen.getByRole('button', { name: /save/i })).toBeInTheDocument();
 			expect(screen.getByRole('button', { name: /export/i })).toBeInTheDocument();
 			expect(screen.getByRole('button', { name: /delete/i })).toBeInTheDocument();
-			expect(screen.getByRole('button', { name: /fit all/i })).toBeInTheDocument();
+			expect(screen.getByRole('button', { name: /reset view/i })).toBeInTheDocument();
 			expect(screen.getByRole('button', { name: /toggle theme/i })).toBeInTheDocument();
 			expect(screen.getByRole('button', { name: /help/i })).toBeInTheDocument();
 		});
@@ -74,17 +74,17 @@ describe('Toolbar Component', () => {
 		});
 	});
 
-	describe('Fit All button', () => {
-		it('renders fit all button', () => {
+	describe('Reset View button', () => {
+		it('renders reset view button', () => {
 			render(Toolbar);
-			expect(screen.getByRole('button', { name: /fit all/i })).toBeInTheDocument();
+			expect(screen.getByRole('button', { name: /reset view/i })).toBeInTheDocument();
 		});
 
 		it('calls onfitall on click', async () => {
 			const onFitAll = vi.fn();
 			render(Toolbar, { props: { onfitall: onFitAll } });
 
-			await fireEvent.click(screen.getByRole('button', { name: /fit all/i }));
+			await fireEvent.click(screen.getByRole('button', { name: /reset view/i }));
 			expect(onFitAll).toHaveBeenCalledTimes(1);
 		});
 	});

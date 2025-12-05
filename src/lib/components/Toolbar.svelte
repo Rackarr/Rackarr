@@ -198,10 +198,10 @@
 			</button>
 		</Tooltip>
 
-		<Tooltip text="Fit All Racks" shortcut="F" position="bottom">
-			<button class="toolbar-action-btn" aria-label="Fit All" onclick={onfitall}>
+		<Tooltip text="Reset View" shortcut="F" position="bottom">
+			<button class="toolbar-action-btn" aria-label="Reset View" onclick={onfitall}>
 				<IconFitAll size={16} />
-				<span>Fit All</span>
+				<span>Reset View</span>
 			</button>
 		</Tooltip>
 
@@ -275,7 +275,7 @@
 		align-items: center;
 		gap: var(--space-2);
 		color: var(--colour-text);
-		padding: var(--space-2) var(--space-4);
+		padding: var(--space-2) var(--space-4) var(--space-2) 6px;
 	}
 
 	.brand-name {
@@ -288,6 +288,8 @@
 		font-weight: var(--font-weight-normal);
 		color: var(--colour-text-muted);
 		margin-left: var(--space-2);
+		position: relative;
+		top: 2px;
 		pointer-events: none; /* Prevent intercepting clicks on toolbar buttons */
 	}
 
