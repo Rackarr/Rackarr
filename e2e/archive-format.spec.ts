@@ -184,17 +184,18 @@ test.describe('Archive Format', () => {
 		await expect(page.locator('.rack-device')).toBeVisible();
 	});
 
-	test('load legacy .rackarr.json file (migration)', async ({ page }) => {
-		// In v0.2, click Load button in toolbar (no welcome screen)
+	test('legacy .rackarr.json file shows error (v0.4.0 removed legacy support)', async ({
+		page
+	}) => {
+		// In v0.4.0, legacy format support was removed
 		const fileChooserPromise = page.waitForEvent('filechooser');
 		await page.click('button[aria-label="Load Layout"]');
 		const fileChooser = await fileChooserPromise;
 		await fileChooser.setFiles(legacyJsonPath);
 
-		// Verify the layout is loaded (migrated from legacy format)
-		await expect(page.locator('.rack-container').first()).toBeVisible();
-		// Rack name is displayed in dual-view header
-		await expect(page.locator('.rack-dual-view-name')).toContainText('Old Rack');
+		// Should show error toast - legacy format no longer supported
+		const toast = page.locator('.toast-error, .toast.error, [role="alert"]');
+		await expect(toast.first()).toBeVisible({ timeout: 5000 });
 	});
 
 	test('error handling for corrupted archive', async ({ page }) => {
