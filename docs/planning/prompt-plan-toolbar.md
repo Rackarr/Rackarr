@@ -142,12 +142,12 @@
 
 ## Completion Checklist
 
-- [ ] Prompt 1: Fix Tagline Breakpoint
-- [ ] Prompt 2: Fix Toolbar Layout/Spacing
-- [ ] Prompt 3: Create IconMenu Component
-- [ ] Prompt 4: Create ToolbarDrawer Component
-- [ ] Prompt 5: Add Hamburger State to Toolbar
-- [ ] Prompt 6: Wire Drawer Actions
-- [ ] Prompt 7: Keyboard & Accessibility
-- [ ] Prompt 8: Visual Polish & Integration Test
-- [ ] Prompt 9: Release v0.4.2
+- [x] Prompt 1: Fix Tagline Breakpoint
+- [x] Prompt 2: Fix Toolbar Layout/Spacing
+- [x] Prompt 3: Create IconMenu Component
+- [x] Prompt 4: Create ToolbarDrawer Component
+- [x] Prompt 5: Add Hamburger State to Toolbar
+- [x] Prompt 6: Wire Drawer Actions
+- [x] Prompt 7: Keyboard & Accessibility
+- [x] Prompt 8: Visual Polish & Integration Test
+- [x] Prompt 9: Release v0.4.2
