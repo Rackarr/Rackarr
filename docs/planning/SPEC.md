@@ -1,6 +1,6 @@
 # Rackarr Technical Specification
 
-**Version:** 0.4.8
+**Version:** 0.5.0
 **Updated:** 2025-12-09
 **Status:** Active
 
@@ -96,18 +96,12 @@ type DeviceCategory =
 	| 'blank'
 	| 'other';
 
-// Airflow directions
+// Airflow directions (4 types)
 type Airflow =
-	| 'passive'
-	| 'front-to-rear'
-	| 'rear-to-front'
-	| 'side-to-rear'
-	| 'left-to-right'
-	| 'right-to-left'
-	| 'bottom-to-top'
-	| 'top-to-bottom'
-	| 'rear-to-side'
-	| 'mixed';
+	| 'passive' // No active cooling
+	| 'front-to-rear' // Standard server airflow
+	| 'rear-to-front' // Reverse airflow
+	| 'side-to-rear'; // Side intake (e.g., network switches)
 
 // Rack form factors
 type FormFactor =
@@ -305,12 +299,6 @@ settings:
 ## 6. State Management
 
 All state uses Svelte 5 runes (`$state`, `$derived`, `$effect`).
-
-### 6.0 Known Issues
-
-| Issue                      | Description                                                                                                                              | Status                       |
-| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
-| Multi-device selection bug | Selecting a device on canvas also selects all other devices of the same type. Selection should only highlight the single clicked device. | **CRITICAL — Fix in v0.4.9** |
 
 ### 6.1 Layout Store
 
@@ -545,28 +533,50 @@ npm run check        # Svelte type check
 
 ## 13. Version History
 
-| Version | Changes                                 |
-| ------- | --------------------------------------- |
-| 0.4.8   | Design token audit, CSS cleanup         |
-| 0.4.0   | Breaking: removed legacy format support |
-| 0.3.x   | Undo/redo, YAML archive, device images  |
-| 0.2.x   | Single-rack mode, fixed sidebar         |
-| 0.1.x   | Initial release                         |
+| Version | Changes                                  |
+| ------- | ---------------------------------------- |
+| 0.5.0   | Airflow visualization, selection bug fix |
+| 0.4.8   | Design token audit, CSS cleanup          |
+| 0.4.0   | Breaking: removed legacy format support  |
+| 0.3.x   | Undo/redo, YAML archive, device images   |
+| 0.2.x   | Single-rack mode, fixed sidebar          |
+| 0.1.x   | Initial release                          |
 
 ---
 
-## 14. Planned Features (v0.5.0)
+## 14. Airflow Visualization (v0.5.0)
 
-### Airflow Visualization Redesign
+Visual overlay for device airflow direction, helping identify thermal conflicts.
 
-Current implementation uses overlaid arrows. Planned redesign:
+### 14.1 Airflow Types
 
-- **Edge stripe indicator** — 4px colored stripe on device edge
-- **Simplified types** — 4 types: passive, front-to-rear, rear-to-front, side-to-rear
-- **Conflict highlighting** — Orange border on conflicting devices
-- **Colors** — Blue=intake, Red=exhaust (industry standard)
+| Type            | Description                         | Visual                      |
+| --------------- | ----------------------------------- | --------------------------- |
+| `passive`       | No active cooling (panels, shelves) | Gray hollow circle          |
+| `front-to-rear` | Standard server airflow             | Blue stripe front, red rear |
+| `rear-to-front` | Reverse airflow (some network gear) | Red stripe front, blue rear |
+| `side-to-rear`  | Side intake (switches)              | Blue stripe front, red rear |
 
-See `docs/planning/spec-airflow.md` for full specification.
+### 14.2 Visual Design
+
+- **Edge stripe** — 4px colored stripe on device edge (left=front view, right=rear view)
+- **Arrow indicator** — Small animated chevron next to stripe showing direction
+- **Colors** — Blue (#60a5fa) = intake, Red (#f87171) = exhaust, Gray (#9ca3af) = passive
+- **Conflict border** — Orange (#f59e0b) border on devices with airflow conflicts
+
+### 14.3 Conflict Detection
+
+Conflicts detected when exhaust of one device feeds intake of adjacent device:
+
+- Front-to-rear device above rear-to-front device
+- Rear-to-front device above front-to-rear device
+
+### 14.4 UI Integration
+
+- **Toggle** — `A` key or toolbar button toggles airflow visualization
+- **Export** — Airflow indicators included in image/PDF exports when enabled
+- **EditPanel** — Dropdown to change device airflow type
+- **AddDeviceForm** — Dropdown to set airflow on new devices
 
 ---
 

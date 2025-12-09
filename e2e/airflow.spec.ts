@@ -147,7 +147,7 @@ test.describe('Airflow Visualization', () => {
 
 	test('create device with airflow in AddDeviceForm', async ({ page }) => {
 		// Open Add Device dialog
-		await page.click('button:has-text("Add Device")');
+		await page.click('.add-device-button');
 		await expect(page.locator('.dialog')).toBeVisible();
 
 		// Fill in device details
@@ -157,8 +157,8 @@ test.describe('Airflow Visualization', () => {
 		// Select airflow type
 		await page.selectOption('#device-airflow', 'front-to-rear');
 
-		// Submit the form
-		await page.click('button:has-text("Add")');
+		// Submit the form (use the dialog's submit button specifically)
+		await page.locator('.dialog button:has-text("Add")').click();
 
 		// Drag the new device to rack
 		await page.waitForTimeout(300);
@@ -204,19 +204,19 @@ test.describe('Airflow Visualization', () => {
 	test('conflict highlighting for opposing airflow devices', async ({ page }) => {
 		// We need two devices with opposing airflow directions placed adjacently
 		// First, create a device with front-to-rear airflow
-		await page.click('button:has-text("Add Device")');
+		await page.click('.add-device-button');
 		await page.fill('#device-name', 'Server FTR');
 		await page.fill('#device-height', '2');
 		await page.selectOption('#device-airflow', 'front-to-rear');
-		await page.click('button:has-text("Add")');
+		await page.locator('.dialog button:has-text("Add")').click();
 		await page.waitForTimeout(200);
 
 		// Create a device with rear-to-front airflow (opposing)
-		await page.click('button:has-text("Add Device")');
+		await page.click('.add-device-button');
 		await page.fill('#device-name', 'Server RTF');
 		await page.fill('#device-height', '2');
 		await page.selectOption('#device-airflow', 'rear-to-front');
-		await page.click('button:has-text("Add")');
+		await page.locator('.dialog button:has-text("Add")').click();
 		await page.waitForTimeout(200);
 
 		// Drag first device to rack
@@ -290,11 +290,11 @@ test.describe('Airflow Visualization', () => {
 
 	test('airflow persists in save/load', async ({ page }) => {
 		// Create a device with specific airflow
-		await page.click('button:has-text("Add Device")');
+		await page.click('.add-device-button');
 		await page.fill('#device-name', 'Persistent Server');
 		await page.fill('#device-height', '2');
 		await page.selectOption('#device-airflow', 'rear-to-front');
-		await page.click('button:has-text("Add")');
+		await page.locator('.dialog button:has-text("Add")').click();
 		await page.waitForTimeout(200);
 
 		// Drag device to rack

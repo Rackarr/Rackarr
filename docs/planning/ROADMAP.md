@@ -70,31 +70,32 @@ Work through each top level heading one by one, mark with x only once complete.
   - [ ] Investigate if these wrapper functions can be removed in favor of direct `updateDeviceType`/`deleteDeviceType` calls
   - [ ] Remove any remaining "legacy compatibility" comments from codebase
 
-- [ ] Device selection highlights all instances of same device type
-  - [ ] When selecting a device on canvas, all devices of that type show blue outline
-  - [ ] Selection behaviour is correct (only one device selected), but visual is confusing
-  - [ ] Should only highlight the specific placed device, not all instances of the device type
+- [x] Device selection highlights all instances of same device type (v0.5.0)
+  - [x] When selecting a device on canvas, all devices of that type show blue outline
+  - [x] Selection behaviour is correct (only one device selected), but visual is confusing
+  - [x] Should only highlight the specific placed device, not all instances of the device type
+  - [x] Fixed: Selection now uses deviceIndex instead of libraryId for placed device instances
 
-## Planned
+## Released
 
 ### v0.5.0 — Airflow Visualization
 
-**Status:** Spec Ready
-**Spec:** `docs/planning/spec-airflow-visualization.md`
+**Status:** Complete
+**Released:** 2025-12-09
 
-Optional visualization overlay for device airflow direction:
+Visual overlay for device airflow direction with conflict detection:
 
-| Feature              | Description                                            |
-| -------------------- | ------------------------------------------------------ |
-| Airflow metadata     | Dropdown in device form (passive, front-to-rear, etc.) |
-| Toggle button        | Toolbar button + `A` keyboard shortcut                 |
-| Direction indicators | SVG arrows with marching animation                     |
-| Dual-view            | Intake (blue) on front, exhaust (red) on rear          |
-| Conflict detection   | Subtle indicator between opposing devices              |
+| Feature            | Description                                                  |
+| ------------------ | ------------------------------------------------------------ |
+| Simplified types   | 4 types: passive, front-to-rear, rear-to-front, side-to-rear |
+| Toggle             | Toolbar button + `A` keyboard shortcut                       |
+| Edge stripe design | 4px colored stripe on device edge (blue=intake, red=exhaust) |
+| Animated arrows    | Small chevron with marching animation                        |
+| Conflict detection | Orange border on devices with airflow conflicts              |
+| Export support     | Airflow indicators included in image/PDF exports             |
+| Selection bug fix  | Fixed multi-device selection highlighting issue              |
 
 ---
-
-## Released
 
 ### v0.4.0 — Code Audit & Legacy Cleanup
 
@@ -174,11 +175,11 @@ Priority order for future development:
 
 ---
 
-### 3. Airflow Visualization
+### ~~3. Airflow Visualization~~ ✅ Complete (v0.5.0)
 
-- Visual indicators for device airflow direction
-- Hot/cold aisle awareness
-- Conflict detection (opposing airflow)
+- ~~Visual indicators for device airflow direction~~
+- ~~Hot/cold aisle awareness~~
+- ~~Conflict detection (opposing airflow)~~
 
 ---
 
@@ -266,28 +267,29 @@ Backlog → Future Roadmap → Planned (current) → Released
 
 ## Changelog
 
-| Date       | Change                                                    |
-| ---------- | --------------------------------------------------------- |
-| 2025-11-27 | Initial roadmap created                                   |
-| 2025-11-27 | v0.1 development started                                  |
-| 2025-11-28 | v0.1 released                                             |
-| 2025-11-28 | v0.2 spec created                                         |
-| 2025-11-29 | Added panzoom library to v0.2 scope                       |
-| 2025-11-30 | v0.2.0 released                                           |
-| 2025-12-01 | v0.2.1 released (accessibility & design polish)           |
-| 2025-12-02 | Consolidated spec; single-rack permanent scope            |
-| 2025-12-03 | v0.3.0 released (YAML archive format)                     |
-| 2025-12-05 | Responsive quick-wins implemented                         |
-| 2025-12-06 | v0.3.4 released (responsive quick-wins)                   |
-| 2025-12-07 | v0.4.0 released (breaking: removed legacy format support) |
-| 2025-12-07 | v0.4.2 released (toolbar responsiveness, hamburger menu)  |
-| 2025-12-08 | v0.4.3 released (PDF export)                              |
-| 2025-12-08 | v0.4.4 released (Docker build fix)                        |
-| 2025-12-08 | v0.4.5 released (toolbar polish, file picker fix)         |
-| 2025-12-08 | v0.4.6 released (fix 0.5U device schema validation)       |
-| 2025-12-08 | v0.4.7 released (reset view after layout load)            |
-| 2025-12-08 | v0.4.8 released (toolbar drawer fix, z-index tokens)      |
-| 2025-12-08 | v0.5.0 spec ready (airflow visualization)                 |
+| Date       | Change                                                     |
+| ---------- | ---------------------------------------------------------- |
+| 2025-11-27 | Initial roadmap created                                    |
+| 2025-11-27 | v0.1 development started                                   |
+| 2025-11-28 | v0.1 released                                              |
+| 2025-11-28 | v0.2 spec created                                          |
+| 2025-11-29 | Added panzoom library to v0.2 scope                        |
+| 2025-11-30 | v0.2.0 released                                            |
+| 2025-12-01 | v0.2.1 released (accessibility & design polish)            |
+| 2025-12-02 | Consolidated spec; single-rack permanent scope             |
+| 2025-12-03 | v0.3.0 released (YAML archive format)                      |
+| 2025-12-05 | Responsive quick-wins implemented                          |
+| 2025-12-06 | v0.3.4 released (responsive quick-wins)                    |
+| 2025-12-07 | v0.4.0 released (breaking: removed legacy format support)  |
+| 2025-12-07 | v0.4.2 released (toolbar responsiveness, hamburger menu)   |
+| 2025-12-08 | v0.4.3 released (PDF export)                               |
+| 2025-12-08 | v0.4.4 released (Docker build fix)                         |
+| 2025-12-08 | v0.4.5 released (toolbar polish, file picker fix)          |
+| 2025-12-08 | v0.4.6 released (fix 0.5U device schema validation)        |
+| 2025-12-08 | v0.4.7 released (reset view after layout load)             |
+| 2025-12-08 | v0.4.8 released (toolbar drawer fix, z-index tokens)       |
+| 2025-12-08 | v0.5.0 spec ready (airflow visualization)                  |
+| 2025-12-09 | v0.5.0 released (airflow visualization, selection bug fix) |
 
 ---
 
