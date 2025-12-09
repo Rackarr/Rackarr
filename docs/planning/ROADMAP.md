@@ -65,6 +65,11 @@ Work through each top level heading one by one, mark with x only once complete.
   - [x] Added cancel event handling for file picker dialog
   - [x] Fixed GitHub Actions workflow npm version compatibility
 
+- [ ] Legacy code comments audit
+  - [ ] `updateDeviceInLibrary` and `deleteDeviceFromLibrary` are marked `@deprecated` but still used
+  - [ ] Investigate if these wrapper functions can be removed in favor of direct `updateDeviceType`/`deleteDeviceType` calls
+  - [ ] Remove any remaining "legacy compatibility" comments from codebase
+
 ## Planned
 
 ### v0.5.0 — Airflow Visualization
