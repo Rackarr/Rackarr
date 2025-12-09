@@ -9,6 +9,7 @@
 	import AirflowIndicator from './AirflowIndicator.svelte';
 	import { IconGrip } from './icons';
 	import { getImageStore } from '$lib/stores/images.svelte';
+	import { debug } from '$lib/utils/debug';
 
 	interface Props {
 		device: Device;
@@ -50,6 +51,18 @@
 
 	// Display name: custom name if set, otherwise device type name
 	const displayName = $derived(placedDeviceName ?? device.name);
+
+	// Debug airflow rendering
+	$effect(() => {
+		if (airflowMode) {
+			debug.log('RackDevice airflow check:', {
+				deviceName: device.name,
+				airflowMode,
+				deviceAirflow: device.airflow,
+				shouldRender: airflowMode && device.airflow
+			});
+		}
+	});
 
 	const imageStore = getImageStore();
 

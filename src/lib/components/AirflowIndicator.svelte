@@ -23,26 +23,20 @@
 		return false;
 	});
 
-	// Get the color based on intake/exhaust
+	// Get the color based on intake/exhaust - using direct hex values for SVG compatibility
 	const color = $derived.by(() => {
-		if (airflow === 'passive') return 'var(--colour-airflow-passive, #9ca3af)';
+		if (airflow === 'passive') return '#9ca3af';
 		if (airflow === 'front-to-rear') {
-			return view === 'front'
-				? 'var(--colour-airflow-intake, #60a5fa)'
-				: 'var(--colour-airflow-exhaust, #f87171)';
+			return view === 'front' ? '#60a5fa' : '#f87171';
 		}
 		if (airflow === 'rear-to-front') {
-			return view === 'rear'
-				? 'var(--colour-airflow-intake, #60a5fa)'
-				: 'var(--colour-airflow-exhaust, #f87171)';
+			return view === 'rear' ? '#60a5fa' : '#f87171';
 		}
 		if (airflow === 'side-to-rear') {
-			return view === 'front'
-				? 'var(--colour-airflow-intake, #60a5fa)'
-				: 'var(--colour-airflow-exhaust, #f87171)';
+			return view === 'front' ? '#60a5fa' : '#f87171';
 		}
 		// Lateral flows - use neutral
-		return 'var(--colour-airflow-passive, #9ca3af)';
+		return '#9ca3af';
 	});
 
 	// Get arrow direction
@@ -56,12 +50,10 @@
 		return 'none';
 	});
 
-	// Background tint color with low opacity
+	// Background tint color with low opacity - using direct hex values
 	const bgColor = $derived.by(() => {
 		if (airflow === 'passive') return 'transparent';
-		return isIntake
-			? 'var(--colour-airflow-intake, #60a5fa)'
-			: 'var(--colour-airflow-exhaust, #f87171)';
+		return isIntake ? '#60a5fa' : '#f87171';
 	});
 </script>
 
