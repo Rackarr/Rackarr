@@ -28,12 +28,17 @@ describe('Airflow Utilities', () => {
 			expect(getAirflowDirection('side-to-rear', 'front')).toBe('intake');
 			expect(getAirflowDirection('side-to-rear', 'rear')).toBe('exhaust');
 		});
+	});
 
-		it('returns neutral for lateral flows', () => {
-			expect(getAirflowDirection('left-to-right', 'front')).toBe('neutral');
-			expect(getAirflowDirection('left-to-right', 'rear')).toBe('neutral');
-			expect(getAirflowDirection('right-to-left', 'front')).toBe('neutral');
-			expect(getAirflowDirection('right-to-left', 'rear')).toBe('neutral');
+	describe('Airflow type validation', () => {
+		it('supports only 4 airflow types: passive, front-to-rear, rear-to-front, side-to-rear', () => {
+			// These 4 types should work without TypeScript errors
+			const validTypes = ['passive', 'front-to-rear', 'rear-to-front', 'side-to-rear'];
+			for (const type of validTypes) {
+				// Should not throw and return a valid direction
+				const dir = getAirflowDirection(type as Parameters<typeof getAirflowDirection>[0], 'front');
+				expect(['neutral', 'intake', 'exhaust']).toContain(dir);
+			}
 		});
 	});
 
@@ -98,7 +103,7 @@ describe('Airflow Utilities', () => {
 				name: 'Test Rack',
 				height: 42,
 				width: 19,
-				form_factor: '4-post',
+				form_factor: '4-post-cabinet',
 				desc_units: false,
 				starting_unit: 1,
 				position: 0,
@@ -116,7 +121,7 @@ describe('Airflow Utilities', () => {
 				name: 'Test Rack',
 				height: 42,
 				width: 19,
-				form_factor: '4-post',
+				form_factor: '4-post-cabinet',
 				desc_units: false,
 				starting_unit: 1,
 				position: 0,
@@ -137,7 +142,7 @@ describe('Airflow Utilities', () => {
 				name: 'Test Rack',
 				height: 42,
 				width: 19,
-				form_factor: '4-post',
+				form_factor: '4-post-cabinet',
 				desc_units: false,
 				starting_unit: 1,
 				position: 0,
@@ -166,7 +171,7 @@ describe('Airflow Utilities', () => {
 				name: 'Test Rack',
 				height: 42,
 				width: 19,
-				form_factor: '4-post',
+				form_factor: '4-post-cabinet',
 				desc_units: false,
 				starting_unit: 1,
 				position: 0,
@@ -190,7 +195,7 @@ describe('Airflow Utilities', () => {
 				name: 'Test Rack',
 				height: 42,
 				width: 19,
-				form_factor: '4-post',
+				form_factor: '4-post-cabinet',
 				desc_units: false,
 				starting_unit: 1,
 				position: 0,
@@ -211,7 +216,7 @@ describe('Airflow Utilities', () => {
 				name: 'Test Rack',
 				height: 42,
 				width: 19,
-				form_factor: '4-post',
+				form_factor: '4-post-cabinet',
 				desc_units: false,
 				starting_unit: 1,
 				position: 0,
@@ -235,7 +240,7 @@ describe('Airflow Utilities', () => {
 				name: 'Test Rack',
 				height: 42,
 				width: 19,
-				form_factor: '4-post',
+				form_factor: '4-post-cabinet',
 				desc_units: false,
 				starting_unit: 1,
 				position: 0,

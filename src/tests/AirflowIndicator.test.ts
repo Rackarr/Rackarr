@@ -83,26 +83,6 @@ describe('AirflowIndicator Component', () => {
 		});
 	});
 
-	describe('Lateral airflow', () => {
-		it('renders arrows for left-to-right', () => {
-			const { container } = render(AirflowIndicator, {
-				props: { airflow: 'left-to-right', view: 'front' }
-			});
-
-			const lines = container.querySelectorAll('line');
-			expect(lines.length).toBeGreaterThan(0);
-		});
-
-		it('renders arrows for right-to-left', () => {
-			const { container } = render(AirflowIndicator, {
-				props: { airflow: 'right-to-left', view: 'front' }
-			});
-
-			const lines = container.querySelectorAll('line');
-			expect(lines.length).toBeGreaterThan(0);
-		});
-	});
-
 	describe('Side-to-rear airflow', () => {
 		it('renders path for corner indicator on front', () => {
 			const { container } = render(AirflowIndicator, {

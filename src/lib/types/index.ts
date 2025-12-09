@@ -31,18 +31,9 @@ export type DeviceCategory =
 
 /**
  * Airflow direction types for thermal metadata
+ * Simplified to 4 types for Rackarr v0.5.0
  */
-export type Airflow =
-	| 'front-to-rear'
-	| 'rear-to-front'
-	| 'left-to-right'
-	| 'right-to-left'
-	| 'side-to-rear'
-	| 'rear-to-side'
-	| 'bottom-to-top'
-	| 'top-to-bottom'
-	| 'passive'
-	| 'mixed';
+export type Airflow = 'passive' | 'front-to-rear' | 'rear-to-front' | 'side-to-rear';
 
 /**
  * Weight unit types

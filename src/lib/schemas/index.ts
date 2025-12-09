@@ -60,16 +60,11 @@ export const FormFactorSchema = z.enum([
 ]);
 
 /**
- * Airflow direction enum (NetBox-compatible)
+ * Airflow direction enum
+ * Simplified to 4 types for Rackarr v0.5.0
+ * Legacy types (left-to-right, right-to-left, etc.) should be migrated to 'passive'
  */
-export const AirflowSchema = z.enum([
-	'front-to-rear',
-	'rear-to-front',
-	'left-to-right',
-	'right-to-left',
-	'side-to-rear',
-	'passive'
-]);
+export const AirflowSchema = z.enum(['passive', 'front-to-rear', 'rear-to-front', 'side-to-rear']);
 
 /**
  * Device face in rack

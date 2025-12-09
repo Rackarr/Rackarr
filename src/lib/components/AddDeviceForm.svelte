@@ -19,8 +19,6 @@
 		{ value: 'passive', label: 'Passive (no active cooling)' },
 		{ value: 'front-to-rear', label: 'Front to Rear' },
 		{ value: 'rear-to-front', label: 'Rear to Front' },
-		{ value: 'left-to-right', label: 'Left to Right' },
-		{ value: 'right-to-left', label: 'Right to Left' },
 		{ value: 'side-to-rear', label: 'Side to Rear' }
 	];
 

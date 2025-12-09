@@ -37,10 +37,8 @@ export function getAirflowDirection(
 		case 'rear-to-front':
 			return face === 'rear' ? 'intake' : 'exhaust';
 		case 'side-to-rear':
+			// Side intake, rear exhaust
 			return face === 'front' ? 'intake' : 'exhaust';
-		case 'left-to-right':
-		case 'right-to-left':
-			return 'neutral'; // Lateral flow doesn't affect vertical stacking
 		default:
 			return 'neutral';
 	}
@@ -78,6 +76,9 @@ export function findAirflowConflicts(rack: Rack, deviceLibrary: Device[]): Airfl
 	for (let i = 0; i < sortedDevices.length - 1; i++) {
 		const lowerDevice = sortedDevices[i];
 		const upperDevice = sortedDevices[i + 1];
+
+		// Type guard (should never be undefined with our loop bounds)
+		if (!lowerDevice || !upperDevice) continue;
 
 		// Get device info from library
 		const lowerInfo = deviceLibrary.find((d) => d.id === lowerDevice.libraryId);

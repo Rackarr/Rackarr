@@ -39,13 +39,11 @@
 		return '#9ca3af';
 	});
 
-	// Get arrow direction
+	// Get arrow direction (simplified for 4 airflow types)
 	const arrowDirection = $derived.by(() => {
 		if (airflow === 'passive') return 'none';
 		if (airflow === 'front-to-rear') return 'right';
 		if (airflow === 'rear-to-front') return 'left';
-		if (airflow === 'left-to-right') return 'right';
-		if (airflow === 'right-to-left') return 'left';
 		if (airflow === 'side-to-rear') return view === 'front' ? 'corner' : 'right';
 		return 'none';
 	});

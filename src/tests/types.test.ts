@@ -106,21 +106,15 @@ describe('Types', () => {
 	});
 
 	describe('Airflow type', () => {
-		it('accepts all valid airflow values', () => {
+		it('accepts all valid airflow values (4 types as of v0.5.0)', () => {
 			const airflowValues: Airflow[] = [
+				'passive',
 				'front-to-rear',
 				'rear-to-front',
-				'left-to-right',
-				'right-to-left',
-				'side-to-rear',
-				'rear-to-side',
-				'bottom-to-top',
-				'top-to-bottom',
-				'passive',
-				'mixed'
+				'side-to-rear'
 			];
 
-			expect(airflowValues).toHaveLength(10);
+			expect(airflowValues).toHaveLength(4);
 			airflowValues.forEach((value) => {
 				expect(typeof value).toBe('string');
 			});
@@ -634,4 +628,3 @@ describe('Image Types (v0.1.0)', () => {
 		});
 	});
 });
-

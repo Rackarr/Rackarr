@@ -338,13 +338,13 @@ function createAirflowIndicator(
 	}
 	// lateral flows use passive color
 
-	// Determine arrow direction
+	// Determine arrow direction (simplified for 4 airflow types)
 	let arrowDirection: 'none' | 'right' | 'left' | 'corner' = 'none';
 	if (airflow === 'passive') {
 		arrowDirection = 'none';
-	} else if (airflow === 'front-to-rear' || airflow === 'left-to-right') {
+	} else if (airflow === 'front-to-rear') {
 		arrowDirection = 'right';
-	} else if (airflow === 'rear-to-front' || airflow === 'right-to-left') {
+	} else if (airflow === 'rear-to-front') {
 		arrowDirection = 'left';
 	} else if (airflow === 'side-to-rear') {
 		arrowDirection = faceFilter === 'front' ? 'corner' : 'right';

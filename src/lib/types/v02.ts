@@ -7,15 +7,10 @@
 export type { DeviceCategory, FormFactor, RackView } from './index';
 
 /**
- * Airflow direction (NetBox-compatible)
+ * Airflow direction
+ * Simplified to 4 types for Rackarr v0.5.0
  */
-export type Airflow =
-	| 'front-to-rear'
-	| 'rear-to-front'
-	| 'left-to-right'
-	| 'right-to-left'
-	| 'side-to-rear'
-	| 'passive';
+export type Airflow = 'passive' | 'front-to-rear' | 'rear-to-front' | 'side-to-rear';
 
 /**
  * Device face in rack

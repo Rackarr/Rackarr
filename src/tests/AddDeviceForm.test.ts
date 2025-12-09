@@ -58,18 +58,11 @@ describe('AddDeviceForm Component', () => {
 			expect(airflowSelect.value).toBe('passive');
 		});
 
-		it('airflow dropdown has all options', () => {
+		it('airflow dropdown has all options (4 types as of v0.5.0)', () => {
 			render(AddDeviceForm, { props: { open: true } });
 			const airflowSelect = screen.getByLabelText(/^airflow/i) as HTMLSelectElement;
 
-			const expectedOptions = [
-				'passive',
-				'front-to-rear',
-				'rear-to-front',
-				'left-to-right',
-				'right-to-left',
-				'side-to-rear'
-			];
+			const expectedOptions = ['passive', 'front-to-rear', 'rear-to-front', 'side-to-rear'];
 
 			expectedOptions.forEach((option) => {
 				expect(airflowSelect.querySelector(`option[value="${option}"]`)).toBeInTheDocument();

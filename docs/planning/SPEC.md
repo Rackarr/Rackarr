@@ -306,6 +306,12 @@ settings:
 
 All state uses Svelte 5 runes (`$state`, `$derived`, `$effect`).
 
+### 6.0 Known Issues
+
+| Issue                      | Description                                                                                                                              | Status                       |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
+| Multi-device selection bug | Selecting a device on canvas also selects all other devices of the same type. Selection should only highlight the single clicked device. | **CRITICAL — Fix in v0.4.9** |
+
 ### 6.1 Layout Store
 
 ```typescript
@@ -345,14 +351,18 @@ toggleAirflowMode();
 
 ```typescript
 // State
-selectedId: string | null;
+selectedId: string | null;          // Unique identifier for selection
 selectedType: 'rack' | 'device' | null;
-selectedRackId: string | null;
-selectedDeviceIndex: number | null;
+selectedRackId: string | null;      // Which rack contains the selection
+selectedDeviceIndex: number | null; // Index of placed device in rack.devices array
 
 // Methods
-(selectRack(), selectDevice(), clearSelection());
+selectRack(rackId: string): void;
+selectDevice(rackId: string, deviceIndex: number): void;  // Select by position index, NOT libraryId
+clearSelection(): void;
 ```
+
+**Important:** Device selection uses `deviceIndex` (position in rack's device array), NOT `libraryId`. Multiple placed devices can share the same `libraryId` (same device type), but each has a unique index. Selection must target a single placed device instance.
 
 ### 6.4 History Store
 
