@@ -136,8 +136,10 @@ describe('RackDevice SVG Component', () => {
 			const iconContainer = foreignObject?.querySelector('.icon-container');
 			expect(iconContainer).toBeInTheDocument();
 
-			// The CategoryIcon SVG should be present
-			const iconSvg = iconContainer?.querySelector('svg.category-icon');
+			// The CategoryIcon SVG should be present (Lucide icon inside .category-icon wrapper)
+			const categoryIconWrapper = iconContainer?.querySelector('.category-icon');
+			expect(categoryIconWrapper).toBeInTheDocument();
+			const iconSvg = categoryIconWrapper?.querySelector('svg');
 			expect(iconSvg).toBeInTheDocument();
 		});
 

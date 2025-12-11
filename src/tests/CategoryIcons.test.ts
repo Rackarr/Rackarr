@@ -125,10 +125,10 @@ describe('CategoryIcon Component', () => {
 			expect(svg?.classList.toString()).toContain('lucide-cable');
 		});
 
-		it('other category renders CircleHelp icon', () => {
+		it('other category renders CircleQuestionMark icon', () => {
 			const { container } = render(CategoryIcon, { props: { category: 'other' } });
 			const svg = container.querySelector('svg');
-			expect(svg?.classList.toString()).toContain('lucide-circle-help');
+			expect(svg?.classList.toString()).toContain('lucide-circle-question-mark');
 		});
 	});
 
@@ -140,8 +140,8 @@ describe('CategoryIcon Component', () => {
 			});
 			const svg = container.querySelector('svg');
 			expect(svg).toBeInTheDocument();
-			// Should fall through to CircleHelp (other) icon
-			expect(svg?.classList.toString()).toContain('lucide-circle-help');
+			// Should fall through to CircleQuestionMark (other) icon
+			expect(svg?.classList.toString()).toContain('lucide-circle-question-mark');
 		});
 	});
 
