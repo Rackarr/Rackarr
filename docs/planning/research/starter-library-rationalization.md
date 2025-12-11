@@ -194,51 +194,53 @@ Other: 1U Generic, 2U Generic
 - "Storage" → "NAS" (clearer terminology)
 - Add port counts to network devices
 
-### Recommended Changes
+### Approved Changes (2025-12-11)
 
-#### Add (7 new items):
+#### Add (6 new items):
 
-1. **8-Port Switch** (1U) - Small networks
+1. **8-Port Switch** (1U) - Small networks, works for 10" and 19" racks
 2. **24-Port Switch** (1U) - Standard size
 3. **48-Port Switch** (1U) - Larger networks
-4. **24-Port PoE Switch** (1U) - For cameras/APs
-5. **1U NAS** - 4-bay compact storage
-6. **1U Brush Panel** - Cable management
-7. **1U Cable Management** - Horizontal cable routing
+4. **1U Storage** - 4-bay compact storage
+5. **1U Brush Panel** - Cable pass-through
+6. **1U Cable Management** - Horizontal cable routing
 
-#### Remove (6 items):
+#### Remove (5 items):
 
-1. ~~1U Receiver~~ - Niche
-2. ~~2U Amplifier~~ - Niche
-3. ~~4U Shelf~~ - Rarely used
-4. ~~1U Generic~~ - Redundant
-5. ~~2U Generic~~ - Redundant
-6. ~~0.5U Blanking Fan~~ - Merge into Fan Panel
+1. ~~4U Shelf~~ - Rarely used, can use shelf + empty slots
+2. ~~1U Generic~~ - Redundant
+3. ~~2U Generic~~ - Redundant
+4. ~~0.5U Blanking Fan~~ - Rare, 1U Fan Panel covers use case
+5. ~~1U Router~~, ~~1U Firewall~~ - Merged into Router/Firewall
 
-#### Rename (4 items):
+#### Rename (3 items):
 
-1. "1U Switch" → "1U Router/Firewall"
-2. "1U Router" → Remove (merge with above)
-3. "1U Firewall" → Remove (merge with above)
-4. "2U Storage" → "2U NAS"
-5. "4U Storage" → "4U NAS"
+1. "1U Switch" → "1U Router/Firewall" (consolidates router + firewall)
+2. "1U Patch Panel" → "24-Port Patch Panel"
+3. "2U Patch Panel" → "48-Port Patch Panel"
 
-### Proposed Final Library (~25 items)
+#### Retain (against initial recommendation):
 
-| Category        | Items                                                                                 |
-| --------------- | ------------------------------------------------------------------------------------- |
-| **Server**      | 1U Server, 2U Server, 4U Server                                                       |
-| **Network**     | 8-Port Switch, 24-Port Switch, 48-Port Switch, 24-Port PoE Switch, 1U Router/Firewall |
-| **Patch Panel** | 24-Port Patch Panel, 48-Port Patch Panel                                              |
-| **Storage**     | 1U NAS, 2U NAS, 4U NAS                                                                |
-| **Power**       | 1U PDU, 2U UPS, 4U UPS                                                                |
-| **KVM**         | 1U KVM, 1U Console Drawer                                                             |
-| **Cooling**     | 1U Fan Panel                                                                          |
-| **Blank**       | 0.5U Blank, 1U Blank, 2U Blank                                                        |
-| **Shelf**       | 1U Shelf, 2U Shelf                                                                    |
-| **Cable Mgmt**  | 1U Brush Panel, 1U Cable Management                                                   |
+- **AV/Media category** (1U Receiver, 2U Amplifier) - Valid use case
+- **Storage naming** - Keep "Storage" not "NAS" (covers both NAS and DAS), use NAS images
 
-**Total: 25 items** (down from 26, but more useful variety)
+### Approved Final Library (26 items)
+
+| Category        | Items                                                             |
+| --------------- | ----------------------------------------------------------------- |
+| **Server**      | 1U Server, 2U Server, 4U Server                                   |
+| **Network**     | 8-Port Switch, 24-Port Switch, 48-Port Switch, 1U Router/Firewall |
+| **Patch Panel** | 24-Port Patch Panel, 48-Port Patch Panel                          |
+| **Storage**     | 1U Storage, 2U Storage, 4U Storage                                |
+| **Power**       | 1U PDU, 2U UPS, 4U UPS                                            |
+| **KVM**         | 1U KVM, 1U Console Drawer                                         |
+| **AV/Media**    | 1U Receiver, 2U Amplifier                                         |
+| **Cooling**     | 1U Fan Panel                                                      |
+| **Blank**       | 0.5U Blank, 1U Blank, 2U Blank                                    |
+| **Shelf**       | 1U Shelf, 2U Shelf                                                |
+| **Cable Mgmt**  | 1U Brush Panel, 1U Cable Management                               |
+
+**Total: 26 items**
 
 ---
 
