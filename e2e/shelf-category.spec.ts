@@ -83,10 +83,9 @@ test.describe('Shelf Category', () => {
 		const searchInput = page.locator('.search-input');
 		await searchInput.fill('shelf');
 
-		// Should find shelf devices
+		// Should find shelf devices (4U Shelf was removed in starter library rationalization)
 		await expect(page.locator('.device-palette-item:has-text("1U Shelf")')).toBeVisible();
 		await expect(page.locator('.device-palette-item:has-text("2U Shelf")')).toBeVisible();
-		await expect(page.locator('.device-palette-item:has-text("4U Shelf")')).toBeVisible();
 	});
 
 	test('can add shelf device to rack', async ({ page }) => {
