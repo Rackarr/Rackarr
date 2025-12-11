@@ -14,17 +14,18 @@ const ALL_CATEGORIES: DeviceCategory[] = [
 	'cooling',
 	'shelf',
 	'blank',
+	'cable-management',
 	'other'
 ];
 
 describe('CategoryIcon Component', () => {
 	describe('Rendering', () => {
-		it.each(ALL_CATEGORIES)('renders correct icon for "%s" category', (category) => {
+		it.each(ALL_CATEGORIES)('renders Lucide icon for "%s" category', (category) => {
 			const { container } = render(CategoryIcon, { props: { category } });
 			const svg = container.querySelector('svg');
 			expect(svg).toBeInTheDocument();
-			// Each category should render some SVG content
-			expect(svg?.children.length).toBeGreaterThan(0);
+			// Lucide icons have class attribute containing 'lucide'
+			expect(svg?.classList.toString()).toContain('lucide');
 		});
 
 		it('renders at default size (16px)', () => {
@@ -55,91 +56,79 @@ describe('CategoryIcon Component', () => {
 			const svg = container.querySelector('svg');
 			expect(svg).toHaveAttribute('aria-hidden', 'true');
 		});
-
-		it('uses currentColor for fill to inherit text colour', () => {
-			const { container } = render(CategoryIcon, { props: { category: 'server' } });
-			const svg = container.querySelector('svg');
-			expect(svg).toHaveAttribute('fill', 'currentColor');
-		});
 	});
 
-	describe('Category-specific icons', () => {
-		it('server icon has horizontal lines (rectangles)', () => {
+	describe('Lucide icon mapping', () => {
+		it('server category renders Server icon', () => {
 			const { container } = render(CategoryIcon, { props: { category: 'server' } });
-			const rects = container.querySelectorAll('rect');
-			expect(rects.length).toBeGreaterThanOrEqual(2);
+			const svg = container.querySelector('svg');
+			expect(svg?.classList.toString()).toContain('lucide-server');
 		});
 
-		it('network icon has connected nodes (circles and lines)', () => {
+		it('network category renders Network icon', () => {
 			const { container } = render(CategoryIcon, { props: { category: 'network' } });
-			const circles = container.querySelectorAll('circle');
-			const lines = container.querySelectorAll('line');
-			expect(circles.length).toBeGreaterThanOrEqual(2);
-			expect(lines.length).toBeGreaterThanOrEqual(1);
+			const svg = container.querySelector('svg');
+			expect(svg?.classList.toString()).toContain('lucide-network');
 		});
 
-		it('patch-panel icon has grid of ports (circles)', () => {
+		it('patch-panel category renders EthernetPort icon', () => {
 			const { container } = render(CategoryIcon, { props: { category: 'patch-panel' } });
-			const circles = container.querySelectorAll('circle');
-			expect(circles.length).toBeGreaterThanOrEqual(4);
+			const svg = container.querySelector('svg');
+			expect(svg?.classList.toString()).toContain('lucide-ethernet-port');
 		});
 
-		it('power icon has lightning bolt shape (polygon)', () => {
+		it('power category renders Zap icon', () => {
 			const { container } = render(CategoryIcon, { props: { category: 'power' } });
-			const polygon = container.querySelector('polygon');
-			expect(polygon).toBeInTheDocument();
+			const svg = container.querySelector('svg');
+			expect(svg?.classList.toString()).toContain('lucide-zap');
 		});
 
-		it('storage icon has stacked drives (rectangles)', () => {
+		it('storage category renders HardDrive icon', () => {
 			const { container } = render(CategoryIcon, { props: { category: 'storage' } });
-			const rects = container.querySelectorAll('rect');
-			expect(rects.length).toBeGreaterThanOrEqual(3);
+			const svg = container.querySelector('svg');
+			expect(svg?.classList.toString()).toContain('lucide-hard-drive');
 		});
 
-		it('kvm icon has monitor and keyboard (rectangles)', () => {
+		it('kvm category renders Monitor icon', () => {
 			const { container } = render(CategoryIcon, { props: { category: 'kvm' } });
-			const rects = container.querySelectorAll('rect');
-			expect(rects.length).toBeGreaterThanOrEqual(2);
+			const svg = container.querySelector('svg');
+			expect(svg?.classList.toString()).toContain('lucide-monitor');
 		});
 
-		it('av-media icon has speaker shape (rect and path)', () => {
+		it('av-media category renders Speaker icon', () => {
 			const { container } = render(CategoryIcon, { props: { category: 'av-media' } });
-			const rect = container.querySelector('rect');
-			const path = container.querySelector('path');
-			expect(rect).toBeInTheDocument();
-			expect(path).toBeInTheDocument();
+			const svg = container.querySelector('svg');
+			expect(svg?.classList.toString()).toContain('lucide-speaker');
 		});
 
-		it('cooling icon has fan blades (circle and lines)', () => {
+		it('cooling category renders Fan icon', () => {
 			const { container } = render(CategoryIcon, { props: { category: 'cooling' } });
-			const circles = container.querySelectorAll('circle');
-			const lines = container.querySelectorAll('line');
-			expect(circles.length).toBeGreaterThanOrEqual(1);
-			expect(lines.length).toBeGreaterThanOrEqual(2);
+			const svg = container.querySelector('svg');
+			expect(svg?.classList.toString()).toContain('lucide-fan');
 		});
 
-		it('shelf icon has horizontal shelf with supports (rect and lines)', () => {
+		it('shelf category renders AlignEndHorizontal icon', () => {
 			const { container } = render(CategoryIcon, { props: { category: 'shelf' } });
-			const rect = container.querySelector('rect');
-			const lines = container.querySelectorAll('line');
-			expect(rect).toBeInTheDocument();
-			expect(lines.length).toBeGreaterThanOrEqual(2);
+			const svg = container.querySelector('svg');
+			expect(svg?.classList.toString()).toContain('lucide-align-end-horizontal');
 		});
 
-		it('blank icon has empty rectangle (stroke only)', () => {
+		it('blank category renders CircleOff icon', () => {
 			const { container } = render(CategoryIcon, { props: { category: 'blank' } });
-			const rect = container.querySelector('rect');
-			expect(rect).toBeInTheDocument();
-			expect(rect).toHaveAttribute('fill', 'none');
+			const svg = container.querySelector('svg');
+			expect(svg?.classList.toString()).toContain('lucide-circle-off');
 		});
 
-		it('other icon has question mark (circle with text)', () => {
+		it('cable-management category renders Cable icon', () => {
+			const { container } = render(CategoryIcon, { props: { category: 'cable-management' } });
+			const svg = container.querySelector('svg');
+			expect(svg?.classList.toString()).toContain('lucide-cable');
+		});
+
+		it('other category renders CircleHelp icon', () => {
 			const { container } = render(CategoryIcon, { props: { category: 'other' } });
-			const circle = container.querySelector('circle');
-			const text = container.querySelector('text');
-			expect(circle).toBeInTheDocument();
-			expect(text).toBeInTheDocument();
-			expect(text?.textContent).toBe('?');
+			const svg = container.querySelector('svg');
+			expect(svg?.classList.toString()).toContain('lucide-circle-help');
 		});
 	});
 
@@ -151,17 +140,16 @@ describe('CategoryIcon Component', () => {
 			});
 			const svg = container.querySelector('svg');
 			expect(svg).toBeInTheDocument();
-			// Should fall through to 'other' case (question mark)
-			const text = container.querySelector('text');
-			expect(text?.textContent).toBe('?');
+			// Should fall through to CircleHelp (other) icon
+			expect(svg?.classList.toString()).toContain('lucide-circle-help');
 		});
 	});
 
 	describe('CSS class', () => {
-		it('has category-icon class', () => {
+		it('has category-icon class on wrapper', () => {
 			const { container } = render(CategoryIcon, { props: { category: 'server' } });
-			const svg = container.querySelector('svg');
-			expect(svg).toHaveClass('category-icon');
+			const wrapper = container.querySelector('.category-icon');
+			expect(wrapper).toBeInTheDocument();
 		});
 	});
 });
