@@ -77,6 +77,116 @@ Work through each top level heading one by one, mark with x only once complete.
   - [x] Should only highlight the specific placed device, not all instances of the device type
   - [x] Fixed: Selection now uses deviceIndex instead of libraryId for placed device instances
 
+---
+
+## Research
+
+Items requiring investigation and architecture design before implementation.
+
+### Starter Library Rationalization
+
+**Status:** Research
+**Created:** 2025-12-11
+
+The current starter library has 26 generic device types ("1U Server", "2U NAS", etc.) that don't represent actual homelab gear. Before implementing device images, we need to rationalize the library to contain representative common homelab devices that have matching NetBox elevation images.
+
+- [ ] **Audit current starter library** — Document existing 26 device types and their categories
+- [ ] **Research common homelab gear** — What devices do homelabbers actually use?
+  - Reddit r/homelab, r/selfhosted surveys/posts
+  - Popular YouTube homelab builds
+  - NetBox library popularity (most contributed device types)
+- [ ] **Define target library** — Curated list of ~20-30 devices covering:
+  - Servers (Dell PowerEdge, HP ProLiant, Supermicro)
+  - NAS (Synology, QNAP)
+  - Networking (Ubiquiti, MikroTik, TP-Link)
+  - Power (APC UPS, CyberPower, PDUs)
+  - Patch panels, shelves, blanks
+- [ ] **Match to NetBox images** — Verify each target device has elevation images available
+- [ ] **Document final list** — Device specs, NetBox image paths, categories
+
+> **Prerequisite for:** Device Image System implementation
+
+---
+
+### Device Image System
+
+**Status:** Research (blocked on Starter Library Rationalization)
+**Created:** 2025-12-11
+
+The current image system has limitations:
+
+- Images only addable when creating new device types (no editing after)
+- No default images for starter library devices
+- Single-level storage (device type only, no per-placement overrides)
+
+> **Note:** Implementation will be greenfield — no migration layers, version suffixes, or legacy compatibility code.
+
+#### Phase 1: Architecture Design
+
+Research and document the two-level image storage system:
+
+- [ ] **Image inheritance model** — Device type images as defaults, placement-level overrides
+  - Two separate stores: `deviceTypeImages` and `placementImages`
+  - **Decision:** Add stable `id` field to PlacedDevice (survives reordering)
+  - Key scheme: placement images keyed by `{slug}:{id}`
+  - Fallback logic: placement image → device type image → colored rectangle
+  - Impact on archive format (`images/` folder structure)
+
+- [ ] **Storage format decisions**
+  - Should device type images live in `DeviceType` or remain separate?
+  - Archive structure for two-level images
+
+- [ ] **UI/UX design**
+  - EditPanel: How to show "using default" vs "has override"?
+  - How to reset a placement back to device type default?
+  - Should device library show image thumbnails?
+
+#### Phase 2: Placement Image Overrides
+
+Implementation of per-placement image overrides:
+
+- [ ] Refactor `ImageStore` to support placement-level keys
+- [ ] Add image upload UI to `EditPanel` for selected placed devices
+- [ ] Add "Reset to default" action for placement overrides
+- [ ] Update archive save/load for placement images
+- [ ] Update `RackDevice` rendering to check placement → device type → fallback
+
+#### Phase 3: NetBox Device Library Integration
+
+Research integration with [netbox-community/devicetype-library](https://github.com/netbox-community/devicetype-library):
+
+- [ ] **Evaluate elevation-images directory**
+  - What formats are available? (SVG, PNG, dimensions)
+  - How are images organized? (by manufacturer/model)
+  - Total size of full library vs curated subset
+
+- [ ] **Licensing research**
+  - NetBox devicetype-library license (Apache 2.0) — compatible with Rackarr?
+  - Attribution requirements if bundling or fetching images
+  - Any manufacturer trademark/copyright concerns with device images
+  - Do we need to display license notices to users?
+
+- [ ] **Integration approaches** — evaluate tradeoffs:
+      | Approach | Pros | Cons |
+      |----------|------|------|
+      | On-demand fetch | No bundle bloat, always current | Requires internet, latency |
+      | Curated bundle | Works offline, fast | Increases app size, stale |
+      | Hybrid | Best of both | More complex |
+      | External tool | Keep app simple | Extra step for users |
+
+- [ ] **Technical questions**
+  - CORS considerations for fetching from GitHub raw URLs
+  - Caching strategy for fetched images
+  - How to match user's device types to NetBox library entries
+  - Should we import full device type definitions or just images?
+
+- [ ] **Default image strategy**
+  - Which devices warrant bundled defaults? (top 20-30 homelab devices?)
+  - Target bundle size budget (e.g., <500KB compressed)
+  - Format optimization (WebP, compressed PNG, or SVG where available)
+
+---
+
 ## Released
 
 ### v0.4.9 — Airflow Visualization
@@ -292,6 +402,7 @@ Backlog → Future Roadmap → Planned (current) → Released
 | 2025-12-08 | v0.4.9 spec ready (airflow visualization)                     |
 | 2025-12-09 | v0.4.9 released (airflow visualization, selection bug fix)    |
 | 2025-12-10 | Type system consolidation: unified on DeviceType/PlacedDevice |
+| 2025-12-11 | Added Research section: Starter Library & Device Image System |
 
 ---
 
