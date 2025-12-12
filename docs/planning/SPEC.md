@@ -1,7 +1,7 @@
 # Rackarr Technical Specification
 
 **Version:** 0.5.0
-**Updated:** 2025-12-10
+**Updated:** 2025-12-12
 **Status:** Active
 
 ---
@@ -196,6 +196,39 @@ interface LayoutSettings {
 | Max racks per layout    | 1 (single-rack mode) |
 | Max image size          | 5MB                  |
 | Supported image formats | PNG, JPEG, WebP      |
+
+### 3.7 Collision Detection
+
+Two devices collide if **both** conditions are true:
+
+1. Their U ranges overlap (`position` to `position + u_height - 1`)
+2. Their faces collide (based on depth rules below)
+
+**Face Collision Rules:**
+
+| Face A | Face B | Either Full-Depth? | Collision? |
+| ------ | ------ | ------------------ | ---------- |
+| front  | front  | any                | YES        |
+| rear   | rear   | any                | YES        |
+| both   | any    | any                | YES        |
+| front  | rear   | YES                | YES        |
+| front  | rear   | NO (both half)     | NO         |
+
+**Defaults:**
+
+- `is_full_depth` defaults to `true` when not specified
+- Half-depth devices (blanks, shelves, patch panels, cable management) are explicitly marked `is_full_depth: false`
+
+**Half-Depth Devices in Starter Library:**
+
+| Category         | Devices                                  |
+| ---------------- | ---------------------------------------- |
+| Blank            | 0.5U Blank, 1U Blank, 2U Blank           |
+| Shelf            | 1U Shelf, 2U Shelf                       |
+| Patch Panel      | 24-Port Patch Panel, 48-Port Patch Panel |
+| Cable Management | 1U Brush Panel, 1U Cable Management      |
+
+This allows placing a rear half-depth device at the same U position as a front half-depth device (useful for blanks and cable management).
 
 ---
 
@@ -428,20 +461,20 @@ The toolbar adapts to viewport width with two distinct modes:
 
 ## 7. Keyboard Shortcuts
 
-| Shortcut                  | Action                         |
-| ------------------------- | ------------------------------ |
-| `Escape`                  | Clear selection / close panels |
-| `Ctrl+Z`                  | Undo                           |
-| `Ctrl+Shift+Z` / `Ctrl+Y` | Redo                           |
-| `Delete` / `Backspace`    | Delete selected                |
-| `↑` / `↓`                 | Move device in rack            |
-| `F`                       | Fit all (reset view)           |
-| `I`                       | Toggle display mode            |
-| `A`                       | Toggle airflow mode            |
-| `Ctrl+S`                  | Save layout                    |
-| `Ctrl+O`                  | Load layout                    |
-| `Ctrl+E`                  | Export dialog                  |
-| `?`                       | Help panel                     |
+| Shortcut                  | Action                                              |
+| ------------------------- | --------------------------------------------------- |
+| `Escape`                  | Clear selection / close panels                      |
+| `Ctrl+Z`                  | Undo                                                |
+| `Ctrl+Shift+Z` / `Ctrl+Y` | Redo                                                |
+| `Delete` / `Backspace`    | Delete selected                                     |
+| `↑` / `↓`                 | Move device in rack (increment = device `u_height`) |
+| `F`                       | Fit all (reset view)                                |
+| `I`                       | Toggle display mode                                 |
+| `A`                       | Toggle airflow mode                                 |
+| `Ctrl+S`                  | Save layout                                         |
+| `Ctrl+O`                  | Load layout                                         |
+| `Ctrl+E`                  | Export dialog                                       |
+| `?`                       | Help panel                                          |
 
 ---
 
@@ -569,19 +602,21 @@ The starter library provides 26 pre-defined generic device types for common home
 
 ### 11.2 Device Types (26 items)
 
-| Category             | Device Types                                                      |
-| -------------------- | ----------------------------------------------------------------- |
-| **Server**           | 1U Server, 2U Server, 4U Server                                   |
-| **Network**          | 8-Port Switch, 24-Port Switch, 48-Port Switch, 1U Router/Firewall |
-| **Patch Panel**      | 24-Port Patch Panel, 48-Port Patch Panel                          |
-| **Storage**          | 1U Storage, 2U Storage, 4U Storage                                |
-| **Power**            | 1U PDU, 2U UPS, 4U UPS                                            |
-| **KVM**              | 1U KVM, 1U Console Drawer                                         |
-| **AV/Media**         | 1U Receiver, 2U Amplifier                                         |
-| **Cooling**          | 1U Fan Panel                                                      |
-| **Blank**            | 0.5U Blank, 1U Blank, 2U Blank                                    |
-| **Shelf**            | 1U Shelf, 2U Shelf                                                |
-| **Cable Management** | 1U Brush Panel, 1U Cable Management                               |
+| Category             | Device Types                                       | Half-Depth? |
+| -------------------- | -------------------------------------------------- | ----------- |
+| **Server**           | 1U Server, 2U Server, 4U Server                    | No          |
+| **Network**          | 24-Port Switch, 48-Port Switch, 1U Router/Firewall | No          |
+| **Patch Panel**      | 24-Port Patch Panel, 48-Port Patch Panel           | Yes         |
+| **Storage**          | 1U Storage, 2U Storage, 4U Storage                 | No          |
+| **Power**            | 1U PDU, 2U UPS, 4U UPS                             | No          |
+| **KVM**              | 1U KVM, 1U Console Drawer                          | No          |
+| **AV/Media**         | 1U Receiver, 2U Amplifier                          | No          |
+| **Cooling**          | 1U Fan Panel                                       | No          |
+| **Blank**            | 0.5U Blank, 1U Blank, 2U Blank                     | Yes         |
+| **Shelf**            | 1U Shelf, 2U Shelf                                 | Yes         |
+| **Cable Management** | 1U Brush Panel, 1U Cable Management                | Yes         |
+
+> **Note:** Half-depth devices (`is_full_depth: false`) can share the same U position with other half-depth devices on the opposite face. See Section 3.7 for collision rules.
 
 ### 11.3 Implementation
 
@@ -592,11 +627,13 @@ interface StarterDeviceSpec {
 	name: string;
 	u_height: number;
 	category: DeviceCategory;
+	is_full_depth?: boolean; // Default: true; false for half-depth devices
 }
 
 const STARTER_DEVICES: StarterDeviceSpec[] = [
 	{ name: '1U Server', u_height: 1, category: 'server' },
-	{ name: '8-Port Switch', u_height: 1, category: 'network' }
+	{ name: '24-Port Switch', u_height: 1, category: 'network' },
+	{ name: '1U Blank', u_height: 1, category: 'blank', is_full_depth: false }
 	// ... etc
 ];
 
@@ -605,6 +642,7 @@ export function getStarterLibrary(): DeviceType[] {
 		slug: slugify(spec.name),
 		u_height: spec.u_height,
 		model: spec.name,
+		is_full_depth: spec.is_full_depth, // undefined = true default
 		rackarr: {
 			colour: CATEGORY_COLOURS[spec.category],
 			category: spec.category
@@ -627,15 +665,13 @@ Device slugs are generated from names using the `slugify()` utility:
 
 ### 11.5 Bundled Images
 
-Active devices (~15 of 26) have pre-bundled WebP images for immediate visual representation in image display mode. Images are sourced from the NetBox Device Type Library (CC0 licensed) and processed to 400px max width.
+Active devices (~6 of 26) have pre-bundled WebP images for immediate visual representation in image display mode. Images are sourced from the NetBox Device Type Library (CC0 licensed) and processed to 400px max width.
 
-| Category | Devices with Bundled Images                                       |
-| -------- | ----------------------------------------------------------------- |
-| Server   | 1U Server, 2U Server, 4U Server                                   |
-| Network  | 8-Port Switch, 24-Port Switch, 48-Port Switch, 1U Router/Firewall |
-| Storage  | 1U Storage, 2U Storage, 4U Storage                                |
-| Power    | 2U UPS, 4U UPS                                                    |
-| KVM      | 1U Console Drawer                                                 |
+| Category | Devices with Bundled Images     |
+| -------- | ------------------------------- |
+| Server   | 1U Server, 2U Server, 4U Server |
+| Network  | 48-Port Switch                  |
+| Storage  | 2U Storage, 4U Storage          |
 
 Passive/generic items display as category-colored rectangles (no bundled images):
 

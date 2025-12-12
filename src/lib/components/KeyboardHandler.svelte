@@ -8,6 +8,7 @@
 	import { getSelectionStore } from '$lib/stores/selection.svelte';
 	import { getUIStore } from '$lib/stores/ui.svelte';
 	import { getToastStore } from '$lib/stores/toast.svelte';
+	import { canPlaceDevice } from '$lib/utils/collision';
 
 	interface Props {
 		onsave?: () => void;
@@ -238,27 +239,27 @@
 		const device = layoutStore.device_types.find((d) => d.slug === placedDevice.device_type);
 		if (!device) return;
 
+		// Movement increment equals device height (fixes Issue 2.1: 0.5U movement)
+		const moveIncrement = device.u_height;
+		const isFullDepth = device.is_full_depth !== false;
+
 		// Try to find a valid position in the direction of movement
-		let newPosition = placedDevice.position + direction;
+		let newPosition = placedDevice.position + direction * moveIncrement;
 
 		// Keep looking for a valid position, leapfrogging over blocking devices
 		while (newPosition >= 1 && newPosition + device.u_height - 1 <= rack.height) {
-			// Check if this position is valid (no collisions)
-			const hasCollision = rack.devices.some((d, idx) => {
-				if (idx === selectionStore.selectedDeviceIndex) return false; // Ignore self
-				const otherDevice = layoutStore.device_types.find((dev) => dev.slug === d.device_type);
-				if (!otherDevice) return false;
+			// Use canPlaceDevice for face and depth-aware collision detection
+			const isValid = canPlaceDevice(
+				rack,
+				layoutStore.device_types,
+				device.u_height,
+				newPosition,
+				selectionStore.selectedDeviceIndex!,
+				placedDevice.face,
+				isFullDepth
+			);
 
-				const otherTop = d.position + otherDevice.u_height - 1;
-				const otherBottom = d.position;
-				const newTop = newPosition + device.u_height - 1;
-				const newBottom = newPosition;
-
-				// Check overlap
-				return !(newTop < otherBottom || newBottom > otherTop);
-			});
-
-			if (!hasCollision) {
+			if (isValid) {
 				// Found a valid position, move there
 				layoutStore.moveDevice(
 					selectionStore.selectedRackId!,
@@ -268,8 +269,8 @@
 				return;
 			}
 
-			// Position blocked, try next position in direction
-			newPosition += direction;
+			// Position blocked, try next position in direction (using device height increment)
+			newPosition += direction * moveIncrement;
 		}
 
 		// No valid position found in that direction

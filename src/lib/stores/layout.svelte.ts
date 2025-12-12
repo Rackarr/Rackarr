@@ -14,6 +14,7 @@ import type {
 	DisplayMode
 } from '$lib/types';
 import { DEFAULT_DEVICE_FACE } from '$lib/types/constants';
+import { canPlaceDevice } from '$lib/utils/collision';
 import { createLayout, createRack } from '$lib/utils/serialization';
 import {
 	createDeviceType as createDeviceTypeHelper,
@@ -821,24 +822,20 @@ function placeDeviceRecorded(
 	const deviceType = findDeviceType(layout.device_types, deviceTypeSlug);
 	if (!deviceType) return false;
 
-	// Validate bounds
-	if (position < 1 || position + deviceType.u_height - 1 > layout.rack.height) {
+	// Use canPlaceDevice for bounds and collision checking (face and depth aware)
+	const isFullDepth = deviceType.is_full_depth !== false;
+	if (
+		!canPlaceDevice(
+			layout.rack,
+			layout.device_types,
+			deviceType.u_height,
+			position,
+			undefined,
+			face,
+			isFullDepth
+		)
+	) {
 		return false;
-	}
-
-	// Check for collisions
-	for (const existingDevice of layout.rack.devices) {
-		const existingType = findDeviceType(layout.device_types, existingDevice.device_type);
-		if (!existingType) continue;
-
-		const existingStart = existingDevice.position;
-		const existingEnd = existingDevice.position + existingType.u_height - 1;
-		const newStart = position;
-		const newEnd = position + deviceType.u_height - 1;
-
-		if (newStart <= existingEnd && newEnd >= existingStart) {
-			return false; // Collision
-		}
 	}
 
 	const device: PlacedDevice = {
@@ -869,27 +866,20 @@ function moveDeviceRecorded(deviceIndex: number, newPosition: number): boolean {
 	const deviceType = findDeviceType(layout.device_types, device.device_type);
 	if (!deviceType) return false;
 
-	// Validate bounds
-	if (newPosition < 1 || newPosition + deviceType.u_height - 1 > layout.rack.height) {
+	// Use canPlaceDevice for bounds and collision checking (face and depth aware)
+	const isFullDepth = deviceType.is_full_depth !== false;
+	if (
+		!canPlaceDevice(
+			layout.rack,
+			layout.device_types,
+			deviceType.u_height,
+			newPosition,
+			deviceIndex,
+			device.face,
+			isFullDepth
+		)
+	) {
 		return false;
-	}
-
-	// Check for collisions (excluding device being moved)
-	for (let i = 0; i < layout.rack.devices.length; i++) {
-		if (i === deviceIndex) continue;
-
-		const existingDevice = layout.rack.devices[i]!;
-		const existingType = findDeviceType(layout.device_types, existingDevice.device_type);
-		if (!existingType) continue;
-
-		const existingStart = existingDevice.position;
-		const existingEnd = existingDevice.position + existingType.u_height - 1;
-		const newStart = newPosition;
-		const newEnd = newPosition + deviceType.u_height - 1;
-
-		if (newStart <= existingEnd && newEnd >= existingStart) {
-			return false; // Collision
-		}
 	}
 
 	const oldPosition = device.position;

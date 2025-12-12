@@ -11,6 +11,7 @@ interface StarterDeviceSpec {
 	name: string;
 	u_height: number;
 	category: DeviceCategory;
+	is_full_depth?: boolean; // Defaults to true; false for half-depth devices
 }
 
 const STARTER_DEVICES: StarterDeviceSpec[] = [
@@ -24,9 +25,9 @@ const STARTER_DEVICES: StarterDeviceSpec[] = [
 	{ name: '48-Port Switch', u_height: 1, category: 'network' },
 	{ name: '1U Router/Firewall', u_height: 1, category: 'network' },
 
-	// Patch panels (2)
-	{ name: '24-Port Patch Panel', u_height: 1, category: 'patch-panel' },
-	{ name: '48-Port Patch Panel', u_height: 2, category: 'patch-panel' },
+	// Patch panels (2) - half-depth
+	{ name: '24-Port Patch Panel', u_height: 1, category: 'patch-panel', is_full_depth: false },
+	{ name: '48-Port Patch Panel', u_height: 2, category: 'patch-panel', is_full_depth: false },
 
 	// Storage devices (3)
 	{ name: '1U Storage', u_height: 1, category: 'storage' },
@@ -49,18 +50,18 @@ const STARTER_DEVICES: StarterDeviceSpec[] = [
 	// Cooling devices (1)
 	{ name: '1U Fan Panel', u_height: 1, category: 'cooling' },
 
-	// Blank panels (3)
-	{ name: '0.5U Blank', u_height: 0.5, category: 'blank' },
-	{ name: '1U Blank', u_height: 1, category: 'blank' },
-	{ name: '2U Blank', u_height: 2, category: 'blank' },
+	// Blank panels (3) - half-depth
+	{ name: '0.5U Blank', u_height: 0.5, category: 'blank', is_full_depth: false },
+	{ name: '1U Blank', u_height: 1, category: 'blank', is_full_depth: false },
+	{ name: '2U Blank', u_height: 2, category: 'blank', is_full_depth: false },
 
-	// Shelf devices (2)
-	{ name: '1U Shelf', u_height: 1, category: 'shelf' },
-	{ name: '2U Shelf', u_height: 2, category: 'shelf' },
+	// Shelf devices (2) - half-depth
+	{ name: '1U Shelf', u_height: 1, category: 'shelf', is_full_depth: false },
+	{ name: '2U Shelf', u_height: 2, category: 'shelf', is_full_depth: false },
 
-	// Cable management (2)
-	{ name: '1U Brush Panel', u_height: 1, category: 'cable-management' },
-	{ name: '1U Cable Management', u_height: 1, category: 'cable-management' }
+	// Cable management (2) - half-depth
+	{ name: '1U Brush Panel', u_height: 1, category: 'cable-management', is_full_depth: false },
+	{ name: '1U Cable Management', u_height: 1, category: 'cable-management', is_full_depth: false }
 ];
 
 /**
@@ -72,6 +73,7 @@ export function getStarterLibrary(): DeviceType[] {
 		slug: slugify(spec.name),
 		u_height: spec.u_height,
 		model: spec.name,
+		is_full_depth: spec.is_full_depth, // undefined means full-depth (true default)
 		rackarr: {
 			colour: CATEGORY_COLOURS[spec.category],
 			category: spec.category

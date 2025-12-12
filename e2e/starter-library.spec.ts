@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 /**
  * E2E Tests for Starter Library
- * Tests the new 27-item rationalized device library
+ * Tests the 26-item rationalized device library
  */
 
 test.describe('Starter Library', () => {
@@ -22,9 +22,9 @@ test.describe('Starter Library', () => {
 		// Device palette should be visible
 		await expect(page.locator('.device-palette')).toBeVisible();
 
-		// Should have 27 device items (the starter library)
+		// Should have 26 device items (the starter library)
 		const deviceItems = page.locator('.device-palette-item');
-		await expect(deviceItems).toHaveCount(27);
+		await expect(deviceItems).toHaveCount(26);
 	});
 
 	test('all 12 categories are represented in the palette', async ({ page }) => {
@@ -41,10 +41,7 @@ test.describe('Starter Library', () => {
 			page.getByRole('listitem', { name: '4U Server, 4U server', exact: true })
 		).toBeVisible();
 
-		// Network category (4 items)
-		await expect(
-			page.getByRole('listitem', { name: '8-Port Switch, 1U network', exact: true })
-		).toBeVisible();
+		// Network category (3 items)
 		await expect(
 			page.getByRole('listitem', { name: '24-Port Switch, 1U network', exact: true })
 		).toBeVisible();
@@ -162,8 +159,8 @@ test.describe('Starter Library', () => {
 		await searchInput.fill('Switch');
 		await page.waitForTimeout(100);
 
-		// Should show 3 switch items
-		await expect(page.locator('.device-palette-item:has-text("Switch")')).toHaveCount(3);
+		// Should show 2 switch items (24-Port Switch, 48-Port Switch)
+		await expect(page.locator('.device-palette-item:has-text("Switch")')).toHaveCount(2);
 	});
 
 	test('can search for cable management devices', async ({ page }) => {

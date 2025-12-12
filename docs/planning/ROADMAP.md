@@ -50,22 +50,32 @@ Single source of truth for version planning.
 
 ---
 
-### Issue 2: Front/Rear Mounting Logic
+### ~~Issue 2: Front/Rear Mounting Logic~~ ✅ Complete
 
 **Priority:** Medium (confusing UX but workarounds exist)
+**Status:** Fixed in commit session 2025-12-12
 
-| Sub-issue                        | Description                                                                                                                                                 | Expected Behavior                                                                                                                                    |
-| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **2.1 0.5U blank placement bug** | 0.5U blank with rear/full-depth mounting can overlap front-mounted devices. Arrow key movement jumps to unexpected slots (different from 1U blank behavior) | All devices should follow consistent placement rules. 0.5U devices should respect mounting constraints and move in 0.5U increments                   |
-| **2.2 Front+rear slot sharing**  | Cannot mount a rear device in a slot that has a front-mounted device                                                                                        | Front-mounted devices should leave rear area available. Rear-mounted devices should be placeable behind front-mounted devices in the same U position |
+| Sub-issue                           | Description                                                                                                               | Status   |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | -------- |
+| **~~2.1 0.5U movement increment~~** | Arrow key movement jumps by ±1 instead of ±device.u_height. 0.5U devices should move in 0.5U increments                   | ✅ Fixed |
+| **~~2.2 Front+rear slot sharing~~** | Cannot mount a rear device in a slot that has a front-mounted device. Half-depth devices on opposite faces should coexist | ✅ Fixed |
 
-**Context:** The mounting logic treats slots as fully occupied regardless of `form_factor`. A front-only device (`front`) should only block front mounting, leaving rear mountable.
+**Solution:**
 
-**Files to investigate:**
+- Added `is_full_depth` property to DeviceType (defaults to `true`)
+- Updated `doFacesCollide()` in `collision.ts` to accept depth parameters
+- Half-depth front + half-depth rear at same U = no collision
+- Full-depth device blocks both faces at same U
+- Replaced inline collision checks in `layout.svelte.ts` and `KeyboardHandler.svelte` with `canPlaceDevice()`
+- Marked blanks, shelves, patch panels, and cable management as `is_full_depth: false` in starter library
+- Arrow key movement now uses `device.u_height` as increment
 
-- `src/lib/stores/layout.svelte.ts` (collision detection)
-- `src/lib/utils/rack.ts` (placement validation)
-- Device type definitions in `starterLibrary.ts` (form_factor values)
+**Files modified:**
+
+- `src/lib/utils/collision.ts` (depth-aware collision)
+- `src/lib/stores/layout.svelte.ts` (use `canPlaceDevice()`)
+- `src/lib/components/KeyboardHandler.svelte` (fix movement increment)
+- `src/lib/data/starterLibrary.ts` (add `is_full_depth` to half-depth devices)
 
 ---
 
@@ -73,14 +83,11 @@ Single source of truth for version planning.
 
 **Priority:** Low (cosmetic)
 
-| Sub-issue                  | Description                                 | Fix                                                                                                                                   |
-| -------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| **3.1 KVM capitalization** | Category displays as "Kvm" instead of "KVM" | Update category display formatting to handle acronyms. Either special-case "kvm" → "KVM" or store display names separately from slugs |
+| Sub-issue                      | Description                                 | Status                               |
+| ------------------------------ | ------------------------------------------- | ------------------------------------ |
+| **~~3.1 KVM capitalization~~** | Category displays as "Kvm" instead of "KVM" | ✅ Fixed (commit 068ff29 2025-12-12) |
 
-**Files to investigate:**
-
-- `src/lib/components/DevicePalette.svelte` (category display)
-- `src/lib/types/index.ts` (DeviceCategory type)
+**Solution:** Added `getCategoryDisplayName()` utility function to handle acronym capitalization.
 
 ---
 
@@ -411,6 +418,8 @@ Backlog → Future Roadmap → Planned (current) → Released
 | 2025-12-11 | Added Research section: Starter Library & Device Image System      |
 | 2025-12-11 | Device category icons: selected Lucide icons for all 12 categories |
 | 2025-12-11 | Device Image System: spec complete, Phase 4 deferred               |
+| 2025-12-12 | Issue 2 (Front/Rear Mounting Logic) fixed: depth-aware collision   |
+| 2025-12-12 | Issue 3.1 (KVM capitalization) fixed: getCategoryDisplayName()     |
 
 ---
 

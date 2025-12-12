@@ -745,6 +745,288 @@ describe('Layout Store (v0.2)', () => {
 		});
 	});
 
+	describe('placeDevice with face/depth awareness', () => {
+		beforeEach(() => {
+			resetLayoutStore();
+		});
+
+		it('allows placing half-depth rear device at same U as half-depth front device', () => {
+			const store = getLayoutStore();
+			store.addRack('Test Rack', 42);
+
+			// Add half-depth device type
+			const halfDepthType = store.addDeviceType({
+				name: 'Half-Depth Device',
+				u_height: 1,
+				category: 'blank',
+				colour: '#2F4F4F',
+				is_full_depth: false
+			});
+
+			// Place on front at U5
+			const result1 = store.placeDevice('rack-0', halfDepthType.slug, 5, 'front');
+			expect(result1).toBe(true);
+
+			// Place on rear at U5 - should succeed because both are half-depth
+			const result2 = store.placeDevice('rack-0', halfDepthType.slug, 5, 'rear');
+			expect(result2).toBe(true);
+
+			// Both devices should exist at position 5
+			const devicesAtU5 = store.layout.rack.devices.filter((d) => d.position === 5);
+			expect(devicesAtU5).toHaveLength(2);
+		});
+
+		it('blocks placing half-depth rear device when full-depth front device exists at same U', () => {
+			const store = getLayoutStore();
+			store.addRack('Test Rack', 42);
+
+			// Add full-depth device type (default)
+			const fullDepthType = store.addDeviceType({
+				name: 'Full-Depth Server',
+				u_height: 1,
+				category: 'server',
+				colour: '#4A90D9'
+				// is_full_depth defaults to true
+			});
+
+			// Add half-depth device type
+			const halfDepthType = store.addDeviceType({
+				name: 'Half-Depth Blank',
+				u_height: 1,
+				category: 'blank',
+				colour: '#2F4F4F',
+				is_full_depth: false
+			});
+
+			// Place full-depth on front at U5
+			const result1 = store.placeDevice('rack-0', fullDepthType.slug, 5, 'front');
+			expect(result1).toBe(true);
+
+			// Place half-depth on rear at U5 - should FAIL because front is full-depth
+			const result2 = store.placeDevice('rack-0', halfDepthType.slug, 5, 'rear');
+			expect(result2).toBe(false);
+
+			// Only one device should exist
+			expect(store.layout.rack.devices).toHaveLength(1);
+		});
+
+		it('blocks placing full-depth rear device when half-depth front device exists at same U', () => {
+			const store = getLayoutStore();
+			store.addRack('Test Rack', 42);
+
+			// Add half-depth device type
+			const halfDepthType = store.addDeviceType({
+				name: 'Half-Depth Blank',
+				u_height: 1,
+				category: 'blank',
+				colour: '#2F4F4F',
+				is_full_depth: false
+			});
+
+			// Add full-depth device type
+			const fullDepthType = store.addDeviceType({
+				name: 'Full-Depth Server',
+				u_height: 1,
+				category: 'server',
+				colour: '#4A90D9'
+			});
+
+			// Place half-depth on front at U5
+			const result1 = store.placeDevice('rack-0', halfDepthType.slug, 5, 'front');
+			expect(result1).toBe(true);
+
+			// Place full-depth on rear at U5 - should FAIL because new device is full-depth
+			const result2 = store.placeDevice('rack-0', fullDepthType.slug, 5, 'rear');
+			expect(result2).toBe(false);
+
+			// Only one device should exist
+			expect(store.layout.rack.devices).toHaveLength(1);
+		});
+	});
+
+	describe('moveDevice with face/depth awareness', () => {
+		beforeEach(() => {
+			resetLayoutStore();
+		});
+
+		it('allows moving half-depth rear device to same U as half-depth front device', () => {
+			const store = getLayoutStore();
+			store.addRack('Test Rack', 42);
+
+			// Add half-depth device type
+			const halfDepthType = store.addDeviceType({
+				name: 'Half-Depth Device',
+				u_height: 1,
+				category: 'blank',
+				colour: '#2F4F4F',
+				is_full_depth: false
+			});
+
+			// Place on front at U5
+			store.placeDevice('rack-0', halfDepthType.slug, 5, 'front');
+
+			// Place on rear at U10
+			store.placeDevice('rack-0', halfDepthType.slug, 10, 'rear');
+
+			// Move rear device from U10 to U5 - should succeed
+			const result = store.moveDevice('rack-0', 1, 5);
+			expect(result).toBe(true);
+
+			// Both devices should be at position 5
+			const devicesAtU5 = store.layout.rack.devices.filter((d) => d.position === 5);
+			expect(devicesAtU5).toHaveLength(2);
+		});
+
+		it('blocks moving half-depth rear device to same U as full-depth front device', () => {
+			const store = getLayoutStore();
+			store.addRack('Test Rack', 42);
+
+			// Add full-depth device type
+			const fullDepthType = store.addDeviceType({
+				name: 'Full-Depth Server',
+				u_height: 1,
+				category: 'server',
+				colour: '#4A90D9'
+			});
+
+			// Add half-depth device type
+			const halfDepthType = store.addDeviceType({
+				name: 'Half-Depth Blank',
+				u_height: 1,
+				category: 'blank',
+				colour: '#2F4F4F',
+				is_full_depth: false
+			});
+
+			// Place full-depth on front at U5
+			store.placeDevice('rack-0', fullDepthType.slug, 5, 'front');
+
+			// Place half-depth on rear at U10
+			store.placeDevice('rack-0', halfDepthType.slug, 10, 'rear');
+
+			// Move rear device from U10 to U5 - should FAIL because front is full-depth
+			const result = store.moveDevice('rack-0', 1, 5);
+			expect(result).toBe(false);
+
+			// Device at index 1 should still be at U10
+			expect(store.layout.rack.devices[1]!.position).toBe(10);
+		});
+	});
+
+	describe('0.5U device movement', () => {
+		it('allows moving 0.5U device to half-unit positions', () => {
+			const store = getLayoutStore();
+			store.addRack('Test Rack', 42);
+
+			// Add 0.5U device type
+			const halfUType = store.addDeviceType({
+				name: '0.5U Device',
+				u_height: 0.5,
+				category: 'blank',
+				colour: '#2F4F4F'
+			});
+
+			// Place at position 1
+			const placed = store.placeDevice('rack-0', halfUType.slug, 1, 'front');
+			expect(placed).toBe(true);
+			expect(store.layout.rack.devices[0]!.position).toBe(1);
+
+			// Move to position 1.5 - should succeed
+			const result = store.moveDevice('rack-0', 0, 1.5);
+			expect(result).toBe(true);
+			expect(store.layout.rack.devices[0]!.position).toBe(1.5);
+		});
+
+		it('allows moving 0.5U device to integer positions', () => {
+			const store = getLayoutStore();
+			store.addRack('Test Rack', 42);
+
+			// Add 0.5U device type
+			const halfUType = store.addDeviceType({
+				name: '0.5U Device',
+				u_height: 0.5,
+				category: 'blank',
+				colour: '#2F4F4F'
+			});
+
+			// Place at position 1.5
+			const placed = store.placeDevice('rack-0', halfUType.slug, 1.5, 'front');
+			expect(placed).toBe(true);
+
+			// Move to position 2 - should succeed
+			const result = store.moveDevice('rack-0', 0, 2);
+			expect(result).toBe(true);
+			expect(store.layout.rack.devices[0]!.position).toBe(2);
+		});
+
+		it('blocks 0.5U device from exceeding rack height', () => {
+			const store = getLayoutStore();
+			store.addRack('Test Rack', 42);
+
+			// Add 0.5U device type
+			const halfUType = store.addDeviceType({
+				name: '0.5U Device',
+				u_height: 0.5,
+				category: 'blank',
+				colour: '#2F4F4F'
+			});
+
+			// Place at position 42
+			store.placeDevice('rack-0', halfUType.slug, 42, 'front');
+
+			// Position 43 definitely exceeds rack height
+			const result = store.moveDevice('rack-0', 0, 43);
+			expect(result).toBe(false);
+		});
+
+		it('detects collision between 1U devices at same position', () => {
+			const store = getLayoutStore();
+			store.addRack('Test Rack', 42);
+
+			// Add 1U device type (collision detection works correctly for 1U)
+			const oneUType = store.addDeviceType({
+				name: '1U Device',
+				u_height: 1,
+				category: 'blank',
+				colour: '#2F4F4F'
+			});
+
+			// Place first device at U5
+			store.placeDevice('rack-0', oneUType.slug, 5, 'front');
+
+			// Place second device at U10
+			store.placeDevice('rack-0', oneUType.slug, 10, 'front');
+
+			// Try to move second device to U5 - should fail (collision on same face)
+			const result = store.moveDevice('rack-0', 1, 5);
+			expect(result).toBe(false);
+		});
+
+		it('allows adjacent 0.5U devices without collision', () => {
+			const store = getLayoutStore();
+			store.addRack('Test Rack', 42);
+
+			// Add 0.5U device type
+			const halfUType = store.addDeviceType({
+				name: '0.5U Device',
+				u_height: 0.5,
+				category: 'blank',
+				colour: '#2F4F4F'
+			});
+
+			// Place first device at U5
+			store.placeDevice('rack-0', halfUType.slug, 5, 'front');
+
+			// Place second device at U10
+			store.placeDevice('rack-0', halfUType.slug, 10, 'front');
+
+			// Move second device to U5.5 - should succeed (adjacent, no overlap)
+			const result = store.moveDevice('rack-0', 1, 5.5);
+			expect(result).toBe(true);
+			expect(store.layout.rack.devices[1]!.position).toBe(5.5);
+		});
+	});
+
 	describe('duplicateRack', () => {
 		it('returns error in v0.2 (single rack mode)', () => {
 			const store = getLayoutStore();
