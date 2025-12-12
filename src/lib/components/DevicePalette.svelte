@@ -31,11 +31,46 @@
 	// File import ref
 	let fileInputRef: HTMLInputElement;
 
-	// Filtered and grouped devices
-	const filteredDevices = $derived(searchDevices(layoutStore.device_types, searchQuery));
-	const groupedDevices = $derived(groupDevicesByCategory(filteredDevices));
+	/**
+	 * Device section definition for collapsible groups
+	 */
+	interface DeviceSection {
+		id: string;
+		title: string;
+		devices: DeviceType[];
+		defaultExpanded: boolean;
+	}
+
+	// Filter generic devices (from layout store)
+	const filteredGenericDevices = $derived(searchDevices(layoutStore.device_types, searchQuery));
+	const groupedGenericDevices = $derived(groupDevicesByCategory(filteredGenericDevices));
+
+	// Define sections (brand packs will be added in Phase 4)
+	const sections = $derived<DeviceSection[]>([
+		{
+			id: 'generic',
+			title: 'Generic',
+			devices: filteredGenericDevices,
+			defaultExpanded: true
+		},
+		{
+			id: 'ubiquiti',
+			title: 'Ubiquiti',
+			devices: [], // Devices will be added in Phase 4
+			defaultExpanded: false
+		},
+		{
+			id: 'mikrotik',
+			title: 'Mikrotik',
+			devices: [], // Devices will be added in Phase 4
+			defaultExpanded: false
+		}
+	]);
+
+	// Check if any section has devices (filtered by search)
+	const totalDevicesCount = $derived(sections.reduce((acc, s) => acc + s.devices.length, 0));
 	const hasDevices = $derived(layoutStore.device_types.length > 0);
-	const hasResults = $derived(filteredDevices.length > 0);
+	const hasResults = $derived(totalDevicesCount > 0);
 
 	function handleAddDevice() {
 		onadddevice?.();
@@ -109,18 +144,34 @@
 				<p class="empty-message">No devices match your search</p>
 			</div>
 		{:else}
-			<CollapsibleSection title="Generic" count={filteredDevices.length} defaultExpanded={true}>
-				{#each [...groupedDevices.entries()] as [category, devices] (category)}
-					<div class="category-group">
-						<h3 class="category-header">{getCategoryDisplayName(category)}</h3>
-						<div class="category-devices">
-							{#each devices as device (device.slug)}
+			{#each sections as section (section.id)}
+				<CollapsibleSection
+					title={section.title}
+					count={section.devices.length}
+					defaultExpanded={section.defaultExpanded}
+				>
+					{#if section.id === 'generic'}
+						<!-- Generic section uses category grouping -->
+						{#each [...groupedGenericDevices.entries()] as [category, devices] (category)}
+							<div class="category-group">
+								<h3 class="category-header">{getCategoryDisplayName(category)}</h3>
+								<div class="category-devices">
+									{#each devices as device (device.slug)}
+										<DevicePaletteItem {device} onselect={handleDeviceSelect} />
+									{/each}
+								</div>
+							</div>
+						{/each}
+					{:else}
+						<!-- Brand sections show devices in a flat list -->
+						<div class="brand-devices">
+							{#each section.devices as device (device.slug)}
 								<DevicePaletteItem {device} onselect={handleDeviceSelect} />
 							{/each}
 						</div>
-					</div>
-				{/each}
-			</CollapsibleSection>
+					{/if}
+				</CollapsibleSection>
+			{/each}
 		{/if}
 	</div>
 
@@ -208,6 +259,11 @@
 	}
 
 	.category-devices {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.brand-devices {
 		display: flex;
 		flex-direction: column;
 	}

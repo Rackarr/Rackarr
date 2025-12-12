@@ -241,6 +241,42 @@ describe('DevicePalette Collapsible Sections', () => {
 		});
 	});
 
+	describe('Brand Sections', () => {
+		it('renders Ubiquiti section', () => {
+			render(DevicePalette);
+
+			expect(screen.getByText('Ubiquiti')).toBeInTheDocument();
+		});
+
+		it('renders Mikrotik section', () => {
+			render(DevicePalette);
+
+			expect(screen.getByText('Mikrotik')).toBeInTheDocument();
+		});
+
+		it('Ubiquiti section is collapsed by default', () => {
+			render(DevicePalette);
+
+			const sectionButton = screen.getByRole('button', { name: /ubiquiti/i });
+			expect(sectionButton).toHaveAttribute('aria-expanded', 'false');
+		});
+
+		it('Mikrotik section is collapsed by default', () => {
+			render(DevicePalette);
+
+			const sectionButton = screen.getByRole('button', { name: /mikrotik/i });
+			expect(sectionButton).toHaveAttribute('aria-expanded', 'false');
+		});
+
+		it('brand sections show (0) count when no devices', () => {
+			render(DevicePalette);
+
+			// Brand sections have no devices yet (Phase 4 will add them)
+			const counts = screen.getAllByText('(0)');
+			expect(counts.length).toBeGreaterThanOrEqual(2);
+		});
+	});
+
 	describe('Search with Sections', () => {
 		it('search filters devices within Generic section', async () => {
 			render(DevicePalette);
