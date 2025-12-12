@@ -30,23 +30,22 @@ Single source of truth for version planning.
 
 ---
 
-### Issue 1: Device Image Rendering Bugs
+### ~~Issue 1: Device Image Rendering Bugs~~ ✅ Complete
 
 **Priority:** High (breaks basic functionality)
 **Introduced:** v0.5.0 (bundled images feature)
+**Status:** Fixed in commit session 2025-12-12
 
-| Sub-issue                        | Description                                                     | Likely Cause                                                                                                                                         |
-| -------------------------------- | --------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **1.1 Devices not clickable**    | In image mode, clicking devices with images doesn't select them | The `<image>` SVG element or its container may be intercepting click events. Check `pointer-events` CSS and event propagation in `RackDevice.svelte` |
-| **1.2 Images clipped by rack**   | Device images appear cut off, possibly by rack boundaries       | Z-index or SVG stacking issue. The `<image>` element may be rendered behind the rack frame. Check SVG element order and `overflow` settings          |
-| **1.3 8-port switch scaling**    | Image scaled too large, network ports look oversized            | Either source image has wrong aspect ratio, or `preserveAspectRatio` setting is incorrect. Check source image dimensions vs device height            |
-| **1.4 Redundant label checkbox** | Toolbar shows unnecessary "label" checkbox in image mode        | UI logic error - checkbox should only appear when relevant. Review `Toolbar.svelte` display mode toggle logic                                        |
+| Sub-issue                            | Description                                                     | Status                                                          |
+| ------------------------------------ | --------------------------------------------------------------- | --------------------------------------------------------------- |
+| **~~1.1 Devices not clickable~~**    | In image mode, clicking devices with images doesn't select them | ✅ Fixed - moved foreignObject to render last (on top of stack) |
+| **~~1.2 Images clipped by rack~~**   | Device images appear cut off, possibly by rack boundaries       | ✅ N/A - render order was already correct                       |
+| **~~1.3 8-port switch scaling~~**    | Image scaled too large, network ports look oversized            | ✅ N/A - 8-port switch removed from library                     |
+| **~~1.4 Redundant label checkbox~~** | Toolbar shows unnecessary "label" checkbox in image mode        | ✅ Fixed - display mode is now 3-way toggle                     |
 
-**Files to investigate:**
+**Solution:**
 
-- `src/lib/components/RackDevice.svelte` (lines 74-82, 196-207)
-- `src/lib/components/Toolbar.svelte`
-- `src/lib/assets/device-images/network/8-port-switch.front.webp`
+- Moved the foreignObject (drag-overlay) to render last in RackDevice.svelte so it's on top of the SVG z-order and receives click events properly
 
 ---
 

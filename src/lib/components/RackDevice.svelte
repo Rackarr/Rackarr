@@ -138,26 +138,6 @@
 	class:selected
 	class:dragging={isDragging}
 >
-	<!-- Invisible HTML overlay for drag-and-drop (SVG elements don't support draggable natively) -->
-	<foreignObject x="0" y="0" width={deviceWidth} height={deviceHeight} class="drag-overlay">
-		<div
-			class="drag-handle"
-			role="button"
-			aria-label={ariaLabel}
-			aria-pressed={selected}
-			tabindex="0"
-			draggable="true"
-			onclick={handleClick}
-			onkeydown={handleKeyDown}
-			ondragstart={handleDragStart}
-			ondragend={handleDragEnd}
-		>
-			<!-- Grip icon for drag affordance -->
-			<div class="grip-icon-container">
-				<IconGrip size={12} />
-			</div>
-		</div>
-	</foreignObject>
 	<!-- Device rectangle -->
 	<rect
 		class="device-rect"
@@ -253,6 +233,27 @@
 			/>
 		</g>
 	{/if}
+
+	<!-- Invisible HTML overlay for drag-and-drop (rendered last to be on top for click events) -->
+	<foreignObject x="0" y="0" width={deviceWidth} height={deviceHeight} class="drag-overlay">
+		<div
+			class="drag-handle"
+			role="button"
+			aria-label={ariaLabel}
+			aria-pressed={selected}
+			tabindex="0"
+			draggable="true"
+			onclick={handleClick}
+			onkeydown={handleKeyDown}
+			ondragstart={handleDragStart}
+			ondragend={handleDragEnd}
+		>
+			<!-- Grip icon for drag affordance -->
+			<div class="grip-icon-container">
+				<IconGrip size={12} />
+			</div>
+		</div>
+	</foreignObject>
 </g>
 
 <style>
