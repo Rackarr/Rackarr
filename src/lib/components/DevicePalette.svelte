@@ -12,6 +12,7 @@
 	} from '$lib/utils/deviceFilters';
 	import { parseDeviceLibraryImport } from '$lib/utils/import';
 	import DevicePaletteItem from './DevicePaletteItem.svelte';
+	import CollapsibleSection from './CollapsibleSection.svelte';
 	import type { DeviceType } from '$lib/types';
 
 	interface Props {
@@ -108,16 +109,18 @@
 				<p class="empty-message">No devices match your search</p>
 			</div>
 		{:else}
-			{#each [...groupedDevices.entries()] as [category, devices] (category)}
-				<div class="category-group">
-					<h3 class="category-header">{getCategoryDisplayName(category)}</h3>
-					<div class="category-devices">
-						{#each devices as device (device.slug)}
-							<DevicePaletteItem {device} onselect={handleDeviceSelect} />
-						{/each}
+			<CollapsibleSection title="Generic" count={filteredDevices.length} defaultExpanded={true}>
+				{#each [...groupedDevices.entries()] as [category, devices] (category)}
+					<div class="category-group">
+						<h3 class="category-header">{getCategoryDisplayName(category)}</h3>
+						<div class="category-devices">
+							{#each devices as device (device.slug)}
+								<DevicePaletteItem {device} onselect={handleDeviceSelect} />
+							{/each}
+						</div>
 					</div>
-				</div>
-			{/each}
+				{/each}
+			</CollapsibleSection>
 		{/if}
 	</div>
 

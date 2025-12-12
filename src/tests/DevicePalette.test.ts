@@ -201,6 +201,79 @@ describe('DevicePalette Component', () => {
 	});
 });
 
+describe('DevicePalette Collapsible Sections', () => {
+	beforeEach(() => {
+		resetLayoutStore();
+	});
+
+	describe('Generic Section', () => {
+		it('renders Generic section with correct device count', () => {
+			// Starter library has 26 devices
+			render(DevicePalette);
+
+			expect(screen.getByText('Generic')).toBeInTheDocument();
+			expect(screen.getByText('(26)')).toBeInTheDocument();
+		});
+
+		it('Generic section is expanded by default', () => {
+			render(DevicePalette);
+
+			const sectionButton = screen.getByRole('button', { name: /generic/i });
+			expect(sectionButton).toHaveAttribute('aria-expanded', 'true');
+		});
+
+		it('clicking Generic header collapses section', async () => {
+			render(DevicePalette);
+
+			const sectionButton = screen.getByRole('button', { name: /generic/i });
+			expect(sectionButton).toHaveAttribute('aria-expanded', 'true');
+
+			await fireEvent.click(sectionButton);
+			expect(sectionButton).toHaveAttribute('aria-expanded', 'false');
+		});
+
+		it('devices are rendered inside Generic section', () => {
+			render(DevicePalette);
+
+			// Devices from starter library should be inside the section
+			expect(screen.getByText('1U Server')).toBeInTheDocument();
+			expect(screen.getByText('24-Port Switch')).toBeInTheDocument();
+		});
+	});
+
+	describe('Search with Sections', () => {
+		it('search filters devices within Generic section', async () => {
+			render(DevicePalette);
+
+			const searchInput = screen.getByRole('searchbox');
+			await fireEvent.input(searchInput, { target: { value: '24-Port' } });
+
+			expect(screen.getByText('24-Port Switch')).toBeInTheDocument();
+			expect(screen.queryByText('1U Server')).not.toBeInTheDocument();
+		});
+
+		it('search updates section count', async () => {
+			render(DevicePalette);
+
+			const searchInput = screen.getByRole('searchbox');
+			await fireEvent.input(searchInput, { target: { value: '1U' } });
+
+			// Should show count of filtered devices (e.g., "1U Server", "1U PDU", etc.)
+			// Just verify the count changes from the original 26
+			expect(screen.queryByText('(26)')).not.toBeInTheDocument();
+		});
+
+		it('shows no results message when search has no matches in any section', async () => {
+			render(DevicePalette);
+
+			const searchInput = screen.getByRole('searchbox');
+			await fireEvent.input(searchInput, { target: { value: 'zzzznotfound' } });
+
+			expect(screen.getByText(/no devices match/i)).toBeInTheDocument();
+		});
+	});
+});
+
 describe('DevicePaletteItem Component', () => {
 	const mockDevice = {
 		slug: 'device-1',
