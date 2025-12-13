@@ -1077,7 +1077,7 @@ describe('Dual-View Export', () => {
 			expect(dualWidth).toBeGreaterThan(singleWidth * 1.5);
 		});
 
-		it('uses the same height for front and rear views', () => {
+		it('dual view has extra height for view labels', () => {
 			const options: ExportOptions = {
 				format: 'png',
 				scope: 'all',
@@ -1090,12 +1090,13 @@ describe('Dual-View Export', () => {
 			const svg = generateExportSVG(mockRacks, mockDevices, options);
 			const height = parseInt(svg.getAttribute('height') || '0', 10);
 
-			// Should be the same height as single view (same rack)
+			// Single view doesn't need space for FRONT/REAR labels
 			const singleOptions: ExportOptions = { ...options, exportView: 'front' };
 			const singleSvg = generateExportSVG(mockRacks, mockDevices, singleOptions);
 			const singleHeight = parseInt(singleSvg.getAttribute('height') || '0', 10);
 
-			expect(height).toBe(singleHeight);
+			// Dual view is taller to accommodate FRONT/REAR labels (15px VIEW_LABEL_HEIGHT)
+			expect(height).toBe(singleHeight + 15);
 		});
 	});
 

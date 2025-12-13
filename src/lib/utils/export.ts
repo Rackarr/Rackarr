@@ -23,6 +23,8 @@ const RACK_GAP = 40;
 const LEGEND_PADDING = 20;
 const LEGEND_ITEM_HEIGHT = 24;
 const EXPORT_PADDING = 20;
+const RACK_NAME_HEIGHT = 18; // Space for rack name above rack
+const VIEW_LABEL_HEIGHT = 15; // Space for FRONT/REAR labels
 
 // Theme colours
 const DARK_BG = '#1a1a1a';
@@ -450,7 +452,15 @@ export function generateExportSVG(
 		? racks.length * (RACK_WIDTH * 2 + RACK_GAP) + (racks.length - 1) * RACK_GAP
 		: singleRackWidth;
 
-	const rackAreaHeight = maxRackHeight * U_HEIGHT + RACK_PADDING * 2;
+	// Calculate space needed above rack for names and labels
+	const headerSpace = includeNames
+		? isDualView
+			? RACK_NAME_HEIGHT + VIEW_LABEL_HEIGHT // Name + view labels
+			: RACK_NAME_HEIGHT // Just name
+		: isDualView
+			? VIEW_LABEL_HEIGHT // Just view labels
+			: 0;
+	const rackAreaHeight = maxRackHeight * U_HEIGHT + RACK_PADDING * 2 + headerSpace;
 	const legendWidth = includeLegend ? 180 : 0;
 	const legendHeight = includeLegend
 		? usedDevices.length * LEGEND_ITEM_HEIGHT + LEGEND_PADDING * 2
@@ -742,12 +752,14 @@ export function generateExportSVG(
 			rackGroup.appendChild(viewLabelText);
 		}
 
-		// Rack name (positioned above rack, or above view label if present)
+		// Rack name (positioned above rack) - only for non-dual-view
+		// In dual-view, the name is rendered separately above both front/rear views
 		if (includeNames && !viewLabel) {
 			const nameText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
 			nameText.setAttribute('class', 'rack-name');
 			nameText.setAttribute('x', String(RACK_WIDTH / 2));
-			nameText.setAttribute('y', '2');
+			// Position above the rack (negative Y relative to rackGroup)
+			nameText.setAttribute('y', String(-5));
 			nameText.setAttribute('fill', textColor);
 			nameText.setAttribute('font-size', '13');
 			nameText.setAttribute('text-anchor', 'middle');
@@ -761,7 +773,8 @@ export function generateExportSVG(
 
 	// Render each rack (single or dual view)
 	racks.forEach((rack, index) => {
-		const rackY = EXPORT_PADDING + (maxRackHeight - rack.height) * U_HEIGHT;
+		// Position rack below header space (name/labels)
+		const rackY = EXPORT_PADDING + headerSpace + (maxRackHeight - rack.height) * U_HEIGHT;
 
 		if (isDualView) {
 			// Dual view: render front and rear side-by-side
@@ -773,7 +786,9 @@ export function generateExportSVG(
 				const nameText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
 				nameText.setAttribute('class', 'rack-name');
 				nameText.setAttribute('x', String(baseX + dualRackWidth / 2));
-				nameText.setAttribute('y', String(rackY - 5));
+				// Position name at top of header space (above view labels)
+				const nameY = rackY - VIEW_LABEL_HEIGHT - 5;
+				nameText.setAttribute('y', String(nameY));
 				nameText.setAttribute('fill', textColor);
 				nameText.setAttribute('font-size', '13');
 				nameText.setAttribute('text-anchor', 'middle');
@@ -792,23 +807,10 @@ export function generateExportSVG(
 			svg.appendChild(rearGroup);
 		} else {
 			// Single view: render with optional face filter
+			// Note: Rack name is handled inside renderRackView when no viewLabel is provided
 			const rackX = EXPORT_PADDING + index * (RACK_WIDTH + RACK_GAP);
 			const faceFilter = exportView === 'front' || exportView === 'rear' ? exportView : undefined;
 			const rackGroup = renderRackView(rack, rackX, rackY, faceFilter);
-
-			// Add rack name for single view (not handled in renderRackView when viewLabel is not present)
-			if (includeNames) {
-				const nameText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-				nameText.setAttribute('class', 'rack-name');
-				nameText.setAttribute('x', String(RACK_WIDTH / 2));
-				nameText.setAttribute('y', '2');
-				nameText.setAttribute('fill', textColor);
-				nameText.setAttribute('font-size', '13');
-				nameText.setAttribute('text-anchor', 'middle');
-				nameText.setAttribute('font-family', 'system-ui, sans-serif');
-				nameText.textContent = rack.name;
-				rackGroup.appendChild(nameText);
-			}
 
 			svg.appendChild(rackGroup);
 		}
