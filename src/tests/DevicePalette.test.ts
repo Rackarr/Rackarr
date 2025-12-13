@@ -201,7 +201,7 @@ describe('DevicePalette Component', () => {
 	});
 });
 
-describe('DevicePalette Collapsible Sections', () => {
+describe('DevicePalette Exclusive Accordion', () => {
 	beforeEach(() => {
 		resetLayoutStore();
 	});
@@ -280,6 +280,61 @@ describe('DevicePalette Collapsible Sections', () => {
 
 			// Mikrotik has 5 devices
 			expect(screen.getByText('(5)')).toBeInTheDocument();
+		});
+	});
+
+	describe('Exclusive Behavior', () => {
+		it('only one section can be expanded at a time', async () => {
+			render(DevicePalette);
+
+			const genericButton = screen.getByRole('button', { name: /generic/i });
+			const ubiquitiButton = screen.getByRole('button', { name: /ubiquiti/i });
+
+			// Generic is expanded by default
+			expect(genericButton).toHaveAttribute('aria-expanded', 'true');
+			expect(ubiquitiButton).toHaveAttribute('aria-expanded', 'false');
+
+			// Click Ubiquiti - should expand Ubiquiti and collapse Generic
+			await fireEvent.click(ubiquitiButton);
+
+			expect(genericButton).toHaveAttribute('aria-expanded', 'false');
+			expect(ubiquitiButton).toHaveAttribute('aria-expanded', 'true');
+		});
+
+		it('clicking different section switches to it', async () => {
+			render(DevicePalette);
+
+			const genericButton = screen.getByRole('button', { name: /generic/i });
+			const ubiquitiButton = screen.getByRole('button', { name: /ubiquiti/i });
+			const mikrotikButton = screen.getByRole('button', { name: /mikrotik/i });
+
+			// Click Ubiquiti first
+			await fireEvent.click(ubiquitiButton);
+			expect(ubiquitiButton).toHaveAttribute('aria-expanded', 'true');
+			expect(genericButton).toHaveAttribute('aria-expanded', 'false');
+			expect(mikrotikButton).toHaveAttribute('aria-expanded', 'false');
+
+			// Click Mikrotik - should switch to Mikrotik
+			await fireEvent.click(mikrotikButton);
+			expect(mikrotikButton).toHaveAttribute('aria-expanded', 'true');
+			expect(ubiquitiButton).toHaveAttribute('aria-expanded', 'false');
+			expect(genericButton).toHaveAttribute('aria-expanded', 'false');
+		});
+
+		it('all sections can be collapsed', async () => {
+			render(DevicePalette);
+
+			const genericButton = screen.getByRole('button', { name: /generic/i });
+			const ubiquitiButton = screen.getByRole('button', { name: /ubiquiti/i });
+			const mikrotikButton = screen.getByRole('button', { name: /mikrotik/i });
+
+			// Click Generic to collapse it (it's already expanded)
+			await fireEvent.click(genericButton);
+
+			// All sections should now be collapsed
+			expect(genericButton).toHaveAttribute('aria-expanded', 'false');
+			expect(ubiquitiButton).toHaveAttribute('aria-expanded', 'false');
+			expect(mikrotikButton).toHaveAttribute('aria-expanded', 'false');
 		});
 	});
 
