@@ -380,9 +380,10 @@ describe('Layout Store (v0.2)', () => {
 			expect(store.layout.rack.devices[0]!.position).toBe(5);
 		});
 
-		it('places device with default front face', () => {
+		it('places device with depth-based face default (undefined = full depth = both)', () => {
 			const store = getLayoutStore();
 			store.addRack('Test Rack', 42);
+			// Device without is_full_depth specified defaults to full-depth
 			const deviceType = store.addDeviceType({
 				name: 'Test',
 				u_height: 2,
@@ -390,7 +391,8 @@ describe('Layout Store (v0.2)', () => {
 				colour: '#4A90D9'
 			});
 			store.placeDevice('rack-0', deviceType.slug, 5);
-			expect(store.layout.rack.devices[0]!.face).toBe('front');
+			// Full-depth devices default to 'both' face (visible front and rear)
+			expect(store.layout.rack.devices[0]!.face).toBe('both');
 		});
 
 		it('places device with specified rear face', () => {
@@ -1156,6 +1158,102 @@ describe('Layout Store (v0.2)', () => {
 			expect(imported?.is_full_depth).toBe(true);
 			expect(imported?.airflow).toBe('side-to-rear');
 			expect(imported?.rackarr?.category).toBe('network');
+		});
+
+		it('full-depth brand device defaults to both face when placed', () => {
+			const store = getLayoutStore();
+			store.addRack('Test Rack', 42);
+
+			// USW-Pro-24 has is_full_depth: true
+			store.placeDevice('rack-0', 'usw-pro-24', 5);
+
+			// Full-depth devices should default to 'both' face (visible front and rear)
+			expect(store.layout.rack.devices[0]!.face).toBe('both');
+		});
+
+		it('half-depth brand device defaults to front face when placed', () => {
+			const store = getLayoutStore();
+			store.addRack('Test Rack', 42);
+
+			// Ubiquiti PDU has is_full_depth: false
+			store.placeDevice('rack-0', 'usp-pdu-pro', 5);
+
+			// Half-depth devices should default to 'front' face
+			expect(store.layout.rack.devices[0]!.face).toBe('front');
+		});
+	});
+
+	describe('placeDevice face defaults based on depth', () => {
+		beforeEach(() => {
+			resetLayoutStore();
+		});
+
+		it('full-depth device defaults to both face', () => {
+			const store = getLayoutStore();
+			store.addRack('Test Rack', 42);
+
+			// Create a full-depth device type
+			const deviceType = store.addDeviceType({
+				name: 'Full Depth Server',
+				u_height: 2,
+				category: 'server',
+				colour: '#4A90D9',
+				is_full_depth: true
+			});
+
+			store.placeDevice('rack-0', deviceType.slug, 5);
+			expect(store.layout.rack.devices[0]!.face).toBe('both');
+		});
+
+		it('half-depth device defaults to front face', () => {
+			const store = getLayoutStore();
+			store.addRack('Test Rack', 42);
+
+			// Create a half-depth device type
+			const deviceType = store.addDeviceType({
+				name: 'Half Depth Switch',
+				u_height: 1,
+				category: 'network',
+				colour: '#7B68EE',
+				is_full_depth: false
+			});
+
+			store.placeDevice('rack-0', deviceType.slug, 5);
+			expect(store.layout.rack.devices[0]!.face).toBe('front');
+		});
+
+		it('device with undefined is_full_depth defaults to both face (full depth assumed)', () => {
+			const store = getLayoutStore();
+			store.addRack('Test Rack', 42);
+
+			// Create device without is_full_depth specified (defaults to full depth)
+			const deviceType = store.addDeviceType({
+				name: 'Default Depth Device',
+				u_height: 2,
+				category: 'server',
+				colour: '#4A90D9'
+				// is_full_depth not specified
+			});
+
+			store.placeDevice('rack-0', deviceType.slug, 5);
+			expect(store.layout.rack.devices[0]!.face).toBe('both');
+		});
+
+		it('explicit face parameter overrides depth-based default', () => {
+			const store = getLayoutStore();
+			store.addRack('Test Rack', 42);
+
+			// Full-depth device but explicitly placed on front only
+			const deviceType = store.addDeviceType({
+				name: 'Full Depth Server',
+				u_height: 2,
+				category: 'server',
+				colour: '#4A90D9',
+				is_full_depth: true
+			});
+
+			store.placeDevice('rack-0', deviceType.slug, 5, 'front');
+			expect(store.layout.rack.devices[0]!.face).toBe('front');
 		});
 	});
 });

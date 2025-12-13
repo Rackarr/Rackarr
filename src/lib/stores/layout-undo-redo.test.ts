@@ -168,11 +168,15 @@ describe('Layout Store - Undo/Redo Integration', () => {
 			const dt = store.device_types[0]!;
 
 			store.placeDeviceRecorded(dt.slug, 10);
+			// Full-depth devices (is_full_depth undefined or true) default to 'both' face
+			const originalFace = store.rack.devices[0]?.face;
+			expect(originalFace).toBe('both');
+
 			store.updateDeviceFaceRecorded(0, 'rear');
 			expect(store.rack.devices[0]?.face).toBe('rear');
 
 			store.undo();
-			expect(store.rack.devices[0]?.face).toBe('front');
+			expect(store.rack.devices[0]?.face).toBe('both');
 		});
 	});
 

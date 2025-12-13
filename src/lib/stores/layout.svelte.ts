@@ -382,19 +382,21 @@ function deleteDeviceType(slug: string): void {
 /**
  * Place a device from the library into the rack
  * Uses undo/redo support via placeDeviceRecorded
+ * Face defaults based on device depth: full-depth -> 'both', half-depth -> 'front'
  * @param _rackId - Target rack ID (ignored in v0.2)
  * @param deviceTypeSlug - Device type slug
  * @param position - U position (bottom of device)
- * @param face - Optional face assignment (defaults to DEFAULT_DEVICE_FACE)
+ * @param face - Optional face assignment (auto-determined from depth if not specified)
  * @returns true if placed successfully, false otherwise
  */
 function placeDevice(
 	_rackId: string,
 	deviceTypeSlug: string,
 	position: number,
-	face: DeviceFace = DEFAULT_DEVICE_FACE
+	face?: DeviceFace
 ): boolean {
 	// Delegate to recorded version for undo/redo support
+	// Face is determined by placeDeviceRecorded based on device depth if not specified
 	return placeDeviceRecorded(deviceTypeSlug, position, face);
 }
 
@@ -814,13 +816,10 @@ function deleteDeviceTypeRecorded(slug: string): void {
 /**
  * Place a device with undo/redo support
  * Auto-imports brand pack devices if not already in device library
+ * Face defaults based on device depth: full-depth -> 'both', half-depth -> 'front'
  * @returns true if placed successfully
  */
-function placeDeviceRecorded(
-	deviceTypeSlug: string,
-	position: number,
-	face: DeviceFace = DEFAULT_DEVICE_FACE
-): boolean {
+function placeDeviceRecorded(deviceTypeSlug: string, position: number, face?: DeviceFace): boolean {
 	// First try to find in layout's device_types
 	let deviceType = findDeviceType(layout.device_types, deviceTypeSlug);
 
@@ -837,8 +836,12 @@ function placeDeviceRecorded(
 		}
 	}
 
-	// Use canPlaceDevice for bounds and collision checking (face and depth aware)
+	// Determine face based on device depth if not explicitly specified
+	// Full-depth devices default to 'both' (visible front and rear)
+	// Half-depth devices default to 'front'
 	const isFullDepth = deviceType.is_full_depth !== false;
+	const effectiveFace: DeviceFace = face ?? (isFullDepth ? 'both' : DEFAULT_DEVICE_FACE);
+
 	if (
 		!canPlaceDevice(
 			layout.rack,
@@ -846,7 +849,7 @@ function placeDeviceRecorded(
 			deviceType.u_height,
 			position,
 			undefined,
-			face,
+			effectiveFace,
 			isFullDepth
 		)
 	) {
@@ -856,7 +859,7 @@ function placeDeviceRecorded(
 	const device: PlacedDevice = {
 		device_type: deviceTypeSlug,
 		position,
-		face
+		face: effectiveFace
 	};
 
 	const history = getHistoryStore();
