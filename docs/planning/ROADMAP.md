@@ -336,7 +336,44 @@ Per-placement image overrides with stable IDs:
 
 ## Research
 
-// ** add research items here **
+### [RES-01] Device Palette DnD Menu Patterns
+
+**Status:** Open
+**Priority:** High
+**Created:** 2025-12-13
+
+**Problem:** DevicePalette sidebar with CollapsibleSection accordion causes scroll/visibility issues. When multiple sections are expanded, bottommost items in sections become inaccessible. Removing sticky positioning did not resolve the issue.
+
+**Research Questions:**
+
+1. How do other Svelte 5 apps implement sidebar menus with drag-and-drop sources?
+2. What patterns exist for collapsible sections in scrollable containers?
+3. Would a tab-based approach (one section visible at a time) work better than accordion?
+4. How do design systems (Radix, shadcn-svelte, Melt UI) handle this?
+
+**Reference Examples to Investigate:**
+
+- [ ] shadcn-svelte Accordion component
+- [ ] Melt UI Collapsible/Accordion
+- [ ] Bits UI (Svelte 5 headless components)
+- [ ] Svelte DnD Action library patterns
+- [ ] Figma plugin panel patterns (similar use case)
+- [ ] VS Code sidebar/explorer patterns
+
+**Potential Solutions:**
+
+1. **Tab-based sections** — Only one brand visible at a time (Generic | Ubiquiti | Mikrotik tabs)
+2. **Virtual scrolling** — Only render visible items in long lists
+3. **Fixed-height sections** — Each section has max-height with internal scroll
+4. **Drawer per section** — Click section header to open full-screen drawer
+5. **Search-first UX** — Collapse all by default, rely on search to find devices
+
+**Acceptance Criteria:**
+
+- [ ] Document 3+ reference implementations
+- [ ] Prototype preferred approach
+- [ ] Verify drag-and-drop works correctly with chosen pattern
+- [ ] All devices in all sections accessible via scroll or navigation
 
 ## Released
 
