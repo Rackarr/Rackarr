@@ -1058,6 +1058,70 @@ Features that will NOT be implemented:
 - Native mobile apps
 - Internet Explorer support
 
+## 18. Debug Logging
+
+### 18.1 Overview
+
+Rackarr includes a debug logging system for troubleshooting device placement, movement, and collision detection. Logs are only emitted in development mode.
+
+### 18.2 Log Categories
+
+| Category  | Prefix           | Purpose                     |
+| --------- | ---------------- | --------------------------- |
+| Placement | `[DEVICE:PLACE]` | Device placement operations |
+| Movement  | `[DEVICE:MOVE]`  | Device movement within rack |
+| Collision | `[COLLISION]`    | Collision detection results |
+
+### 18.3 Placement Logs
+
+Logged when `placeDeviceRecorded()` is called:
+
+```
+[DEVICE:PLACE] slug={slug} pos={position} face={effectiveFace}
+  deviceType: {name} is_full_depth={is_full_depth}
+  passed face={face} → effective face={effectiveFace}
+  result: {success|collision|not_found}
+```
+
+### 18.4 Movement Logs
+
+Logged when `moveDeviceRecorded()` is called:
+
+```
+[DEVICE:MOVE] idx={index} from={oldPosition} to={newPosition}
+  device: {name} face={face}
+  result: {success|collision|out_of_bounds}
+```
+
+### 18.5 Collision Logs
+
+Logged when collision detection runs:
+
+```
+[COLLISION] checking pos={position} height={height} face={face} isFullDepth={isFullDepth}
+  existing devices: [{pos, height, face}...]
+  result: {clear|blocked by device at U{position}}
+```
+
+### 18.6 Implementation
+
+Debug logging uses a centralized logger utility:
+
+```typescript
+// src/lib/utils/debug.ts
+export function debugLog(category: string, message: string, data?: object): void {
+	if (import.meta.env.DEV) {
+		console.log(`[RACKARR ${category}] ${message}`, data ?? '');
+	}
+}
+```
+
+### 18.7 Enabling/Disabling
+
+- **Development mode**: Logs automatically enabled via `import.meta.env.DEV`
+- **Production mode**: Logs stripped at build time (no runtime overhead)
+- **Test mode**: Logs can be mocked/suppressed in test setup
+
 ---
 
 _This specification is the technical source of truth for Rackarr._

@@ -64,6 +64,68 @@ export const debug = {
 
 	isEnabled(): boolean {
 		return getDebugFlag();
+	},
+
+	/**
+	 * Device placement logging
+	 */
+	devicePlace(data: {
+		slug: string;
+		position: number;
+		passedFace: string | undefined;
+		effectiveFace: string;
+		deviceName: string;
+		isFullDepth: boolean;
+		result: 'success' | 'collision' | 'not_found';
+	}) {
+		if (getDebugFlag()) {
+			console.log(
+				`[RACKARR DEVICE:PLACE] slug=${data.slug} pos=${data.position} face=${data.effectiveFace}`,
+				`\n  deviceType: ${data.deviceName} is_full_depth=${data.isFullDepth}`,
+				`\n  passed face=${data.passedFace ?? 'undefined'} → effective face=${data.effectiveFace}`,
+				`\n  result: ${data.result}`
+			);
+		}
+	},
+
+	/**
+	 * Device movement logging
+	 */
+	deviceMove(data: {
+		index: number;
+		deviceName: string;
+		face: string;
+		fromPosition: number;
+		toPosition: number;
+		result: 'success' | 'collision' | 'out_of_bounds' | 'not_found';
+	}) {
+		if (getDebugFlag()) {
+			console.log(
+				`[RACKARR DEVICE:MOVE] idx=${data.index} from=${data.fromPosition} to=${data.toPosition}`,
+				`\n  device: ${data.deviceName} face=${data.face}`,
+				`\n  result: ${data.result}`
+			);
+		}
+	},
+
+	/**
+	 * Collision detection logging
+	 */
+	collision(data: {
+		position: number;
+		height: number;
+		face: string;
+		isFullDepth: boolean;
+		existingDevices: Array<{ position: number; height: number; face: string }>;
+		result: 'clear' | string; // 'clear' or 'blocked by device at U{n}'
+	}) {
+		if (getDebugFlag()) {
+			console.log(
+				`[RACKARR COLLISION] checking pos=${data.position} height=${data.height} face=${data.face} isFullDepth=${data.isFullDepth}`,
+				`\n  existing devices: ${JSON.stringify(data.existingDevices)}`,
+				`\n  result: ${data.result}`
+			);
+		}
 	}
 };
 

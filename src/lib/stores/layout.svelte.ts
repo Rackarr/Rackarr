@@ -22,6 +22,7 @@ import {
 	type CreateDeviceTypeInput
 } from '$lib/stores/layout-helpers';
 import { findBrandDevice } from '$lib/data/brandPacks';
+import { debug } from '$lib/utils/debug';
 import { getHistoryStore } from './history.svelte';
 import {
 	createAddDeviceTypeCommand,
@@ -832,6 +833,15 @@ function placeDeviceRecorded(deviceTypeSlug: string, position: number, face?: De
 			deviceType = brandDevice;
 		} else {
 			// Not found in library or brand packs
+			debug.devicePlace({
+				slug: deviceTypeSlug,
+				position,
+				passedFace: face,
+				effectiveFace: 'N/A',
+				deviceName: 'unknown',
+				isFullDepth: false,
+				result: 'not_found'
+			});
 			return false;
 		}
 	}
@@ -841,6 +851,7 @@ function placeDeviceRecorded(deviceTypeSlug: string, position: number, face?: De
 	// Half-depth devices use the specified face, or default to 'front'
 	const isFullDepth = deviceType.is_full_depth !== false;
 	const effectiveFace: DeviceFace = isFullDepth ? 'both' : (face ?? DEFAULT_DEVICE_FACE);
+	const deviceName = deviceType.model ?? deviceType.slug;
 
 	if (
 		!canPlaceDevice(
@@ -853,6 +864,15 @@ function placeDeviceRecorded(deviceTypeSlug: string, position: number, face?: De
 			isFullDepth
 		)
 	) {
+		debug.devicePlace({
+			slug: deviceTypeSlug,
+			position,
+			passedFace: face,
+			effectiveFace,
+			deviceName,
+			isFullDepth,
+			result: 'collision'
+		});
 		return false;
 	}
 
@@ -864,11 +884,20 @@ function placeDeviceRecorded(deviceTypeSlug: string, position: number, face?: De
 
 	const history = getHistoryStore();
 	const adapter = getCommandStoreAdapter();
-	const deviceName = deviceType.model ?? deviceType.slug;
 
 	const command = createPlaceDeviceCommand(device, adapter, deviceName);
 	history.execute(command);
 	isDirty = true;
+
+	debug.devicePlace({
+		slug: deviceTypeSlug,
+		position,
+		passedFace: face,
+		effectiveFace,
+		deviceName,
+		isFullDepth,
+		result: 'success'
+	});
 
 	return true;
 }
@@ -878,11 +907,34 @@ function placeDeviceRecorded(deviceTypeSlug: string, position: number, face?: De
  * @returns true if moved successfully
  */
 function moveDeviceRecorded(deviceIndex: number, newPosition: number): boolean {
-	if (deviceIndex < 0 || deviceIndex >= layout.rack.devices.length) return false;
+	if (deviceIndex < 0 || deviceIndex >= layout.rack.devices.length) {
+		debug.deviceMove({
+			index: deviceIndex,
+			deviceName: 'unknown',
+			face: 'unknown',
+			fromPosition: -1,
+			toPosition: newPosition,
+			result: 'not_found'
+		});
+		return false;
+	}
 
 	const device = layout.rack.devices[deviceIndex]!;
 	const deviceType = findDeviceType(layout.device_types, device.device_type);
-	if (!deviceType) return false;
+	if (!deviceType) {
+		debug.deviceMove({
+			index: deviceIndex,
+			deviceName: device.device_type,
+			face: device.face ?? 'front',
+			fromPosition: device.position,
+			toPosition: newPosition,
+			result: 'not_found'
+		});
+		return false;
+	}
+
+	const deviceName = deviceType.model ?? deviceType.slug;
+	const oldPosition = device.position;
 
 	// Use canPlaceDevice for bounds and collision checking (face and depth aware)
 	const isFullDepth = deviceType.is_full_depth !== false;
@@ -897,13 +949,22 @@ function moveDeviceRecorded(deviceIndex: number, newPosition: number): boolean {
 			isFullDepth
 		)
 	) {
+		// Determine if it's out of bounds or collision
+		const isOutOfBounds =
+			newPosition < 1 || newPosition + deviceType.u_height - 1 > layout.rack.height;
+		debug.deviceMove({
+			index: deviceIndex,
+			deviceName,
+			face: device.face ?? 'front',
+			fromPosition: oldPosition,
+			toPosition: newPosition,
+			result: isOutOfBounds ? 'out_of_bounds' : 'collision'
+		});
 		return false;
 	}
 
-	const oldPosition = device.position;
 	const history = getHistoryStore();
 	const adapter = getCommandStoreAdapter();
-	const deviceName = deviceType.model ?? deviceType.slug;
 
 	const command = createMoveDeviceCommand(
 		deviceIndex,
@@ -914,6 +975,15 @@ function moveDeviceRecorded(deviceIndex: number, newPosition: number): boolean {
 	);
 	history.execute(command);
 	isDirty = true;
+
+	debug.deviceMove({
+		index: deviceIndex,
+		deviceName,
+		face: device.face ?? 'front',
+		fromPosition: oldPosition,
+		toPosition: newPosition,
+		result: 'success'
+	});
 
 	return true;
 }
