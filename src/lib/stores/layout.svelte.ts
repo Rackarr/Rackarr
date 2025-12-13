@@ -21,6 +21,7 @@ import {
 	findDeviceType,
 	type CreateDeviceTypeInput
 } from '$lib/stores/layout-helpers';
+import { findBrandDevice } from '$lib/data/brandPacks';
 import { getHistoryStore } from './history.svelte';
 import {
 	createAddDeviceTypeCommand,
@@ -812,6 +813,7 @@ function deleteDeviceTypeRecorded(slug: string): void {
 
 /**
  * Place a device with undo/redo support
+ * Auto-imports brand pack devices if not already in device library
  * @returns true if placed successfully
  */
 function placeDeviceRecorded(
@@ -819,8 +821,21 @@ function placeDeviceRecorded(
 	position: number,
 	face: DeviceFace = DEFAULT_DEVICE_FACE
 ): boolean {
-	const deviceType = findDeviceType(layout.device_types, deviceTypeSlug);
-	if (!deviceType) return false;
+	// First try to find in layout's device_types
+	let deviceType = findDeviceType(layout.device_types, deviceTypeSlug);
+
+	// If not found, check brand packs and auto-import if found
+	if (!deviceType) {
+		const brandDevice = findBrandDevice(deviceTypeSlug);
+		if (brandDevice) {
+			// Import brand device into the layout's device_types
+			layout.device_types.push(brandDevice);
+			deviceType = brandDevice;
+		} else {
+			// Not found in library or brand packs
+			return false;
+		}
+	}
 
 	// Use canPlaceDevice for bounds and collision checking (face and depth aware)
 	const isFullDepth = deviceType.is_full_depth !== false;

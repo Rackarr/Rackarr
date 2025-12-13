@@ -1075,4 +1075,87 @@ describe('Layout Store (v0.2)', () => {
 			expect(store.isDirty).toBe(true);
 		});
 	});
+
+	describe('placeDevice with brand pack devices', () => {
+		beforeEach(() => {
+			resetLayoutStore();
+		});
+
+		it('places Ubiquiti brand pack device successfully', () => {
+			const store = getLayoutStore();
+			store.addRack('Test Rack', 42);
+
+			// Ubiquiti device slug from brand pack (not in starter library)
+			const result = store.placeDevice('rack-0', 'usw-pro-24', 5);
+
+			expect(result).toBe(true);
+			expect(store.layout.rack.devices).toHaveLength(1);
+			expect(store.layout.rack.devices[0]!.device_type).toBe('usw-pro-24');
+			expect(store.layout.rack.devices[0]!.position).toBe(5);
+		});
+
+		it('places Mikrotik brand pack device successfully', () => {
+			const store = getLayoutStore();
+			store.addRack('Test Rack', 42);
+
+			// Mikrotik device slug from brand pack
+			const result = store.placeDevice('rack-0', 'crs326-24g-2s-plus', 10);
+
+			expect(result).toBe(true);
+			expect(store.layout.rack.devices).toHaveLength(1);
+			expect(store.layout.rack.devices[0]!.device_type).toBe('crs326-24g-2s-plus');
+		});
+
+		it('auto-imports brand device into device_types on first placement', () => {
+			const store = getLayoutStore();
+			store.addRack('Test Rack', 42);
+
+			// Initially, brand device is not in device_types
+			const initialCount = store.device_types.length;
+			expect(store.device_types.find((d) => d.slug === 'usw-pro-24')).toBeUndefined();
+
+			// Place brand device
+			store.placeDevice('rack-0', 'usw-pro-24', 5);
+
+			// Device should now be in device_types
+			expect(store.device_types.length).toBe(initialCount + 1);
+			const imported = store.device_types.find((d) => d.slug === 'usw-pro-24');
+			expect(imported).toBeDefined();
+			expect(imported?.manufacturer).toBe('Ubiquiti');
+			expect(imported?.model).toBe('USW-Pro-24');
+		});
+
+		it('does not duplicate device_type when placing same brand device twice', () => {
+			const store = getLayoutStore();
+			store.addRack('Test Rack', 42);
+
+			// Place same brand device twice at different positions
+			store.placeDevice('rack-0', 'usw-pro-24', 5);
+			const countAfterFirst = store.device_types.length;
+
+			store.placeDevice('rack-0', 'usw-pro-24', 10);
+			expect(store.device_types.length).toBe(countAfterFirst);
+		});
+
+		it('returns false for unknown slug (not in library or brand packs)', () => {
+			const store = getLayoutStore();
+			store.addRack('Test Rack', 42);
+
+			const result = store.placeDevice('rack-0', 'nonexistent-device-xyz', 5);
+			expect(result).toBe(false);
+			expect(store.layout.rack.devices).toHaveLength(0);
+		});
+
+		it('preserves brand device properties when auto-imported', () => {
+			const store = getLayoutStore();
+			store.addRack('Test Rack', 42);
+
+			store.placeDevice('rack-0', 'usw-pro-24', 5);
+
+			const imported = store.device_types.find((d) => d.slug === 'usw-pro-24');
+			expect(imported?.is_full_depth).toBe(true);
+			expect(imported?.airflow).toBe('side-to-rear');
+			expect(imported?.rackarr?.category).toBe('network');
+		});
+	});
 });

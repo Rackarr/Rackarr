@@ -53,3 +53,19 @@ export function getBrandDevices(brandId: string): DeviceType[] {
 			return [];
 	}
 }
+
+/**
+ * Find a device by slug across all brand packs
+ * @returns The DeviceType if found, undefined otherwise
+ */
+export function findBrandDevice(slug: string): DeviceType | undefined {
+	// Search Ubiquiti devices
+	const ubiquitiDevice = ubiquitiDevices.find((d) => d.slug === slug);
+	if (ubiquitiDevice) return ubiquitiDevice;
+
+	// Search Mikrotik devices
+	const mikrotikDevice = mikrotikDevices.find((d) => d.slug === slug);
+	if (mikrotikDevice) return mikrotikDevice;
+
+	return undefined;
+}
