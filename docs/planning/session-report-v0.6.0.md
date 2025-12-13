@@ -1,14 +1,14 @@
 # Session Report: v0.6.0 Implementation
 
-**Date:** 2025-12-12
+**Date:** 2025-12-12/13
 **Branch:** `feature/v0.6.0-brand-packs-export`
-**Status:** Phases 1-4 complete, Phase 5 in progress (Prompt 5.1 complete)
+**Status:** Phases 1-5 complete
 
 ## Summary
 
-Successfully implemented the core v0.6.0 features: power device properties, collapsible sections UI, DevicePalette refactor, and brand starter packs (Ubiquiti, Mikrotik). Started Phase 5 with export filename improvements. The codebase is stable with 1683 passing tests.
+Successfully implemented all v0.6.0 features: power device properties, collapsible sections UI, DevicePalette refactor, brand starter packs (Ubiquiti, Mikrotik), and comprehensive export improvements. The codebase is stable with 1701 passing tests.
 
-## Commits (10 total)
+## Commits (14 total)
 
 | Commit    | Description                                                            |
 | --------- | ---------------------------------------------------------------------- |
@@ -22,6 +22,10 @@ Successfully implemented the core v0.6.0 features: power device properties, coll
 | `fe285e5` | feat(DevicePalette): add section infrastructure for brand packs        |
 | `7f0b751` | feat(brandPacks): add Ubiquiti and Mikrotik device packs               |
 | `a57eed2` | feat(export): improve filename convention with view and date           |
+| `1a182b8` | docs: update session report with Prompt 5.1 completion                 |
+| `6ff3b0a` | feat(export): add CSV export format                                    |
+| `cd90738` | fix(export): improve margin consistency for rack names and labels      |
+| `0fc8676` | feat(ExportDialog): add live preview thumbnail and filename preview    |
 
 ## Phase Completion
 
@@ -66,7 +70,7 @@ Successfully implemented the core v0.6.0 features: power device properties, coll
 - DevicePalette integration with brand sections
 - Brand sections collapsed by default
 
-### Phase 5: Export Improvements (In Progress)
+### Phase 5: Export Improvements ✅
 
 **Prompt 5.1: File Naming Convention ✅**
 
@@ -77,19 +81,46 @@ Successfully implemented the core v0.6.0 features: power device properties, coll
 - Added `csv` to ExportFormat type
 - Updated all call sites in App.svelte
 
-**Remaining prompts:**
+**Prompt 5.2: CSV Export ✅**
 
-- 5.2: CSV export format
-- 5.3: Export thumbnail preview
-- 5.4: Export margin fixes
-- 5.5: Dual-view export layout
-- 5.6: Export border/text rendering
-- 5.7: Final export integration
+- Added `exportToCSV()` function with proper CSV escaping
+- Columns: Position, Name, Model, Manufacturer, U_Height, Category, Face
+- Devices sorted by position descending (top of rack first)
+- 18 new tests for CSV export functionality
+
+**Prompt 5.3: Export Thumbnail Preview ✅**
+
+- Added live preview area in ExportDialog
+- Preview updates when options change (view, legend, background, airflow)
+- Checkerboard pattern for transparent background preview
+- Hidden for CSV format
+
+**Prompt 5.4: Export Margins ✅**
+
+- Added RACK_NAME_HEIGHT and VIEW_LABEL_HEIGHT constants
+- Calculate headerSpace dynamically based on includeNames and isDualView
+- Fixed duplicate rack name rendering in single view
+- Consistent padding around rack names and view labels
+
+**Prompt 5.5: Dual-View Export Layout ✅**
+
+- Already correctly implemented (verified):
+  - Front view on left, rear on right
+  - 40px gap (RACK_GAP = 40)
+  - Both views at same Y position
+  - FRONT/REAR labels when enabled
+
+**Prompt 5.6-5.7: Export Integration ✅**
+
+- Added filename preview to ExportDialog
+- Filename updates live as format/view options change
+- Export rendering quality verified (integer coordinates, system fonts)
+- Full integration complete
 
 ## Test Results
 
-- **Total Tests:** 1683 passing
-- **New Tests Added:** ~60 tests for new features
+- **Total Tests:** 1701 passing
+- **New Tests Added:** ~80 tests for new features (including 18 CSV export tests)
 - **Pre-commit hooks:** All passing (lint + test)
 
 ## Files Created
@@ -124,9 +155,9 @@ docs/planning/todo-v0.6.0.md
 
 ## Next Steps
 
-1. **Continue Phase 5** (Export Improvements) when ready
+1. **Merge to main** - All v0.6.0 features complete
 2. **Add device images** for brand packs (Prompt 4.4 - requires external downloads)
-3. **Merge to main** after Phase 5 completion or as intermediate release
+3. **Tag release** v0.6.0
 
 ## Notes
 
