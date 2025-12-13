@@ -380,9 +380,10 @@ describe('Layout Store (v0.2)', () => {
 			expect(store.layout.rack.devices[0]!.position).toBe(5);
 		});
 
-		it('places device with default front face', () => {
+		it('places device with depth-based face default (undefined = full depth = both)', () => {
 			const store = getLayoutStore();
 			store.addRack('Test Rack', 42);
+			// Device without is_full_depth specified defaults to full-depth
 			const deviceType = store.addDeviceType({
 				name: 'Test',
 				u_height: 2,
@@ -390,17 +391,20 @@ describe('Layout Store (v0.2)', () => {
 				colour: '#4A90D9'
 			});
 			store.placeDevice('rack-0', deviceType.slug, 5);
-			expect(store.layout.rack.devices[0]!.face).toBe('front');
+			// Full-depth devices default to 'both' face (visible front and rear)
+			expect(store.layout.rack.devices[0]!.face).toBe('both');
 		});
 
-		it('places device with specified rear face', () => {
+		it('places half-depth device with specified rear face', () => {
 			const store = getLayoutStore();
 			store.addRack('Test Rack', 42);
+			// Half-depth device can be explicitly placed on rear
 			const deviceType = store.addDeviceType({
-				name: 'Test',
-				u_height: 2,
-				category: 'server',
-				colour: '#4A90D9'
+				name: 'Rear Panel',
+				u_height: 1,
+				category: 'patch-panel',
+				colour: '#4A90D9',
+				is_full_depth: false
 			});
 			store.placeDevice('rack-0', deviceType.slug, 5, 'rear');
 			expect(store.layout.rack.devices[0]!.face).toBe('rear');
@@ -1073,6 +1077,205 @@ describe('Layout Store (v0.2)', () => {
 			store.updateShowLabelsOnImages(true);
 			expect(store.layout.settings.show_labels_on_images).toBe(true);
 			expect(store.isDirty).toBe(true);
+		});
+	});
+
+	describe('placeDevice with brand pack devices', () => {
+		beforeEach(() => {
+			resetLayoutStore();
+		});
+
+		it('places Ubiquiti brand pack device successfully', () => {
+			const store = getLayoutStore();
+			store.addRack('Test Rack', 42);
+
+			// Ubiquiti device slug from brand pack (not in starter library)
+			const result = store.placeDevice('rack-0', 'usw-pro-24', 5);
+
+			expect(result).toBe(true);
+			expect(store.layout.rack.devices).toHaveLength(1);
+			expect(store.layout.rack.devices[0]!.device_type).toBe('usw-pro-24');
+			expect(store.layout.rack.devices[0]!.position).toBe(5);
+		});
+
+		it('places Mikrotik brand pack device successfully', () => {
+			const store = getLayoutStore();
+			store.addRack('Test Rack', 42);
+
+			// Mikrotik device slug from brand pack
+			const result = store.placeDevice('rack-0', 'crs326-24g-2s-plus', 10);
+
+			expect(result).toBe(true);
+			expect(store.layout.rack.devices).toHaveLength(1);
+			expect(store.layout.rack.devices[0]!.device_type).toBe('crs326-24g-2s-plus');
+		});
+
+		it('auto-imports brand device into device_types on first placement', () => {
+			const store = getLayoutStore();
+			store.addRack('Test Rack', 42);
+
+			// Initially, brand device is not in device_types
+			const initialCount = store.device_types.length;
+			expect(store.device_types.find((d) => d.slug === 'usw-pro-24')).toBeUndefined();
+
+			// Place brand device
+			store.placeDevice('rack-0', 'usw-pro-24', 5);
+
+			// Device should now be in device_types
+			expect(store.device_types.length).toBe(initialCount + 1);
+			const imported = store.device_types.find((d) => d.slug === 'usw-pro-24');
+			expect(imported).toBeDefined();
+			expect(imported?.manufacturer).toBe('Ubiquiti');
+			expect(imported?.model).toBe('USW-Pro-24');
+		});
+
+		it('does not duplicate device_type when placing same brand device twice', () => {
+			const store = getLayoutStore();
+			store.addRack('Test Rack', 42);
+
+			// Place same brand device twice at different positions
+			store.placeDevice('rack-0', 'usw-pro-24', 5);
+			const countAfterFirst = store.device_types.length;
+
+			store.placeDevice('rack-0', 'usw-pro-24', 10);
+			expect(store.device_types.length).toBe(countAfterFirst);
+		});
+
+		it('returns false for unknown slug (not in library or brand packs)', () => {
+			const store = getLayoutStore();
+			store.addRack('Test Rack', 42);
+
+			const result = store.placeDevice('rack-0', 'nonexistent-device-xyz', 5);
+			expect(result).toBe(false);
+			expect(store.layout.rack.devices).toHaveLength(0);
+		});
+
+		it('preserves brand device properties when auto-imported', () => {
+			const store = getLayoutStore();
+			store.addRack('Test Rack', 42);
+
+			store.placeDevice('rack-0', 'usw-pro-24', 5);
+
+			const imported = store.device_types.find((d) => d.slug === 'usw-pro-24');
+			expect(imported?.is_full_depth).toBe(true);
+			expect(imported?.airflow).toBe('side-to-rear');
+			expect(imported?.rackarr?.category).toBe('network');
+		});
+
+		it('full-depth brand device defaults to both face when placed', () => {
+			const store = getLayoutStore();
+			store.addRack('Test Rack', 42);
+
+			// USW-Pro-24 has is_full_depth: true
+			store.placeDevice('rack-0', 'usw-pro-24', 5);
+
+			// Full-depth devices should default to 'both' face (visible front and rear)
+			expect(store.layout.rack.devices[0]!.face).toBe('both');
+		});
+
+		it('half-depth brand device defaults to front face when placed', () => {
+			const store = getLayoutStore();
+			store.addRack('Test Rack', 42);
+
+			// Ubiquiti PDU has is_full_depth: false
+			store.placeDevice('rack-0', 'usp-pdu-pro', 5);
+
+			// Half-depth devices should default to 'front' face
+			expect(store.layout.rack.devices[0]!.face).toBe('front');
+		});
+	});
+
+	describe('placeDevice face defaults based on depth', () => {
+		beforeEach(() => {
+			resetLayoutStore();
+		});
+
+		it('full-depth device defaults to both face', () => {
+			const store = getLayoutStore();
+			store.addRack('Test Rack', 42);
+
+			// Create a full-depth device type
+			const deviceType = store.addDeviceType({
+				name: 'Full Depth Server',
+				u_height: 2,
+				category: 'server',
+				colour: '#4A90D9',
+				is_full_depth: true
+			});
+
+			store.placeDevice('rack-0', deviceType.slug, 5);
+			expect(store.layout.rack.devices[0]!.face).toBe('both');
+		});
+
+		it('half-depth device defaults to front face', () => {
+			const store = getLayoutStore();
+			store.addRack('Test Rack', 42);
+
+			// Create a half-depth device type
+			const deviceType = store.addDeviceType({
+				name: 'Half Depth Switch',
+				u_height: 1,
+				category: 'network',
+				colour: '#7B68EE',
+				is_full_depth: false
+			});
+
+			store.placeDevice('rack-0', deviceType.slug, 5);
+			expect(store.layout.rack.devices[0]!.face).toBe('front');
+		});
+
+		it('device with undefined is_full_depth defaults to both face (full depth assumed)', () => {
+			const store = getLayoutStore();
+			store.addRack('Test Rack', 42);
+
+			// Create device without is_full_depth specified (defaults to full depth)
+			const deviceType = store.addDeviceType({
+				name: 'Default Depth Device',
+				u_height: 2,
+				category: 'server',
+				colour: '#4A90D9'
+				// is_full_depth not specified
+			});
+
+			store.placeDevice('rack-0', deviceType.slug, 5);
+			expect(store.layout.rack.devices[0]!.face).toBe('both');
+		});
+
+		it('full-depth device ignores explicit face and uses both', () => {
+			const store = getLayoutStore();
+			store.addRack('Test Rack', 42);
+
+			// Full-depth devices physically occupy both front and rear
+			// Even if 'front' is passed (e.g., from RackDualView drop), it should be 'both'
+			const deviceType = store.addDeviceType({
+				name: 'Full Depth Server',
+				u_height: 2,
+				category: 'server',
+				colour: '#4A90D9',
+				is_full_depth: true
+			});
+
+			store.placeDevice('rack-0', deviceType.slug, 5, 'front');
+			// Full-depth devices ALWAYS use 'both' regardless of passed face
+			expect(store.layout.rack.devices[0]!.face).toBe('both');
+		});
+
+		it('half-depth device respects explicit face parameter', () => {
+			const store = getLayoutStore();
+			store.addRack('Test Rack', 42);
+
+			// Half-depth devices can be front-mounted or rear-mounted
+			const deviceType = store.addDeviceType({
+				name: 'Patch Panel',
+				u_height: 1,
+				category: 'patch-panel',
+				colour: '#7B68EE',
+				is_full_depth: false
+			});
+
+			// Explicitly place on rear
+			store.placeDevice('rack-0', deviceType.slug, 5, 'rear');
+			expect(store.layout.rack.devices[0]!.face).toBe('rear');
 		});
 	});
 });

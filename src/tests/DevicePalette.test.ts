@@ -201,6 +201,176 @@ describe('DevicePalette Component', () => {
 	});
 });
 
+describe('DevicePalette Exclusive Accordion', () => {
+	beforeEach(() => {
+		resetLayoutStore();
+	});
+
+	describe('Generic Section', () => {
+		it('renders Generic section with correct device count', () => {
+			// Starter library has 26 devices
+			render(DevicePalette);
+
+			expect(screen.getByText('Generic')).toBeInTheDocument();
+			expect(screen.getByText('(26)')).toBeInTheDocument();
+		});
+
+		it('Generic section is expanded by default', () => {
+			render(DevicePalette);
+
+			const sectionButton = screen.getByRole('button', { name: /generic/i });
+			expect(sectionButton).toHaveAttribute('aria-expanded', 'true');
+		});
+
+		it('clicking Generic header collapses section', async () => {
+			render(DevicePalette);
+
+			const sectionButton = screen.getByRole('button', { name: /generic/i });
+			expect(sectionButton).toHaveAttribute('aria-expanded', 'true');
+
+			await fireEvent.click(sectionButton);
+			expect(sectionButton).toHaveAttribute('aria-expanded', 'false');
+		});
+
+		it('devices are rendered inside Generic section', () => {
+			render(DevicePalette);
+
+			// Devices from starter library should be inside the section
+			expect(screen.getByText('1U Server')).toBeInTheDocument();
+			expect(screen.getByText('24-Port Switch')).toBeInTheDocument();
+		});
+	});
+
+	describe('Brand Sections', () => {
+		it('renders Ubiquiti section', () => {
+			render(DevicePalette);
+
+			expect(screen.getByText('Ubiquiti')).toBeInTheDocument();
+		});
+
+		it('renders Mikrotik section', () => {
+			render(DevicePalette);
+
+			expect(screen.getByText('Mikrotik')).toBeInTheDocument();
+		});
+
+		it('Ubiquiti section is collapsed by default', () => {
+			render(DevicePalette);
+
+			const sectionButton = screen.getByRole('button', { name: /ubiquiti/i });
+			expect(sectionButton).toHaveAttribute('aria-expanded', 'false');
+		});
+
+		it('Mikrotik section is collapsed by default', () => {
+			render(DevicePalette);
+
+			const sectionButton = screen.getByRole('button', { name: /mikrotik/i });
+			expect(sectionButton).toHaveAttribute('aria-expanded', 'false');
+		});
+
+		it('Ubiquiti section shows correct device count', () => {
+			render(DevicePalette);
+
+			// Ubiquiti has 10 devices
+			expect(screen.getByText('(10)')).toBeInTheDocument();
+		});
+
+		it('Mikrotik section shows correct device count', () => {
+			render(DevicePalette);
+
+			// Mikrotik has 5 devices
+			expect(screen.getByText('(5)')).toBeInTheDocument();
+		});
+	});
+
+	describe('Exclusive Behavior', () => {
+		it('only one section can be expanded at a time', async () => {
+			render(DevicePalette);
+
+			const genericButton = screen.getByRole('button', { name: /generic/i });
+			const ubiquitiButton = screen.getByRole('button', { name: /ubiquiti/i });
+
+			// Generic is expanded by default
+			expect(genericButton).toHaveAttribute('aria-expanded', 'true');
+			expect(ubiquitiButton).toHaveAttribute('aria-expanded', 'false');
+
+			// Click Ubiquiti - should expand Ubiquiti and collapse Generic
+			await fireEvent.click(ubiquitiButton);
+
+			expect(genericButton).toHaveAttribute('aria-expanded', 'false');
+			expect(ubiquitiButton).toHaveAttribute('aria-expanded', 'true');
+		});
+
+		it('clicking different section switches to it', async () => {
+			render(DevicePalette);
+
+			const genericButton = screen.getByRole('button', { name: /generic/i });
+			const ubiquitiButton = screen.getByRole('button', { name: /ubiquiti/i });
+			const mikrotikButton = screen.getByRole('button', { name: /mikrotik/i });
+
+			// Click Ubiquiti first
+			await fireEvent.click(ubiquitiButton);
+			expect(ubiquitiButton).toHaveAttribute('aria-expanded', 'true');
+			expect(genericButton).toHaveAttribute('aria-expanded', 'false');
+			expect(mikrotikButton).toHaveAttribute('aria-expanded', 'false');
+
+			// Click Mikrotik - should switch to Mikrotik
+			await fireEvent.click(mikrotikButton);
+			expect(mikrotikButton).toHaveAttribute('aria-expanded', 'true');
+			expect(ubiquitiButton).toHaveAttribute('aria-expanded', 'false');
+			expect(genericButton).toHaveAttribute('aria-expanded', 'false');
+		});
+
+		it('all sections can be collapsed', async () => {
+			render(DevicePalette);
+
+			const genericButton = screen.getByRole('button', { name: /generic/i });
+			const ubiquitiButton = screen.getByRole('button', { name: /ubiquiti/i });
+			const mikrotikButton = screen.getByRole('button', { name: /mikrotik/i });
+
+			// Click Generic to collapse it (it's already expanded)
+			await fireEvent.click(genericButton);
+
+			// All sections should now be collapsed
+			expect(genericButton).toHaveAttribute('aria-expanded', 'false');
+			expect(ubiquitiButton).toHaveAttribute('aria-expanded', 'false');
+			expect(mikrotikButton).toHaveAttribute('aria-expanded', 'false');
+		});
+	});
+
+	describe('Search with Sections', () => {
+		it('search filters devices within Generic section', async () => {
+			render(DevicePalette);
+
+			const searchInput = screen.getByRole('searchbox');
+			await fireEvent.input(searchInput, { target: { value: '24-Port' } });
+
+			expect(screen.getByText('24-Port Switch')).toBeInTheDocument();
+			expect(screen.queryByText('1U Server')).not.toBeInTheDocument();
+		});
+
+		it('search updates section count', async () => {
+			render(DevicePalette);
+
+			const searchInput = screen.getByRole('searchbox');
+			await fireEvent.input(searchInput, { target: { value: '1U' } });
+
+			// Should show count of filtered devices (e.g., "1U Server", "1U PDU", etc.)
+			// Just verify the count changes from the original 26
+			expect(screen.queryByText('(26)')).not.toBeInTheDocument();
+		});
+
+		it('shows no results message when search has no matches in any section', async () => {
+			render(DevicePalette);
+
+			const searchInput = screen.getByRole('searchbox');
+			await fireEvent.input(searchInput, { target: { value: 'zzzznotfound' } });
+
+			expect(screen.getByText(/no devices match/i)).toBeInTheDocument();
+		});
+	});
+});
+
 describe('DevicePaletteItem Component', () => {
 	const mockDevice = {
 		slug: 'device-1',

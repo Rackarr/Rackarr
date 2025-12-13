@@ -97,6 +97,11 @@ export interface DeviceType {
 	airflow?: Airflow;
 	/** Notes/comments */
 	comments?: string;
+	// Power device properties (category: 'power')
+	/** Number of outlets (e.g., 8, 12, 16) */
+	outlet_count?: number;
+	/** VA capacity (e.g., 1500, 3000) */
+	va_rating?: number;
 	/** Rackarr-specific extensions */
 	rackarr: RackarrDeviceTypeExtensions;
 }
@@ -194,6 +199,9 @@ export interface CreateDeviceTypeData {
 	airflow?: Airflow;
 	comments?: string;
 	tags?: string[];
+	// Power device properties
+	outlet_count?: number;
+	va_rating?: number;
 }
 
 /**
@@ -215,7 +223,7 @@ export interface CreateRackData {
 /**
  * Export format options
  */
-export type ExportFormat = 'png' | 'jpeg' | 'svg' | 'pdf';
+export type ExportFormat = 'png' | 'jpeg' | 'svg' | 'pdf' | 'csv';
 
 /**
  * Export scope options

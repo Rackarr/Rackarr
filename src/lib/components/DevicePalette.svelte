@@ -1,8 +1,10 @@
 <!--
   DevicePalette Component
   Displays the device library with search and category grouping
+  Uses exclusive accordion (only one section open at a time)
 -->
 <script lang="ts">
+	import { Accordion } from 'bits-ui';
 	import { getLayoutStore } from '$lib/stores/layout.svelte';
 	import { getToastStore } from '$lib/stores/toast.svelte';
 	import {
@@ -11,6 +13,7 @@
 		getCategoryDisplayName
 	} from '$lib/utils/deviceFilters';
 	import { parseDeviceLibraryImport } from '$lib/utils/import';
+	import { getBrandPacks } from '$lib/data/brandPacks';
 	import DevicePaletteItem from './DevicePaletteItem.svelte';
 	import type { DeviceType } from '$lib/types';
 
@@ -27,14 +30,52 @@
 	// Search state
 	let searchQuery = $state('');
 
+	// Accordion state - 'generic' is expanded by default
+	let expandedSection = $state<string>('generic');
+
 	// File import ref
 	let fileInputRef: HTMLInputElement;
 
-	// Filtered and grouped devices
-	const filteredDevices = $derived(searchDevices(layoutStore.device_types, searchQuery));
-	const groupedDevices = $derived(groupDevicesByCategory(filteredDevices));
+	/**
+	 * Device section definition for collapsible groups
+	 */
+	interface DeviceSection {
+		id: string;
+		title: string;
+		devices: DeviceType[];
+		defaultExpanded: boolean;
+	}
+
+	// Get brand packs
+	const brandPacks = getBrandPacks();
+
+	// Filter generic devices (from layout store)
+	const filteredGenericDevices = $derived(searchDevices(layoutStore.device_types, searchQuery));
+	const groupedGenericDevices = $derived(groupDevicesByCategory(filteredGenericDevices));
+
+	// Filter brand pack devices by search
+	const filteredBrandPacks = $derived(
+		brandPacks.map((pack) => ({
+			...pack,
+			devices: searchDevices(pack.devices, searchQuery)
+		}))
+	);
+
+	// Define all sections: Generic first, then brand packs
+	const sections = $derived<DeviceSection[]>([
+		{
+			id: 'generic',
+			title: 'Generic',
+			devices: filteredGenericDevices,
+			defaultExpanded: true
+		},
+		...filteredBrandPacks
+	]);
+
+	// Check if any section has devices (filtered by search)
+	const totalDevicesCount = $derived(sections.reduce((acc, s) => acc + s.devices.length, 0));
 	const hasDevices = $derived(layoutStore.device_types.length > 0);
-	const hasResults = $derived(filteredDevices.length > 0);
+	const hasResults = $derived(totalDevicesCount > 0);
 
 	function handleAddDevice() {
 		onadddevice?.();
@@ -108,16 +149,42 @@
 				<p class="empty-message">No devices match your search</p>
 			</div>
 		{:else}
-			{#each [...groupedDevices.entries()] as [category, devices] (category)}
-				<div class="category-group">
-					<h3 class="category-header">{getCategoryDisplayName(category)}</h3>
-					<div class="category-devices">
-						{#each devices as device (device.slug)}
-							<DevicePaletteItem {device} onselect={handleDeviceSelect} />
-						{/each}
-					</div>
-				</div>
-			{/each}
+			<Accordion.Root type="single" bind:value={expandedSection}>
+				{#each sections as section (section.id)}
+					<Accordion.Item value={section.id} class="accordion-item">
+						<Accordion.Header>
+							<Accordion.Trigger class="accordion-trigger">
+								<span class="section-title">{section.title}</span>
+								<span class="section-count">({section.devices.length})</span>
+							</Accordion.Trigger>
+						</Accordion.Header>
+						<Accordion.Content class="accordion-content">
+							<div class="accordion-content-inner">
+								{#if section.id === 'generic'}
+									<!-- Generic section uses category grouping -->
+									{#each [...groupedGenericDevices.entries()] as [category, devices] (category)}
+										<div class="category-group">
+											<h3 class="category-header">{getCategoryDisplayName(category)}</h3>
+											<div class="category-devices">
+												{#each devices as device (device.slug)}
+													<DevicePaletteItem {device} onselect={handleDeviceSelect} />
+												{/each}
+											</div>
+										</div>
+									{/each}
+								{:else}
+									<!-- Brand sections show devices in a flat list -->
+									<div class="brand-devices">
+										{#each section.devices as device (device.slug)}
+											<DevicePaletteItem {device} onselect={handleDeviceSelect} />
+										{/each}
+									</div>
+								{/if}
+							</div>
+						</Accordion.Content>
+					</Accordion.Item>
+				{/each}
+			</Accordion.Root>
 		{/if}
 	</div>
 
@@ -190,6 +257,77 @@
 		padding: var(--space-2) 0;
 	}
 
+	/* Accordion Trigger Styling */
+	:global(.accordion-trigger) {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		width: 100%;
+		padding: var(--space-2) var(--space-3);
+		font-size: var(--font-size-sm);
+		font-weight: 600;
+		text-align: left;
+		background: var(--colour-surface-secondary);
+		border: none;
+		border-bottom: 1px solid var(--colour-border);
+		cursor: pointer;
+		color: var(--colour-text);
+		transition:
+			background-color 150ms ease,
+			color 150ms ease;
+	}
+
+	:global(.accordion-trigger:hover) {
+		background: var(--colour-surface-hover);
+	}
+
+	:global(.accordion-trigger:focus-visible) {
+		outline: 2px solid var(--colour-selection);
+		outline-offset: -2px;
+	}
+
+	:global(.accordion-trigger[data-state='open']) {
+		background: var(--colour-surface-active);
+	}
+
+	.section-title {
+		flex: 1;
+	}
+
+	.section-count {
+		margin-left: var(--space-2);
+		font-weight: 400;
+		color: var(--colour-text-muted);
+	}
+
+	/* Accordion Content Styling with CSS Grid animation */
+	:global(.accordion-content) {
+		display: grid;
+		grid-template-rows: 0fr;
+		transition: grid-template-rows 200ms ease-out;
+		overflow: hidden;
+	}
+
+	:global(.accordion-content[data-state='open']) {
+		grid-template-rows: 1fr;
+	}
+
+	:global(.accordion-content[data-state='closed']) {
+		grid-template-rows: 0fr;
+	}
+
+	:global(.accordion-content-inner) {
+		min-height: 0;
+		overflow: hidden;
+	}
+
+	/* Reduced motion support */
+	@media (prefers-reduced-motion: reduce) {
+		:global(.accordion-content) {
+			transition: none;
+		}
+	}
+
 	.category-group {
 		margin-bottom: var(--space-2);
 	}
@@ -205,6 +343,11 @@
 	}
 
 	.category-devices {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.brand-devices {
 		display: flex;
 		flex-direction: column;
 	}

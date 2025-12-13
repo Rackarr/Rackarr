@@ -23,6 +23,8 @@ const RACK_GAP = 40;
 const LEGEND_PADDING = 20;
 const LEGEND_ITEM_HEIGHT = 24;
 const EXPORT_PADDING = 20;
+const RACK_NAME_HEIGHT = 18; // Space for rack name above rack
+const VIEW_LABEL_HEIGHT = 15; // Space for FRONT/REAR labels
 
 // Theme colours
 const DARK_BG = '#1a1a1a';
@@ -450,7 +452,15 @@ export function generateExportSVG(
 		? racks.length * (RACK_WIDTH * 2 + RACK_GAP) + (racks.length - 1) * RACK_GAP
 		: singleRackWidth;
 
-	const rackAreaHeight = maxRackHeight * U_HEIGHT + RACK_PADDING * 2;
+	// Calculate space needed above rack for names and labels
+	const headerSpace = includeNames
+		? isDualView
+			? RACK_NAME_HEIGHT + VIEW_LABEL_HEIGHT // Name + view labels
+			: RACK_NAME_HEIGHT // Just name
+		: isDualView
+			? VIEW_LABEL_HEIGHT // Just view labels
+			: 0;
+	const rackAreaHeight = maxRackHeight * U_HEIGHT + RACK_PADDING * 2 + headerSpace;
 	const legendWidth = includeLegend ? 180 : 0;
 	const legendHeight = includeLegend
 		? usedDevices.length * LEGEND_ITEM_HEIGHT + LEGEND_PADDING * 2
@@ -742,12 +752,14 @@ export function generateExportSVG(
 			rackGroup.appendChild(viewLabelText);
 		}
 
-		// Rack name (positioned above rack, or above view label if present)
+		// Rack name (positioned above rack) - only for non-dual-view
+		// In dual-view, the name is rendered separately above both front/rear views
 		if (includeNames && !viewLabel) {
 			const nameText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
 			nameText.setAttribute('class', 'rack-name');
 			nameText.setAttribute('x', String(RACK_WIDTH / 2));
-			nameText.setAttribute('y', '2');
+			// Position above the rack (negative Y relative to rackGroup)
+			nameText.setAttribute('y', String(-5));
 			nameText.setAttribute('fill', textColor);
 			nameText.setAttribute('font-size', '13');
 			nameText.setAttribute('text-anchor', 'middle');
@@ -761,7 +773,8 @@ export function generateExportSVG(
 
 	// Render each rack (single or dual view)
 	racks.forEach((rack, index) => {
-		const rackY = EXPORT_PADDING + (maxRackHeight - rack.height) * U_HEIGHT;
+		// Position rack below header space (name/labels)
+		const rackY = EXPORT_PADDING + headerSpace + (maxRackHeight - rack.height) * U_HEIGHT;
 
 		if (isDualView) {
 			// Dual view: render front and rear side-by-side
@@ -773,7 +786,9 @@ export function generateExportSVG(
 				const nameText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
 				nameText.setAttribute('class', 'rack-name');
 				nameText.setAttribute('x', String(baseX + dualRackWidth / 2));
-				nameText.setAttribute('y', String(rackY - 5));
+				// Position name at top of header space (above view labels)
+				const nameY = rackY - VIEW_LABEL_HEIGHT - 5;
+				nameText.setAttribute('y', String(nameY));
 				nameText.setAttribute('fill', textColor);
 				nameText.setAttribute('font-size', '13');
 				nameText.setAttribute('text-anchor', 'middle');
@@ -792,23 +807,10 @@ export function generateExportSVG(
 			svg.appendChild(rearGroup);
 		} else {
 			// Single view: render with optional face filter
+			// Note: Rack name is handled inside renderRackView when no viewLabel is provided
 			const rackX = EXPORT_PADDING + index * (RACK_WIDTH + RACK_GAP);
 			const faceFilter = exportView === 'front' || exportView === 'rear' ? exportView : undefined;
 			const rackGroup = renderRackView(rack, rackX, rackY, faceFilter);
-
-			// Add rack name for single view (not handled in renderRackView when viewLabel is not present)
-			if (includeNames) {
-				const nameText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-				nameText.setAttribute('class', 'rack-name');
-				nameText.setAttribute('x', String(RACK_WIDTH / 2));
-				nameText.setAttribute('y', '2');
-				nameText.setAttribute('fill', textColor);
-				nameText.setAttribute('font-size', '13');
-				nameText.setAttribute('text-anchor', 'middle');
-				nameText.setAttribute('font-family', 'system-ui, sans-serif');
-				nameText.textContent = rack.name;
-				rackGroup.appendChild(nameText);
-			}
 
 			svg.appendChild(rackGroup);
 		}
@@ -1103,18 +1105,87 @@ export function downloadBlob(blob: Blob, filename: string): void {
 }
 
 /**
- * Generate a sanitized filename for export
+ * Escape a CSV field value
+ * - Wraps in quotes if contains comma, quote, or newline
+ * - Doubles any existing quotes
  */
-export function generateExportFilename(layoutName: string, format: ExportFormat): string {
-	if (!layoutName || layoutName.trim() === '') {
-		return `rackarr-export.${format}`;
+function escapeCSVField(value: string): string {
+	if (value.includes(',') || value.includes('"') || value.includes('\n')) {
+		return `"${value.replace(/"/g, '""')}"`;
+	}
+	return value;
+}
+
+/**
+ * Export rack contents as CSV
+ * Columns: Position, Name, Model, Manufacturer, U_Height, Category, Face
+ * Sorted by position descending (top of rack first)
+ *
+ * @param rack - The rack to export
+ * @param deviceTypes - Device type library for resolving device details
+ */
+export function exportToCSV(rack: Rack, deviceTypes: DeviceType[]): string {
+	const header = 'Position,Name,Model,Manufacturer,U_Height,Category,Face';
+
+	// Create a map for quick device type lookup
+	const deviceTypeMap = new Map(deviceTypes.map((dt) => [dt.slug, dt]));
+
+	// Sort devices by position descending (top of rack first)
+	const sortedDevices = [...rack.devices].sort((a, b) => b.position - a.position);
+
+	// Build rows
+	const rows: string[] = [];
+	for (const device of sortedDevices) {
+		const deviceType = deviceTypeMap.get(device.device_type);
+		if (!deviceType) continue; // Skip unknown device types
+
+		const position = String(device.position);
+		const name = escapeCSVField(device.name || '');
+		const model = escapeCSVField(deviceType.model || deviceType.slug);
+		const manufacturer = escapeCSVField(deviceType.manufacturer || '');
+		const uHeight = String(deviceType.u_height);
+		const category = deviceType.rackarr.category;
+		const face = device.face;
+
+		rows.push(`${position},${name},${model},${manufacturer},${uHeight},${category},${face}`);
 	}
 
-	// Sanitize the layout name for filename
-	const sanitized = layoutName
+	return [header, ...rows].join('\n');
+}
+
+/**
+ * Generate a sanitized filename for export
+ * Pattern: {layout-name}-{view}-{YYYY-MM-DD}.{ext}
+ * For CSV (view=null): {layout-name}-{YYYY-MM-DD}.{ext}
+ *
+ * @param layoutName - The layout name to include in filename
+ * @param view - The export view ('front', 'rear', 'both') or null for data exports like CSV
+ * @param format - The export format extension
+ */
+export function generateExportFilename(
+	layoutName: string,
+	view: 'front' | 'rear' | 'both' | null,
+	format: ExportFormat
+): string {
+	// Slugify the layout name: lowercase, hyphens, no special chars
+	const slugified = layoutName
 		.toLowerCase()
 		.replace(/[^a-z0-9]+/g, '-')
 		.replace(/^-+|-+$/g, '');
 
-	return `${sanitized || 'rackarr-export'}.${format}`;
+	const baseName = slugified || 'rackarr-export';
+
+	// Format date as YYYY-MM-DD
+	const now = new Date();
+	const year = now.getFullYear();
+	const month = String(now.getMonth() + 1).padStart(2, '0');
+	const day = String(now.getDate()).padStart(2, '0');
+	const dateStr = `${year}-${month}-${day}`;
+
+	// Build filename: include view for image exports, omit for CSV
+	if (view) {
+		return `${baseName}-${view}-${dateStr}.${format}`;
+	}
+
+	return `${baseName}-${dateStr}.${format}`;
 }

@@ -12,6 +12,9 @@ interface StarterDeviceSpec {
 	u_height: number;
 	category: DeviceCategory;
 	is_full_depth?: boolean; // Defaults to true; false for half-depth devices
+	// Power device properties
+	outlet_count?: number;
+	va_rating?: number;
 }
 
 const STARTER_DEVICES: StarterDeviceSpec[] = [
@@ -35,9 +38,9 @@ const STARTER_DEVICES: StarterDeviceSpec[] = [
 	{ name: '4U Storage', u_height: 4, category: 'storage' },
 
 	// Power devices (3)
-	{ name: '1U PDU', u_height: 1, category: 'power' },
-	{ name: '2U UPS', u_height: 2, category: 'power' },
-	{ name: '4U UPS', u_height: 4, category: 'power' },
+	{ name: '1U PDU', u_height: 1, category: 'power', outlet_count: 8 },
+	{ name: '2U UPS', u_height: 2, category: 'power', outlet_count: 6, va_rating: 1500 },
+	{ name: '4U UPS', u_height: 4, category: 'power', outlet_count: 8, va_rating: 3000 },
 
 	// KVM devices (2)
 	{ name: '1U KVM', u_height: 1, category: 'kvm' },
@@ -74,6 +77,8 @@ export function getStarterLibrary(): DeviceType[] {
 		u_height: spec.u_height,
 		model: spec.name,
 		is_full_depth: spec.is_full_depth, // undefined means full-depth (true default)
+		outlet_count: spec.outlet_count,
+		va_rating: spec.va_rating,
 		rackarr: {
 			colour: CATEGORY_COLOURS[spec.category],
 			category: spec.category

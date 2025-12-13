@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, beforeAll } from 'vitest';
 import {
 	generateExportSVG,
 	exportAsSVG,
@@ -350,26 +350,85 @@ describe('Export Utilities', () => {
 	});
 
 	describe('generateExportFilename', () => {
-		it('generates filename with layout name and format', () => {
-			const filename = generateExportFilename('My Layout', 'png');
-			expect(filename).toBe('my-layout.png');
+		// Mock date for consistent test results
+		beforeEach(() => {
+			vi.useFakeTimers();
+			vi.setSystemTime(new Date('2025-12-12'));
 		});
 
-		it('sanitizes layout name for filename', () => {
-			const filename = generateExportFilename('Layout: Test/File', 'svg');
-			expect(filename).toBe('layout-test-file.svg');
+		afterEach(() => {
+			vi.useRealTimers();
+		});
+
+		it('generates filename with layout name, view, date and format', () => {
+			const filename = generateExportFilename('My Layout', 'front', 'png');
+			expect(filename).toBe('my-layout-front-2025-12-12.png');
+		});
+
+		it('includes view for image exports', () => {
+			expect(generateExportFilename('My Homelab', 'front', 'png')).toBe(
+				'my-homelab-front-2025-12-12.png'
+			);
+			expect(generateExportFilename('My Homelab', 'rear', 'jpeg')).toBe(
+				'my-homelab-rear-2025-12-12.jpeg'
+			);
+			expect(generateExportFilename('My Homelab', 'both', 'svg')).toBe(
+				'my-homelab-both-2025-12-12.svg'
+			);
+		});
+
+		it('omits view for CSV export (null view)', () => {
+			const filename = generateExportFilename('My Rack', null, 'csv');
+			expect(filename).toBe('my-rack-2025-12-12.csv');
+		});
+
+		it('slugifies layout name', () => {
+			expect(generateExportFilename('My Homelab', 'front', 'png')).toBe(
+				'my-homelab-front-2025-12-12.png'
+			);
+		});
+
+		it('removes special characters from layout name', () => {
+			expect(generateExportFilename('Server Rack #1', 'both', 'pdf')).toBe(
+				'server-rack-1-both-2025-12-12.pdf'
+			);
+			expect(generateExportFilename('Layout: Test/File', 'front', 'svg')).toBe(
+				'layout-test-file-front-2025-12-12.svg'
+			);
 		});
 
 		it('handles empty layout name', () => {
-			const filename = generateExportFilename('', 'jpeg');
-			expect(filename).toBe('rackarr-export.jpeg');
+			const filename = generateExportFilename('', 'front', 'jpeg');
+			expect(filename).toBe('rackarr-export-front-2025-12-12.jpeg');
 		});
 
-		it('works with different formats', () => {
-			expect(generateExportFilename('Test', 'png')).toBe('test.png');
-			expect(generateExportFilename('Test', 'jpeg')).toBe('test.jpeg');
-			expect(generateExportFilename('Test', 'svg')).toBe('test.svg');
-			expect(generateExportFilename('Test', 'pdf')).toBe('test.pdf');
+		it('handles whitespace-only layout name', () => {
+			const filename = generateExportFilename('   ', 'rear', 'png');
+			expect(filename).toBe('rackarr-export-rear-2025-12-12.png');
+		});
+
+		it('formats date as YYYY-MM-DD', () => {
+			const filename = generateExportFilename('Test', 'front', 'png');
+			expect(filename).toMatch(/-\d{4}-\d{2}-\d{2}\.png$/);
+		});
+
+		it('works with all image formats', () => {
+			expect(generateExportFilename('Test', 'front', 'png')).toBe('test-front-2025-12-12.png');
+			expect(generateExportFilename('Test', 'front', 'jpeg')).toBe('test-front-2025-12-12.jpeg');
+			expect(generateExportFilename('Test', 'front', 'svg')).toBe('test-front-2025-12-12.svg');
+			expect(generateExportFilename('Test', 'front', 'pdf')).toBe('test-front-2025-12-12.pdf');
+		});
+
+		it('handles consecutive special characters', () => {
+			expect(generateExportFilename('Test---Name', 'front', 'png')).toBe(
+				'test-name-front-2025-12-12.png'
+			);
+		});
+
+		it('handles leading/trailing special characters', () => {
+			expect(generateExportFilename('---Test---', 'front', 'png')).toBe(
+				'test-front-2025-12-12.png'
+			);
 		});
 	});
 });
@@ -513,6 +572,302 @@ describe('Export Legend', () => {
 		// Should only show device once in legend even if placed multiple times
 		const legendItems = legend?.querySelectorAll('.legend-item');
 		expect(legendItems?.length).toBe(1);
+	});
+});
+
+describe('CSV Export', () => {
+	// Import at test runtime
+	let exportToCSV: typeof import('$lib/utils/export').exportToCSV;
+
+	beforeAll(async () => {
+		const module = await import('$lib/utils/export');
+		exportToCSV = module.exportToCSV;
+	});
+
+	const mockDeviceTypes: DeviceType[] = [
+		{
+			slug: 'server-1',
+			model: 'PowerEdge R740',
+			manufacturer: 'Dell',
+			u_height: 2,
+			rackarr: { colour: '#4A90D9', category: 'server' }
+		},
+		{
+			slug: 'switch-1',
+			model: 'Catalyst 9300',
+			manufacturer: 'Cisco',
+			u_height: 1,
+			rackarr: { colour: '#7B68EE', category: 'network' }
+		},
+		{
+			slug: 'ups-1',
+			model: 'Smart-UPS 3000',
+			manufacturer: 'APC',
+			u_height: 4,
+			rackarr: { colour: '#22C55E', category: 'power' }
+		}
+	];
+
+	const mockRack: Rack = {
+		name: 'Main Rack',
+		height: 42,
+		width: 19,
+		position: 0,
+		desc_units: false,
+		form_factor: '4-post',
+		starting_unit: 1,
+		devices: [
+			{ device_type: 'server-1', position: 10, face: 'front', name: 'Web Server' },
+			{ device_type: 'switch-1', position: 42, face: 'rear' },
+			{ device_type: 'ups-1', position: 1, face: 'both', name: 'Main UPS' }
+		]
+	};
+
+	describe('CSV header row', () => {
+		it('includes all required columns', () => {
+			const csv = exportToCSV(mockRack, mockDeviceTypes);
+			const lines = csv.split('\n');
+			const header = lines[0];
+
+			expect(header).toContain('Position');
+			expect(header).toContain('Name');
+			expect(header).toContain('Model');
+			expect(header).toContain('Manufacturer');
+			expect(header).toContain('U_Height');
+			expect(header).toContain('Category');
+			expect(header).toContain('Face');
+		});
+
+		it('has columns in correct order', () => {
+			const csv = exportToCSV(mockRack, mockDeviceTypes);
+			const lines = csv.split('\n');
+			const header = lines[0];
+
+			expect(header).toBe('Position,Name,Model,Manufacturer,U_Height,Category,Face');
+		});
+	});
+
+	describe('device rows', () => {
+		it('includes all placed devices', () => {
+			const csv = exportToCSV(mockRack, mockDeviceTypes);
+			const lines = csv.split('\n').filter((l) => l.length > 0);
+
+			// Header + 3 devices
+			expect(lines.length).toBe(4);
+		});
+
+		it('sorts by position descending (top of rack first)', () => {
+			const csv = exportToCSV(mockRack, mockDeviceTypes);
+			const lines = csv.split('\n').filter((l) => l.length > 0);
+
+			// Skip header, get positions from each line
+			const positions = lines.slice(1).map((line) => parseInt(line.split(',')[0]!, 10));
+
+			// Should be 42, 10, 1 (descending)
+			expect(positions).toEqual([42, 10, 1]);
+		});
+
+		it('includes custom instance name when provided', () => {
+			const csv = exportToCSV(mockRack, mockDeviceTypes);
+
+			expect(csv).toContain('Web Server');
+			expect(csv).toContain('Main UPS');
+		});
+
+		it('uses empty string when device has no custom name', () => {
+			const csv = exportToCSV(mockRack, mockDeviceTypes);
+			const lines = csv.split('\n').filter((l) => l.length > 0);
+
+			// The switch at position 42 has no custom name
+			const switchLine = lines.find((l) => l.startsWith('42,'));
+			expect(switchLine).toBe('42,,Catalyst 9300,Cisco,1,network,rear');
+		});
+
+		it('includes device type model', () => {
+			const csv = exportToCSV(mockRack, mockDeviceTypes);
+
+			expect(csv).toContain('PowerEdge R740');
+			expect(csv).toContain('Catalyst 9300');
+			expect(csv).toContain('Smart-UPS 3000');
+		});
+
+		it('includes manufacturer', () => {
+			const csv = exportToCSV(mockRack, mockDeviceTypes);
+
+			expect(csv).toContain('Dell');
+			expect(csv).toContain('Cisco');
+			expect(csv).toContain('APC');
+		});
+
+		it('includes U height', () => {
+			const csv = exportToCSV(mockRack, mockDeviceTypes);
+			const lines = csv.split('\n').filter((l) => l.length > 0);
+
+			// Check server has u_height 2
+			const serverLine = lines.find((l) => l.includes('PowerEdge R740'));
+			expect(serverLine).toContain(',2,');
+		});
+
+		it('includes device category', () => {
+			const csv = exportToCSV(mockRack, mockDeviceTypes);
+
+			expect(csv).toContain('server');
+			expect(csv).toContain('network');
+			expect(csv).toContain('power');
+		});
+
+		it('includes face type', () => {
+			const csv = exportToCSV(mockRack, mockDeviceTypes);
+
+			expect(csv).toContain(',front');
+			expect(csv).toContain(',rear');
+			expect(csv).toContain(',both');
+		});
+	});
+
+	describe('empty fields handling', () => {
+		it('handles device without manufacturer', () => {
+			const deviceTypesNoMfg: DeviceType[] = [
+				{
+					slug: 'custom-device',
+					model: 'Custom Server',
+					u_height: 1,
+					rackarr: { colour: '#333333', category: 'other' }
+				}
+			];
+			const rackNoMfg: Rack = {
+				...mockRack,
+				devices: [{ device_type: 'custom-device', position: 1, face: 'front' }]
+			};
+
+			const csv = exportToCSV(rackNoMfg, deviceTypesNoMfg);
+			const lines = csv.split('\n').filter((l) => l.length > 0);
+			const deviceLine = lines[1];
+
+			// Should have empty manufacturer field
+			expect(deviceLine).toBe('1,,Custom Server,,1,other,front');
+		});
+
+		it('handles device without model (uses slug)', () => {
+			const deviceTypesNoModel: DeviceType[] = [
+				{
+					slug: 'generic-server',
+					u_height: 2,
+					rackarr: { colour: '#333333', category: 'server' }
+				}
+			];
+			const rackNoModel: Rack = {
+				...mockRack,
+				devices: [{ device_type: 'generic-server', position: 5, face: 'front' }]
+			};
+
+			const csv = exportToCSV(rackNoModel, deviceTypesNoModel);
+			const lines = csv.split('\n').filter((l) => l.length > 0);
+			const deviceLine = lines[1];
+
+			// Should use slug when model is not available
+			expect(deviceLine).toBe('5,,generic-server,,2,server,front');
+		});
+	});
+
+	describe('CSV escaping', () => {
+		it('escapes fields containing commas', () => {
+			const deviceTypesWithComma: DeviceType[] = [
+				{
+					slug: 'special-device',
+					model: 'Server, Model A',
+					manufacturer: 'Acme, Inc.',
+					u_height: 1,
+					rackarr: { colour: '#333333', category: 'server' }
+				}
+			];
+			const rackWithComma: Rack = {
+				...mockRack,
+				devices: [{ device_type: 'special-device', position: 1, face: 'front' }]
+			};
+
+			const csv = exportToCSV(rackWithComma, deviceTypesWithComma);
+
+			// Fields with commas should be quoted
+			expect(csv).toContain('"Server, Model A"');
+			expect(csv).toContain('"Acme, Inc."');
+		});
+
+		it('escapes fields containing quotes', () => {
+			const deviceTypesWithQuote: DeviceType[] = [
+				{
+					slug: 'quoted-device',
+					model: 'Server "Pro"',
+					u_height: 1,
+					rackarr: { colour: '#333333', category: 'server' }
+				}
+			];
+			const rackWithQuote: Rack = {
+				...mockRack,
+				devices: [
+					{ device_type: 'quoted-device', position: 1, face: 'front', name: 'The "Main" Server' }
+				]
+			};
+
+			const csv = exportToCSV(rackWithQuote, deviceTypesWithQuote);
+
+			// Fields with quotes should be quoted and quotes doubled
+			expect(csv).toContain('"Server ""Pro"""');
+			expect(csv).toContain('"The ""Main"" Server"');
+		});
+
+		it('escapes fields containing newlines', () => {
+			const deviceTypesWithNewline: DeviceType[] = [
+				{
+					slug: 'newline-device',
+					model: 'Server\nLine2',
+					u_height: 1,
+					rackarr: { colour: '#333333', category: 'server' }
+				}
+			];
+			const rackWithNewline: Rack = {
+				...mockRack,
+				devices: [{ device_type: 'newline-device', position: 1, face: 'front' }]
+			};
+
+			const csv = exportToCSV(rackWithNewline, deviceTypesWithNewline);
+
+			// Fields with newlines should be quoted
+			expect(csv).toContain('"Server\nLine2"');
+		});
+	});
+
+	describe('empty rack', () => {
+		it('returns only header for empty rack', () => {
+			const emptyRack: Rack = {
+				...mockRack,
+				devices: []
+			};
+
+			const csv = exportToCSV(emptyRack, mockDeviceTypes);
+			const lines = csv.split('\n').filter((l) => l.length > 0);
+
+			expect(lines.length).toBe(1);
+			expect(lines[0]).toBe('Position,Name,Model,Manufacturer,U_Height,Category,Face');
+		});
+	});
+
+	describe('unknown device type', () => {
+		it('skips devices with unknown device_type', () => {
+			const rackWithUnknown: Rack = {
+				...mockRack,
+				devices: [
+					{ device_type: 'server-1', position: 10, face: 'front' },
+					{ device_type: 'unknown-device', position: 5, face: 'front' }
+				]
+			};
+
+			const csv = exportToCSV(rackWithUnknown, mockDeviceTypes);
+			const lines = csv.split('\n').filter((l) => l.length > 0);
+
+			// Header + 1 valid device (unknown skipped)
+			expect(lines.length).toBe(2);
+		});
 	});
 });
 
@@ -722,7 +1077,7 @@ describe('Dual-View Export', () => {
 			expect(dualWidth).toBeGreaterThan(singleWidth * 1.5);
 		});
 
-		it('uses the same height for front and rear views', () => {
+		it('dual view has extra height for view labels', () => {
 			const options: ExportOptions = {
 				format: 'png',
 				scope: 'all',
@@ -735,12 +1090,13 @@ describe('Dual-View Export', () => {
 			const svg = generateExportSVG(mockRacks, mockDevices, options);
 			const height = parseInt(svg.getAttribute('height') || '0', 10);
 
-			// Should be the same height as single view (same rack)
+			// Single view doesn't need space for FRONT/REAR labels
 			const singleOptions: ExportOptions = { ...options, exportView: 'front' };
 			const singleSvg = generateExportSVG(mockRacks, mockDevices, singleOptions);
 			const singleHeight = parseInt(singleSvg.getAttribute('height') || '0', 10);
 
-			expect(height).toBe(singleHeight);
+			// Dual view is taller to accommodate FRONT/REAR labels (15px VIEW_LABEL_HEIGHT)
+			expect(height).toBe(singleHeight + 15);
 		});
 	});
 

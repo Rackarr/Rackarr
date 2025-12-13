@@ -155,28 +155,33 @@ describe('Starter Device Type Library', () => {
 	});
 
 	describe('power category (3 items)', () => {
-		it('includes 1U PDU', () => {
+		it('includes 1U PDU with outlet_count', () => {
 			const library = getStarterLibrary();
 			const device = library.find((d) => d.model === '1U PDU');
 			expect(device).toBeDefined();
 			expect(device?.u_height).toBe(1);
 			expect(device?.rackarr.category).toBe('power');
+			expect(device?.outlet_count).toBe(8);
 		});
 
-		it('includes 2U UPS', () => {
+		it('includes 2U UPS with outlet_count and va_rating', () => {
 			const library = getStarterLibrary();
 			const device = library.find((d) => d.model === '2U UPS');
 			expect(device).toBeDefined();
 			expect(device?.u_height).toBe(2);
 			expect(device?.rackarr.category).toBe('power');
+			expect(device?.outlet_count).toBe(6);
+			expect(device?.va_rating).toBe(1500);
 		});
 
-		it('includes 4U UPS', () => {
+		it('includes 4U UPS with outlet_count and va_rating', () => {
 			const library = getStarterLibrary();
 			const device = library.find((d) => d.model === '4U UPS');
 			expect(device).toBeDefined();
 			expect(device?.u_height).toBe(4);
 			expect(device?.rackarr.category).toBe('power');
+			expect(device?.outlet_count).toBe(8);
+			expect(device?.va_rating).toBe(3000);
 		});
 	});
 

@@ -144,6 +144,10 @@ export const DeviceTypeSchema = z.object({
 	airflow: AirflowSchema.optional(),
 	comments: z.string().max(1000).optional(),
 
+	// Power device properties (category: 'power')
+	outlet_count: z.number().int().positive('Outlet count must be a positive integer').optional(),
+	va_rating: z.number().int().positive('VA rating must be a positive integer').optional(),
+
 	// Rackarr extensions
 	rackarr: RackarrExtensionsSchema
 });

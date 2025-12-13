@@ -36,6 +36,7 @@
 		exportAsPNG,
 		exportAsJPEG,
 		exportAsPDF,
+		exportToCSV,
 		downloadBlob,
 		generateExportFilename
 	} from '$lib/utils/export';
@@ -57,6 +58,14 @@
 	let deleteTarget: { type: 'rack' | 'device'; name: string } | null = $state(null);
 	let showReplaceDialog = $state(false);
 	let pendingSaveFirst = $state(false);
+
+	// Auto-open new rack dialog when no racks exist (first-load experience)
+	// Uses onMount to run once on initial load, not reactively
+	onMount(() => {
+		if (layoutStore.rackCount === 0) {
+			newRackFormOpen = true;
+		}
+	});
 
 	// Toolbar event handlers
 	function handleNewRack() {
@@ -193,28 +202,52 @@
 			const svg = generateExportSVG(racksToExport, layoutStore.device_types, exportOptions, images);
 
 			// Export based on selected format
+			const exportViewOrDefault = options.exportView ?? 'both';
 			if (options.format === 'svg') {
 				const svgString = exportAsSVG(svg);
 				const blob = new Blob([svgString], { type: 'image/svg+xml' });
-				const filename = generateExportFilename(layoutStore.layout.name, options.format);
+				const filename = generateExportFilename(
+					layoutStore.layout.name,
+					exportViewOrDefault,
+					options.format
+				);
 				downloadBlob(blob, filename);
 				toastStore.showToast('SVG exported successfully', 'success');
 			} else if (options.format === 'png') {
 				const imageBlob = await exportAsPNG(svg);
-				const filename = generateExportFilename(layoutStore.layout.name, options.format);
+				const filename = generateExportFilename(
+					layoutStore.layout.name,
+					exportViewOrDefault,
+					options.format
+				);
 				downloadBlob(imageBlob, filename);
 				toastStore.showToast('PNG exported successfully', 'success');
 			} else if (options.format === 'jpeg') {
 				const imageBlob = await exportAsJPEG(svg);
-				const filename = generateExportFilename(layoutStore.layout.name, options.format);
+				const filename = generateExportFilename(
+					layoutStore.layout.name,
+					exportViewOrDefault,
+					options.format
+				);
 				downloadBlob(imageBlob, filename);
 				toastStore.showToast('JPEG exported successfully', 'success');
 			} else if (options.format === 'pdf') {
 				const svgString = exportAsSVG(svg);
 				const pdfBlob = await exportAsPDF(svgString, options.background);
-				const filename = generateExportFilename(layoutStore.layout.name, options.format);
+				const filename = generateExportFilename(
+					layoutStore.layout.name,
+					exportViewOrDefault,
+					options.format
+				);
 				downloadBlob(pdfBlob, filename);
 				toastStore.showToast('PDF exported successfully', 'success');
+			} else if (options.format === 'csv') {
+				// CSV export uses null view (no view in filename)
+				const csvContent = exportToCSV(racksToExport[0]!, layoutStore.device_types);
+				const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
+				const filename = generateExportFilename(layoutStore.layout.name, null, options.format);
+				downloadBlob(blob, filename);
+				toastStore.showToast('CSV exported successfully', 'success');
 			}
 		} catch (error) {
 			console.error('Export failed:', error);
@@ -420,6 +453,10 @@
 	<ExportDialog
 		open={exportDialogOpen}
 		racks={layoutStore.rack ? [layoutStore.rack] : []}
+		deviceTypes={layoutStore.device_types}
+		images={imageStore.getAllImages()}
+		displayMode={uiStore.displayMode}
+		layoutName={layoutStore.layout.name}
 		selectedRackId={selectionStore.isRackSelected ? selectionStore.selectedId : null}
 		onexport={(e) => handleExportSubmit(e.detail)}
 		oncancel={handleExportCancel}
