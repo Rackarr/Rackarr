@@ -328,13 +328,14 @@ settings:
 
 ### 5.3 Forms & Dialogs
 
-| Component              | Purpose                  |
-| ---------------------- | ------------------------ |
-| `AddDeviceForm.svelte` | Create device in library |
-| `NewRackForm.svelte`   | Create/edit rack         |
-| `ExportDialog.svelte`  | Export configuration     |
-| `ConfirmDialog.svelte` | Confirmation prompts     |
-| `ImageUpload.svelte`   | Device image upload      |
+| Component              | Purpose                           |
+| ---------------------- | --------------------------------- |
+| `AddDeviceForm.svelte` | Create device in library          |
+| `NewRackForm.svelte`   | Create/edit rack                  |
+| `ExportDialog.svelte`  | Export configuration              |
+| `ConfirmDialog.svelte` | Confirmation prompts              |
+| `ImageUpload.svelte`   | Device image upload               |
+| `WelcomeScreen.svelte` | First-load empty state background |
 
 ### 5.4 Utilities
 
@@ -465,6 +466,40 @@ The toolbar adapts to viewport width with two distinct modes:
 - All action buttons visible in toolbar
 - No hamburger icon visible
 - Standard toolbar layout
+
+### 6.8 First-Load Experience
+
+When `rackCount === 0` (no rack exists), the app guides users to create their first rack:
+
+| State                  | UI Behavior                                          |
+| ---------------------- | ---------------------------------------------------- |
+| Initial load (no rack) | WelcomeScreen visible + NewRackForm auto-opens       |
+| Dialog dismissed       | WelcomeScreen remains visible (clickable to re-open) |
+| Rack created           | Normal view with rack displayed                      |
+
+**WelcomeScreen Component:**
+
+- Displays ghostly 42U rack silhouette as background (opacity 0.15)
+- Clickable to trigger `handleNewRack()` (opens NewRackForm)
+- Visible behind NewRackForm dialog when auto-opened
+
+**Auto-Open Behavior:**
+
+- NewRackForm automatically opens whenever `rackCount === 0`
+- Triggers on: first load, after layout reset, after clearing localStorage
+- User can dismiss dialog and return to WelcomeScreen
+- Clicking WelcomeScreen re-opens NewRackForm
+
+**Implementation:**
+
+```typescript
+// App.svelte - Auto-open new rack dialog on mount
+onMount(() => {
+	if (layoutStore.rackCount === 0) {
+		newRackFormOpen = true;
+	}
+});
+```
 
 ---
 

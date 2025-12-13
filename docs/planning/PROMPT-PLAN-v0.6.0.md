@@ -17,6 +17,7 @@ This document contains step-by-step prompts for implementing v0.6.0 features. Ea
 3. DevicePalette Refactor
 4. Brand Starter Packs (R-01, R-02)
 5. Export Improvements (R-03, R-04)
+6. First-Load Experience (Onboarding)
 
 **Dependencies Flow:**
 
@@ -30,6 +31,8 @@ Phase 3 (DevicePalette Refactor)
 Phase 4 (Brand Packs Data + Images)
     ↓
 Phase 5 (Export UX + CSV)
+
+Phase 6 (First-Load Experience) ← Independent, can run anytime
 ```
 
 ---
@@ -733,6 +736,61 @@ Files to modify:
 
 ---
 
+## Phase 6: First-Load Experience
+
+### Prompt 6.1: Auto-Open New Rack Dialog on First Load
+
+````text
+Context: Rackarr currently shows a WelcomeScreen when there are no racks. Users must click it to open the NewRackForm dialog. We want to improve onboarding by auto-opening the dialog.
+
+Task: Auto-open NewRackForm dialog when rackCount === 0.
+
+Requirements:
+1. Add onMount handler in App.svelte that checks layoutStore.rackCount
+2. When rackCount === 0 on mount, set newRackFormOpen = true
+3. WelcomeScreen remains visible behind the dialog (current aesthetic)
+4. If user dismisses dialog, WelcomeScreen is visible (clickable to re-open)
+5. Triggers on initial load only (uses onMount, not reactive $effect)
+
+Implementation:
+```typescript
+// App.svelte - Auto-open new rack dialog on mount
+onMount(() => {
+  if (layoutStore.rackCount === 0) {
+    newRackFormOpen = true;
+  }
+});
+````
+
+TDD approach - Write tests FIRST in src/tests/App.test.ts:
+
+1. "auto-opens NewRackForm dialog on first load when no racks exist"
+   - Fresh state with hasStarted = false
+   - Expect NewRackForm dialog visible immediately
+
+2. "shows WelcomeScreen behind auto-opened dialog"
+   - Fresh state
+   - Expect both WelcomeScreen and NewRackForm in DOM
+
+3. "returns to WelcomeScreen when dialog is dismissed without creating rack"
+   - Auto-opened dialog is visible
+   - Close dialog (find cancel button, click it)
+   - Expect WelcomeScreen visible, dialog not visible
+
+4. "can re-open dialog by clicking WelcomeScreen after dismissing"
+   - Dismiss auto-opened dialog
+   - Click WelcomeScreen
+   - Expect dialog opens again
+
+Files to modify:
+
+- src/App.svelte (add $effect)
+- src/tests/App.test.ts (add test cases)
+
+````
+
+---
+
 ## Completion Checklist
 
 After all prompts are completed, verify:
@@ -750,6 +808,8 @@ After all prompts are completed, verify:
 - [ ] Export margins are consistent
 - [ ] Dual-view export layout is correct
 - [ ] Export borders and text are crisp
+- [ ] NewRackForm auto-opens on first load (rackCount === 0)
+- [ ] WelcomeScreen visible behind auto-opened dialog
 - [ ] All tests pass
 - [ ] Build succeeds
 
@@ -765,7 +825,7 @@ The project has pre-commit hooks that run automatically on every commit:
 # .husky/pre-commit
 npx lint-staged          # ESLint + Prettier on staged files
 npm run test:run         # ALL unit tests must pass
-```
+````
 
 **This means:**
 

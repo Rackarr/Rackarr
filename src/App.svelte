@@ -59,6 +59,14 @@
 	let showReplaceDialog = $state(false);
 	let pendingSaveFirst = $state(false);
 
+	// Auto-open new rack dialog when no racks exist (first-load experience)
+	// Uses onMount to run once on initial load, not reactively
+	onMount(() => {
+		if (layoutStore.rackCount === 0) {
+			newRackFormOpen = true;
+		}
+	});
+
 	// Toolbar event handlers
 	function handleNewRack() {
 		if (layoutStore.rackCount > 0) {
