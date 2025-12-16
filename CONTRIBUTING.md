@@ -43,8 +43,8 @@ When attribution is appropriate, use the `Co-authored-by:` trailer in your commi
 2. **Clone and Install**
 
    ```bash
-   git clone https://github.com/ggfevans/rackarr.git
-   cd rackarr
+   git clone https://github.com/Rackarr/Rackarr.git
+   cd Rackarr
    npm install
    ```
 
@@ -96,6 +96,15 @@ npm run test:e2e
 # Run tests with coverage
 npm run test:coverage
 ```
+
+### Documentation
+
+Key documentation for contributors:
+
+- **Architecture overview:** `docs/ARCHITECTURE.md` - Start here for codebase orientation
+- **Technical specification:** `docs/reference/SPEC.md` - Authoritative reference
+- **Testing guide:** `docs/guides/TESTING.md` - Testing patterns and best practices
+- **AI instructions:** `CLAUDE.md` - Claude Code development workflow
 
 ### Svelte 5 Runes
 

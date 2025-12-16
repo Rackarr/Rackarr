@@ -1,6 +1,6 @@
 services:
   rackarr:
-    image: ghcr.io/ggfevans/rackarr:latest
+    image: ghcr.io/rackarr/rackarr:latest
     # To build locally instead, comment out 'image' and uncomment 'build':
     # build: .
     ports:

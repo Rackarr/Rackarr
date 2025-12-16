@@ -107,19 +107,26 @@ We follow [Cargo semver](https://doc.rust-lang.org/cargo/reference/semver.html) 
 - Bundled export with metadata
 - Single-rack mode, Zod schema validation
 
-## Planning Docs
+## Documentation
 
-Full planning documentation is in `docs/planning/`:
+Documentation is organized by purpose:
 
 ```
-docs/planning/
-├── spec-combined.md     → Technical specification (single source of truth)
-├── roadmap.md           → Version planning and future features
-└── CLAUDE-planning.md   → Full project instructions
+docs/
+├── ARCHITECTURE.md          → High-level overview and entry points
+├── guides/
+│   ├── TESTING.md           → Testing patterns and commands
+│   └── ACCESSIBILITY.md     → A11y compliance checklist
+├── reference/
+│   ├── SPEC.md              → Technical specification (authoritative)
+│   ├── BRAND.md             → Design system quick reference
+│   └── GITHUB-WORKFLOW.md   → GitHub Issues workflow
+└── planning/
+    └── ROADMAP.md           → Version planning
 ```
 
-**Read `docs/planning/spec-combined.md` for complete technical specification.**
-**Read `docs/planning/CLAUDE-planning.md` for development instructions including scope guard.**
+**Start here:** `docs/ARCHITECTURE.md` for codebase overview.
+**Reference:** `docs/reference/SPEC.md` for complete technical specification.
 
 ## GitHub Issues Workflow
 
@@ -144,7 +151,7 @@ gh issue close <number> --comment "Implemented in <commit-hash>"
 - Technical Notes → Implementation guidance
 - Test Requirements → TDD test cases
 
-See `docs/planning/GITHUB-WORKFLOW.md` for full workflow documentation.
+See `docs/reference/GITHUB-WORKFLOW.md` for full workflow documentation.
 
 ## Development Philosophy
 

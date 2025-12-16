@@ -33,7 +33,7 @@ Homelabbers planning rack layouts. Desktop browser users (mobile support planned
 | Resource   | URL                                 |
 | ---------- | ----------------------------------- |
 | Live Demo  | https://app.rackarr.com/            |
-| Repository | https://github.com/ggfevans/rackarr |
+| Repository | https://github.com/Rackarr/Rackarr |
 
 ---
 

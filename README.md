@@ -55,10 +55,10 @@ Access the app at `http://localhost:5173`
 
 ```bash
 # One-liner
-docker run -d -p 8080:80 ghcr.io/ggfevans/rackarr:latest
+docker run -d -p 8080:80 ghcr.io/rackarr/rackarr:latest
 
 # Or with docker compose
-curl -O https://raw.githubusercontent.com/ggfevans/rackarr/main/docker-compose.yml
+curl -O https://raw.githubusercontent.com/Rackarr/Rackarr/main/docker-compose.yml
 docker compose up -d
 ```
 

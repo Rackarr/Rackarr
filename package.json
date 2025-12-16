@@ -6,9 +6,9 @@
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/ggfevans/rackarr.git"
+		"url": "https://github.com/Rackarr/Rackarr.git"
 	},
-	"homepage": "https://github.com/ggfevans/rackarr",
+	"homepage": "https://github.com/Rackarr/Rackarr",
 	"private": true,
 	"type": "module",
 	"scripts": {
