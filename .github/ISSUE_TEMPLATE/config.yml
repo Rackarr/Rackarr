@@ -1,5 +1,5 @@
-blank_issues_enabled: true
+blank_issues_enabled: false
 contact_links:
-  - name: Documentation
-    url: https://app.rackarr.com/
-    about: Check the live demo and documentation first
+  - name: Discussions
+    url: https://github.com/Rackarr/Rackarr/discussions
+    about: For questions, ideas, and general chat

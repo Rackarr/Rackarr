@@ -121,6 +121,31 @@ docs/planning/
 **Read `docs/planning/spec-combined.md` for complete technical specification.**
 **Read `docs/planning/CLAUDE-planning.md` for development instructions including scope guard.**
 
+## GitHub Issues Workflow
+
+GitHub Issues is the source of truth for task tracking.
+
+**Querying work:**
+```bash
+# Find next task
+gh issue list --label ready --milestone v0.6.0 --state open
+
+# Get issue details
+gh issue view <number>
+```
+
+**After completing an issue:**
+```bash
+gh issue close <number> --comment "Implemented in <commit-hash>"
+```
+
+**Issue structure provides:**
+- Acceptance Criteria → Requirements checklist
+- Technical Notes → Implementation guidance
+- Test Requirements → TDD test cases
+
+See `docs/planning/GITHUB-WORKFLOW.md` for full workflow documentation.
+
 ## Development Philosophy
 
 **Greenfield approach:** Do not use migration or legacy support concepts in this project. Implement features as if they are the first and only implementation.
