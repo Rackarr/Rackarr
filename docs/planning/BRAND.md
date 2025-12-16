@@ -410,6 +410,63 @@ Is the coloured area > 100px²?
 
 ---
 
+## Logo Lockup
+
+The logo lockup combines the logo mark with the "Rackarr" wordmark as a unified branding element.
+
+### Component
+
+**File:** `src/lib/components/LogoLockup.svelte`
+
+### Props
+
+| Prop   | Type     | Default | Description                       |
+| ------ | -------- | ------- | --------------------------------- |
+| `size` | `number` | 36      | Height of the logo mark in pixels |
+
+### Behaviour
+
+| State          | Appearance                                  |
+| -------------- | ------------------------------------------- |
+| Rest           | Static pink (`#FF79C6`)                     |
+| Hover          | Animated rainbow gradient (Dracula accents) |
+| Reduced motion | Stays static pink on hover                  |
+
+### Animated Gradient
+
+The hover animation cycles through Dracula accent colours:
+
+```css
+/* 6-second cycle, infinite loop */
+values="#BD93F9;#FF79C6;#8BE9FD;#50FA7B;#BD93F9"  /* purple → pink → cyan → green → purple */
+```
+
+### Responsive
+
+| Breakpoint | Display         |
+| ---------- | --------------- |
+| > 600px    | Logo + wordmark |
+| ≤ 600px    | Logo only       |
+
+### Usage
+
+```svelte
+<script>
+	import LogoLockup from './LogoLockup.svelte';
+</script>
+
+<!-- Toolbar branding -->
+<LogoLockup size={28} />
+```
+
+### Accessibility
+
+- Logo mark uses `aria-hidden="true"` (decorative)
+- Title SVG uses `role="img"` with `aria-label="Rackarr"`
+- Animation respects `prefers-reduced-motion: reduce`
+
+---
+
 ## Voice & Tone
 
 - **Direct:** Say what it does, no marketing fluff

@@ -5,6 +5,7 @@
 <script lang="ts">
 	import Tooltip from './Tooltip.svelte';
 	import ToolbarDrawer from './ToolbarDrawer.svelte';
+	import LogoLockup from './LogoLockup.svelte';
 	import {
 		IconPlus,
 		IconSave,
@@ -17,7 +18,6 @@
 		IconHelp,
 		IconLabel,
 		IconImage,
-		IconLogo,
 		IconUndo,
 		IconRedo,
 		IconMenu,
@@ -139,16 +139,14 @@
 				aria-label={drawerOpen ? 'Close menu' : 'Open menu'}
 				onclick={toggleDrawer}
 			>
-				<IconLogo size={36} />
-				<span class="brand-name">Rackarr</span>
+				<LogoLockup size={36} />
 				<span class="hamburger-icon" aria-hidden="true">
 					<IconMenu size={20} />
 				</span>
 			</button>
 		{:else}
 			<div class="toolbar-brand">
-				<IconLogo size={36} />
-				<span class="brand-name">Rackarr</span>
+				<LogoLockup size={36} />
 			</div>
 		{/if}
 	</div>
@@ -382,11 +380,6 @@
 		color: var(--colour-text-muted);
 	}
 
-	.brand-name {
-		font-size: 1.265rem; /* ~18px × 1.15 = 20.7px */
-		font-weight: var(--font-weight-bold);
-	}
-
 	.toolbar-action-btn {
 		display: inline-flex;
 		align-items: center;
@@ -500,12 +493,8 @@
 		box-shadow: 0 0 0 2px var(--colour-focus-ring);
 	}
 
-	/* Responsive: Small screens - icon-only branding */
+	/* Responsive: Small screens - compact branding */
 	@media (max-width: 600px) {
-		.brand-name {
-			display: none;
-		}
-
 		.toolbar-brand {
 			padding: var(--space-2);
 		}

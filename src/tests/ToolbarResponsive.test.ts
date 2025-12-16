@@ -45,12 +45,14 @@ describe('Toolbar Responsive Structure', () => {
 	});
 
 	describe('Brand structure', () => {
-		it('brand section contains brand-name element', () => {
+		it('brand section contains logo lockup with title', () => {
 			const { container } = render(Toolbar);
 
-			const brandName = container.querySelector('.brand-name');
-			expect(brandName).toBeInTheDocument();
-			expect(brandName?.textContent).toBe('Rackarr');
+			// LogoLockup uses SVG text for the brand name with aria-label
+			const logoTitle = container.querySelector('.logo-title');
+			expect(logoTitle).toBeInTheDocument();
+			expect(logoTitle?.getAttribute('aria-label')).toBe('Rackarr');
+			expect(logoTitle?.querySelector('text')?.textContent).toBe('Rackarr');
 		});
 
 		it('brand section does not contain tagline (moved to Help)', () => {
