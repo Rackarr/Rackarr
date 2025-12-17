@@ -1,7 +1,49 @@
-# Issue Development Workflow v3
+# Issue Development Workflow v4
 
 Pick up the next ready issue, assess it, and either complete it or document blockers.
 Designed for autonomous operation with subagent delegation and memory-assisted context.
+**Now supports parallel sessions via git worktrees.**
+
+---
+
+## Parallel Sessions (Worktree Mode)
+
+Git worktrees allow multiple Claude sessions to work on different issues simultaneously without conflicts.
+
+### How It Works
+
+```
+~/code/
+├── Rackarr/                    # Main worktree (main branch)
+├── Rackarr-issue-38/           # Worktree for issue #38
+└── Rackarr-issue-41/           # Worktree for issue #41
+```
+
+Each worktree is an independent directory with its own files, but they share git history.
+
+### When to Use Worktrees
+
+| Scenario | Recommendation |
+|----------|----------------|
+| Single issue | Stay in main directory |
+| Parallel issues (independent) | Use worktrees |
+| Reviewing someone else's work | Use worktrees |
+
+### Worktree Commands Reference
+
+```bash
+# Create worktree for an issue
+git worktree add ../Rackarr-issue-<N> -b <type>/<N>-<description>
+
+# List all worktrees (shows which issues are "claimed")
+git worktree list
+
+# Remove worktree after merging
+git worktree remove ../Rackarr-issue-<N>
+
+# Prune stale references
+git worktree prune
+```
 
 ---
 
@@ -30,9 +72,10 @@ You have **explicit permission** to perform the following WITHOUT asking:
 | Action | Scope |
 |--------|-------|
 | Create/switch git branches | Any branch matching `(fix\|feat\|chore\|refactor\|test\|docs)/<number>-*` |
+| Create/remove worktrees | Sibling directories named `Rackarr-issue-<N>` |
 | Edit files | All files in `src/`, `docs/`, test files |
-| Run commands | `npm test`, `npm run build`, `npm run lint`, `gh` CLI |
-| Git operations | add, commit, push (to non-main branches), fetch, pull |
+| Run commands | `npm test`, `npm run build`, `npm run lint`, `npm install`, `gh` CLI |
+| Git operations | add, commit, push (to non-main branches), fetch, pull, worktree |
 | Create PRs | Via `gh pr create` |
 | Merge PRs | Via `gh pr merge --squash` after checks pass |
 | Comment on issues | Via `gh issue comment` |
@@ -41,6 +84,7 @@ You have **explicit permission** to perform the following WITHOUT asking:
 - Force push to any branch
 - Any operation on `main` branch directly
 - Deleting branches not created in this session
+- Removing worktrees not created in this session
 - Genuine ambiguity requiring human judgment
 
 ---
@@ -49,7 +93,29 @@ You have **explicit permission** to perform the following WITHOUT asking:
 
 Launch these operations **in parallel** using the Task tool:
 
-### 1a. Context Loading (Memory-First Approach)
+### 1a. Worktree Detection
+
+Determine if we're in a worktree and what issues are already claimed:
+
+```bash
+# Check if we're in a worktree (vs main working directory)
+git rev-parse --is-inside-work-tree && git worktree list
+
+# Parse output to identify:
+# 1. Current worktree path and branch
+# 2. Other worktrees and their branches (extract issue numbers from branch names)
+```
+
+**Parse worktree list to extract claimed issues:**
+- Branch pattern: `(fix|feat|test|...)/<number>-*` → issue #<number> is claimed
+- Store claimed issue numbers to filter from available issues
+
+**If already in a worktree (not main directory):**
+- Extract issue number from current branch name
+- Skip to Phase 2 with that specific issue (don't pick a new one)
+- This allows resuming work in an existing worktree
+
+### 1b. Context Loading (Memory-First Approach)
 
 **Step 1: Search Memory** (use mem-search skill)
 ```
@@ -71,13 +137,13 @@ Summarize: (1) key architectural patterns, (2) file organization,
 (3) testing conventions. Keep summary under 500 words."
 ```
 
-### 1b. WIP Branch Check (Bash)
+### 1c. WIP Branch Check (Bash)
 ```bash
 git fetch origin --prune
 git branch -a | grep -E "(fix|feat|chore|refactor|test|docs)/" || echo "No WIP branches"
 ```
 
-### 1c. Issue Fetch (Bash)
+### 1d. Issue Fetch (Bash)
 ```bash
 gh issue list -R Rackarr/Rackarr --state open --label ready \
   --json number,title,labels,body \
@@ -89,10 +155,12 @@ gh issue list -R Rackarr/Rackarr --state open --label ready \
     (.labels | map(.name) | if any(test("size:small")) then 0
       elif any(test("size:medium")) then 1
       else 2 end)
-  ) | .[0:3]'  # Fetch top 3 for assessment
+  ) | .[0:5]'  # Fetch top 5 for filtering
 ```
 
-**If no issues:** Write to progress file, report "No ready issues available", and stop.
+**Filter out claimed issues:** Remove any issues whose number matches a worktree branch from step 1a.
+
+**If no unclaimed issues:** Write to progress file, report "No ready issues available (N issues claimed by other worktrees)", and stop.
 
 ---
 
@@ -188,7 +256,13 @@ Return file paths with brief relevance notes."
 
 ## Phase 3: Implementation
 
-### 3a. Create Branch
+### 3a. Create Branch (or Worktree)
+
+**If already in a worktree for this issue:** Skip to 3b (branch already exists).
+
+**If in main directory, choose approach:**
+
+#### Option A: Same-directory branch (default, single session)
 ```bash
 # Ensure clean state
 git checkout main
@@ -197,6 +271,29 @@ git pull origin main
 # Create branch: <type>/<issue-number>-<short-description>
 git checkout -b fix/42-short-description
 ```
+
+#### Option B: New worktree (enables parallel sessions)
+
+Use this when you want to allow other sessions to work on different issues:
+
+```bash
+# Ensure main is up to date
+git checkout main
+git pull origin main
+
+# Create worktree with branch in sibling directory
+git worktree add ../Rackarr-issue-42 -b fix/42-short-description
+
+# Install dependencies in new worktree
+cd ../Rackarr-issue-42
+npm install
+
+# Stay here for development
+```
+
+**Worktree naming convention:** `<repo-name>-issue-<number>`
+
+**Note:** After creating a worktree, you must run `npm install` as each worktree has its own `node_modules/`.
 
 ### 3b. Update Progress File
 ```bash
@@ -299,7 +396,33 @@ If `--auto` not available:
 gh pr merge --squash --delete-branch
 ```
 
-### 3h. Update Progress File
+### 3h. Worktree Cleanup (if using worktrees)
+
+**If working in a worktree**, clean up after merge:
+
+```bash
+# Return to main directory
+cd ../Rackarr
+
+# Update main with merged changes
+git checkout main
+git pull origin main
+
+# Remove the worktree
+git worktree remove ../Rackarr-issue-42
+
+# Prune any stale references
+git worktree prune
+```
+
+**If staying to work on another issue**, you can reuse the worktree:
+```bash
+# From within the worktree, update and create new branch
+git fetch origin main:main
+git checkout -b fix/43-next-issue
+```
+
+### 3i. Update Progress File
 ```bash
 # Update status
 sed -i 's/Status:** In Progress/Status:** Completed/' .claude/session-progress.md
@@ -326,12 +449,18 @@ gh issue list -R Rackarr/Rackarr --state open --label ready --json number | jq '
 - Return to Phase 1 immediately
 - Do NOT pause for confirmation
 
+**If in a worktree:**
+- After completing the current issue, clean up (3h)
+- Either return to main directory for next issue, OR
+- Reuse worktree for next issue if continuing in this session
+
 **If no more issues:**
 - Write final summary to progress file
+- Clean up any worktrees
 - Report completion
 
 **Stopping conditions (ONLY these stop the loop):**
-1. No ready issues remaining
+1. No ready issues remaining (excluding claimed worktrees)
 2. Blocker hit (after error recovery attempts)
 3. User interruption
 
@@ -435,6 +564,25 @@ Do not continue to next issue. Report blocker and stop.
 ---
 
 ## Quick Reference
+
+### Worktree Commands
+
+```bash
+# Create worktree for issue
+git worktree add ../Rackarr-issue-<N> -b <type>/<N>-<desc>
+
+# List all worktrees (see claimed issues)
+git worktree list
+
+# Remove worktree after merge
+git worktree remove ../Rackarr-issue-<N>
+
+# Detect if in worktree (empty = main, path = worktree)
+git rev-parse --git-common-dir | grep -v "^\.git$" || echo ""
+
+# Extract issue number from branch
+git branch --show-current | grep -oP '(?<=/)\d+(?=-)'
+```
 
 ### Svelte 5 Runes (Required)
 
