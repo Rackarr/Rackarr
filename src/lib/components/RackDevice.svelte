@@ -6,10 +6,8 @@
 	import type { DeviceType, DisplayMode, RackView } from '$lib/types';
 	import { createRackDeviceDragData, serializeDragData } from '$lib/utils/dragdrop';
 	import CategoryIcon from './CategoryIcon.svelte';
-	import AirflowIndicator from './AirflowIndicator.svelte';
 	import { IconGrip } from './icons';
 	import { getImageStore } from '$lib/stores/images.svelte';
-	import { debug } from '$lib/utils/debug';
 
 	interface Props {
 		device: DeviceType;
@@ -24,8 +22,6 @@
 		rackView?: RackView;
 		showLabelsOnImages?: boolean;
 		placedDeviceName?: string;
-		airflowMode?: boolean;
-		hasConflict?: boolean;
 		onselect?: (event: CustomEvent<{ slug: string; position: number }>) => void;
 		ondragstart?: (event: CustomEvent<{ rackId: string; deviceIndex: number }>) => void;
 		ondragend?: () => void;
@@ -44,8 +40,6 @@
 		rackView = 'front',
 		showLabelsOnImages = false,
 		placedDeviceName,
-		airflowMode = false,
-		hasConflict = false,
 		onselect,
 		ondragstart: ondragstartProp,
 		ondragend: ondragendProp
@@ -56,18 +50,6 @@
 
 	// Display name: custom name if set, otherwise device type name
 	const displayName = $derived(placedDeviceName ?? deviceName);
-
-	// Debug airflow rendering
-	$effect(() => {
-		if (airflowMode) {
-			debug.log('RackDevice airflow check:', {
-				deviceName,
-				airflowMode,
-				deviceAirflow: device.airflow,
-				shouldRender: airflowMode && device.airflow
-			});
-		}
-	});
 
 	const imageStore = getImageStore();
 
@@ -171,19 +153,6 @@
 		/>
 	{/if}
 
-	<!-- Airflow conflict border -->
-	{#if airflowMode && hasConflict}
-		<rect
-			class="airflow-conflict"
-			x="1"
-			y="1"
-			width={deviceWidth - 2}
-			height={deviceHeight - 2}
-			rx="2"
-			ry="2"
-		/>
-	{/if}
-
 	<!-- Device content: Image or Label -->
 	{#if showImage}
 		<!-- Device image: extends past rack rails for realistic front-mounting appearance -->
@@ -228,18 +197,6 @@
 				</div>
 			</foreignObject>
 		{/if}
-	{/if}
-
-	<!-- Airflow indicator overlay -->
-	{#if airflowMode && device.airflow}
-		<g class="airflow-overlay">
-			<AirflowIndicator
-				airflow={device.airflow}
-				view={rackView}
-				width={deviceWidth}
-				height={deviceHeight}
-			/>
-		</g>
 	{/if}
 
 	<!-- Invisible HTML overlay for drag-and-drop (rendered last to be on top for click events) -->
@@ -327,13 +284,6 @@
 		pointer-events: none;
 	}
 
-	.airflow-conflict {
-		fill: none;
-		stroke: var(--colour-airflow-conflict);
-		stroke-width: 2;
-		pointer-events: none;
-	}
-
 	.device-name {
 		fill: var(--neutral-50);
 		font-size: var(--font-size-device, 13px);
@@ -405,10 +355,6 @@
 			transparent 100%
 		);
 		user-select: none;
-	}
-
-	.airflow-overlay {
-		pointer-events: none;
 	}
 
 	.device-image {

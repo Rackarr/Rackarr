@@ -18,7 +18,6 @@ export const mikrotikDevices: DeviceType[] = [
 		manufacturer: 'Mikrotik',
 		model: 'CRS326-24G-2S+',
 		is_full_depth: true,
-		airflow: 'side-to-rear',
 		rackarr: {
 			colour: CATEGORY_COLOURS.network,
 			category: 'network'
@@ -30,7 +29,6 @@ export const mikrotikDevices: DeviceType[] = [
 		manufacturer: 'Mikrotik',
 		model: 'CRS328-24P-4S+',
 		is_full_depth: true,
-		airflow: 'side-to-rear',
 		rackarr: {
 			colour: CATEGORY_COLOURS.network,
 			category: 'network'
@@ -42,7 +40,6 @@ export const mikrotikDevices: DeviceType[] = [
 		manufacturer: 'Mikrotik',
 		model: 'CRS309-1G-8S+',
 		is_full_depth: true,
-		airflow: 'side-to-rear',
 		rackarr: {
 			colour: CATEGORY_COLOURS.network,
 			category: 'network'
@@ -55,7 +52,6 @@ export const mikrotikDevices: DeviceType[] = [
 		manufacturer: 'Mikrotik',
 		model: 'CCR2004-1G-12S+2XS',
 		is_full_depth: true,
-		airflow: 'front-to-rear',
 		rackarr: {
 			colour: CATEGORY_COLOURS.network,
 			category: 'network'
@@ -68,7 +64,6 @@ export const mikrotikDevices: DeviceType[] = [
 		manufacturer: 'Mikrotik',
 		model: 'RB5009UG+S+IN',
 		is_full_depth: true,
-		airflow: 'front-to-rear',
 		rackarr: {
 			colour: CATEGORY_COLOURS.network,
 			category: 'network'

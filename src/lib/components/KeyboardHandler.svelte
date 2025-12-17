@@ -19,7 +19,6 @@
 		onfitall?: () => void;
 		onhelp?: () => void;
 		ontoggledisplaymode?: () => void;
-		ontoggleairflowmode?: () => void;
 	}
 
 	let {
@@ -29,8 +28,7 @@
 		ondelete,
 		onfitall,
 		onhelp,
-		ontoggledisplaymode,
-		ontoggleairflowmode
+		ontoggledisplaymode
 	}: Props = $props();
 
 	const layoutStore = getLayoutStore();
@@ -211,12 +209,6 @@
 			{
 				key: 'i',
 				action: () => ontoggledisplaymode?.()
-			},
-
-			// A - toggle airflow visualization mode
-			{
-				key: 'a',
-				action: () => ontoggleairflowmode?.()
 			}
 		];
 	}

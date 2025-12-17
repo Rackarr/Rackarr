@@ -83,10 +83,6 @@ describe('analytics', () => {
 			expect(() => analytics.trackDisplayModeToggle('image')).not.toThrow();
 		});
 
-		it('trackAirflowView does not throw', () => {
-			expect(() => analytics.trackAirflowView(true)).not.toThrow();
-		});
-
 		it('trackRackResize does not throw', () => {
 			expect(() => analytics.trackRackResize(42)).not.toThrow();
 		});

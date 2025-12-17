@@ -20,8 +20,7 @@
 		IconImage,
 		IconUndo,
 		IconRedo,
-		IconMenu,
-		IconWind
+		IconMenu
 	} from './icons';
 	import type { DisplayMode } from '$lib/types';
 	import { getLayoutStore } from '$lib/stores/layout.svelte';
@@ -32,7 +31,6 @@
 		hasRacks?: boolean;
 		theme?: 'dark' | 'light';
 		displayMode?: DisplayMode;
-		airflowMode?: boolean;
 		partyMode?: boolean;
 		onnewrack?: () => void;
 		onsave?: () => void;
@@ -42,7 +40,6 @@
 		onfitall?: () => void;
 		ontoggletheme?: () => void;
 		ontoggledisplaymode?: () => void;
-		ontoggleairflowmode?: () => void;
 		onhelp?: () => void;
 	}
 
@@ -51,7 +48,6 @@
 		hasRacks = false,
 		theme = 'dark',
 		displayMode = 'label',
-		airflowMode = false,
 		partyMode = false,
 		onnewrack,
 		onsave,
@@ -61,7 +57,6 @@
 		onfitall,
 		ontoggletheme,
 		ontoggledisplaymode,
-		ontoggleairflowmode,
 		onhelp
 	}: Props = $props();
 
@@ -213,20 +208,6 @@
 			</button>
 		</Tooltip>
 
-		<Tooltip text="Toggle Airflow View" shortcut="A" position="bottom">
-			<button
-				class="toolbar-action-btn"
-				class:active={airflowMode}
-				aria-label="Toggle Airflow View"
-				aria-pressed={airflowMode}
-				onclick={ontoggleairflowmode}
-				data-testid="btn-toggle-airflow"
-			>
-				<IconWind size={16} />
-				<span>Airflow</span>
-			</button>
-		</Tooltip>
-
 		<div class="separator" aria-hidden="true"></div>
 
 		<Tooltip text={layoutStore.undoDescription ?? 'Undo'} shortcut="Ctrl+Z" position="bottom">
@@ -312,7 +293,6 @@
 <ToolbarDrawer
 	open={drawerOpen}
 	{displayMode}
-	{airflowMode}
 	canUndo={layoutStore.canUndo}
 	canRedo={layoutStore.canRedo}
 	{hasSelection}
@@ -326,7 +306,6 @@
 	{ondelete}
 	{onfitall}
 	{ontoggledisplaymode}
-	{ontoggleairflowmode}
 	{onhelp}
 	onundo={handleUndo}
 	onredo={handleRedo}
@@ -435,12 +414,6 @@
 	.toolbar-action-btn.primary:hover:not(:disabled) {
 		background: var(--colour-selection-hover);
 		border-color: var(--colour-selection-hover);
-	}
-
-	.toolbar-action-btn.active {
-		background: var(--colour-surface-active);
-		border-color: var(--colour-selection);
-		color: var(--colour-selection);
 	}
 
 	.separator {

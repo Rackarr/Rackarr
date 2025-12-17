@@ -18,7 +18,6 @@ export const ubiquitiDevices: DeviceType[] = [
 		manufacturer: 'Ubiquiti',
 		model: 'USW-Pro-24',
 		is_full_depth: true,
-		airflow: 'side-to-rear',
 		rackarr: {
 			colour: CATEGORY_COLOURS.network,
 			category: 'network'
@@ -30,7 +29,6 @@ export const ubiquitiDevices: DeviceType[] = [
 		manufacturer: 'Ubiquiti',
 		model: 'USW-Pro-48',
 		is_full_depth: true,
-		airflow: 'side-to-rear',
 		rackarr: {
 			colour: CATEGORY_COLOURS.network,
 			category: 'network'
@@ -42,7 +40,6 @@ export const ubiquitiDevices: DeviceType[] = [
 		manufacturer: 'Ubiquiti',
 		model: 'USW-Pro-24-PoE',
 		is_full_depth: true,
-		airflow: 'side-to-rear',
 		rackarr: {
 			colour: CATEGORY_COLOURS.network,
 			category: 'network'
@@ -54,7 +51,6 @@ export const ubiquitiDevices: DeviceType[] = [
 		manufacturer: 'Ubiquiti',
 		model: 'USW-Pro-48-PoE',
 		is_full_depth: true,
-		airflow: 'side-to-rear',
 		rackarr: {
 			colour: CATEGORY_COLOURS.network,
 			category: 'network'
@@ -66,7 +62,6 @@ export const ubiquitiDevices: DeviceType[] = [
 		manufacturer: 'Ubiquiti',
 		model: 'USW-Aggregation',
 		is_full_depth: true,
-		airflow: 'side-to-rear',
 		rackarr: {
 			colour: CATEGORY_COLOURS.network,
 			category: 'network'
@@ -79,7 +74,6 @@ export const ubiquitiDevices: DeviceType[] = [
 		manufacturer: 'Ubiquiti',
 		model: 'UDM-Pro',
 		is_full_depth: true,
-		airflow: 'front-to-rear',
 		rackarr: {
 			colour: CATEGORY_COLOURS.network,
 			category: 'network'
@@ -91,7 +85,6 @@ export const ubiquitiDevices: DeviceType[] = [
 		manufacturer: 'Ubiquiti',
 		model: 'UDM-SE',
 		is_full_depth: true,
-		airflow: 'front-to-rear',
 		rackarr: {
 			colour: CATEGORY_COLOURS.network,
 			category: 'network'
@@ -104,7 +97,6 @@ export const ubiquitiDevices: DeviceType[] = [
 		manufacturer: 'Ubiquiti',
 		model: 'UNVR',
 		is_full_depth: true,
-		airflow: 'front-to-rear',
 		rackarr: {
 			colour: CATEGORY_COLOURS.storage,
 			category: 'storage'
@@ -116,7 +108,6 @@ export const ubiquitiDevices: DeviceType[] = [
 		manufacturer: 'Ubiquiti',
 		model: 'UNVR-Pro',
 		is_full_depth: true,
-		airflow: 'front-to-rear',
 		rackarr: {
 			colour: CATEGORY_COLOURS.storage,
 			category: 'storage'
@@ -129,7 +120,6 @@ export const ubiquitiDevices: DeviceType[] = [
 		manufacturer: 'Ubiquiti',
 		model: 'USP-PDU-Pro',
 		is_full_depth: false,
-		airflow: 'passive',
 		rackarr: {
 			colour: CATEGORY_COLOURS.power,
 			category: 'power'

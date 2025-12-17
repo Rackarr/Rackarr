@@ -18,7 +18,6 @@
 		selectedDeviceIndex?: number | null;
 		displayMode?: DisplayMode;
 		showLabelsOnImages?: boolean;
-		airflowMode?: boolean;
 		onselect?: (event: CustomEvent<{ rackId: string }>) => void;
 		ondeviceselect?: (event: CustomEvent<{ slug: string; position: number }>) => void;
 		ondevicedrop?: (
@@ -49,7 +48,6 @@
 		selectedDeviceIndex = null,
 		displayMode = 'label',
 		showLabelsOnImages = false,
-		airflowMode = false,
 		onselect,
 		ondeviceselect,
 		ondevicedrop,
@@ -124,7 +122,6 @@
 				{selectedDeviceIndex}
 				{displayMode}
 				{showLabelsOnImages}
-				{airflowMode}
 				faceFilter="front"
 				hideRackName={true}
 				viewLabel="FRONT"
@@ -145,7 +142,6 @@
 				{selectedDeviceIndex}
 				{displayMode}
 				{showLabelsOnImages}
-				{airflowMode}
 				faceFilter="rear"
 				hideRackName={true}
 				viewLabel="REAR"

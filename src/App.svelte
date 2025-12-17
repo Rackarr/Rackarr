@@ -379,12 +379,6 @@
 		analytics.trackDisplayModeToggle(uiStore.displayMode);
 	}
 
-	function handleToggleAirflowMode() {
-		uiStore.toggleAirflowMode();
-		// Track airflow view toggle
-		analytics.trackAirflowView(uiStore.airflowMode);
-	}
-
 	function handleHelp() {
 		helpPanelOpen = true;
 	}
@@ -402,7 +396,6 @@
 		height: number;
 		category: import('$lib/types').DeviceCategory;
 		colour: string;
-		airflow: import('$lib/types').Airflow;
 		notes: string;
 		frontImage?: ImageData;
 		rearImage?: ImageData;
@@ -412,8 +405,7 @@
 			u_height: data.height,
 			category: data.category,
 			colour: data.colour,
-			comments: data.notes || undefined,
-			airflow: data.airflow
+			comments: data.notes || undefined
 		});
 
 		// Store images if provided (v0.1.0)
@@ -464,7 +456,6 @@
 		hasRacks={layoutStore.hasRack}
 		theme={uiStore.theme}
 		displayMode={uiStore.displayMode}
-		airflowMode={uiStore.airflowMode}
 		{partyMode}
 		onnewrack={handleNewRack}
 		onsave={handleSave}
@@ -474,7 +465,6 @@
 		onfitall={handleFitAll}
 		ontoggletheme={handleToggleTheme}
 		ontoggledisplaymode={handleToggleDisplayMode}
-		ontoggleairflowmode={handleToggleAirflowMode}
 		onhelp={handleHelp}
 	/>
 

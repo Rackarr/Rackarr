@@ -379,26 +379,6 @@ describe('KeyboardHandler Component', () => {
 		});
 	});
 
-	describe('Airflow Mode Toggle', () => {
-		it('A key toggles airflow mode', async () => {
-			const onToggleAirflowMode = vi.fn();
-			render(KeyboardHandler, { props: { ontoggleairflowmode: onToggleAirflowMode } });
-
-			await fireEvent.keyDown(window, { key: 'a' });
-
-			expect(onToggleAirflowMode).toHaveBeenCalledTimes(1);
-		});
-
-		it('A key is case insensitive', async () => {
-			const onToggleAirflowMode = vi.fn();
-			render(KeyboardHandler, { props: { ontoggleairflowmode: onToggleAirflowMode } });
-
-			await fireEvent.keyDown(window, { key: 'A' });
-
-			expect(onToggleAirflowMode).toHaveBeenCalledTimes(1);
-		});
-	});
-
 	describe('Undo/Redo Shortcuts', () => {
 		it('Ctrl+Z triggers undo when history available', async () => {
 			const layoutStore = getLayoutStore();

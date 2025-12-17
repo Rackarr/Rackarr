@@ -108,11 +108,10 @@ describe('ToolbarDrawer Component', () => {
 			expect(screen.getByRole('button', { name: /delete/i })).toBeInTheDocument();
 		});
 
-		it('renders view group with display mode, airflow, reset view, about', () => {
+		it('renders view group with display mode, reset view, about', () => {
 			render(ToolbarDrawer, { props: { open: true } });
 
 			expect(screen.getByRole('button', { name: /mode/i })).toBeInTheDocument();
-			expect(screen.getByRole('button', { name: /airflow/i })).toBeInTheDocument();
 			expect(screen.getByRole('button', { name: /reset view/i })).toBeInTheDocument();
 			expect(screen.getByRole('button', { name: /about/i })).toBeInTheDocument();
 		});
@@ -132,26 +131,6 @@ describe('ToolbarDrawer Component', () => {
 			expect(onclose).toHaveBeenCalled();
 		});
 
-		it('airflow button shows active state when enabled', () => {
-			render(ToolbarDrawer, { props: { open: true, airflowMode: true } });
-			const airflowBtn = screen.getByRole('button', { name: /airflow/i });
-			expect(airflowBtn).toHaveAttribute('aria-pressed', 'true');
-		});
-
-		it('clicking airflow button calls toggle handler', async () => {
-			const ontoggleairflowmode = vi.fn();
-			const onclose = vi.fn();
-
-			render(ToolbarDrawer, {
-				props: { open: true, ontoggleairflowmode, onclose }
-			});
-
-			const airflowBtn = screen.getByRole('button', { name: /airflow/i });
-			await fireEvent.click(airflowBtn);
-
-			expect(ontoggleairflowmode).toHaveBeenCalled();
-			expect(onclose).toHaveBeenCalled();
-		});
 	});
 
 	describe('Keyboard', () => {

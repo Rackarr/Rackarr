@@ -35,12 +35,6 @@ export type DeviceCategory =
 	| 'other';
 
 /**
- * Airflow direction types (NetBox-compatible)
- * Simplified to 4 types for Rackarr
- */
-export type Airflow = 'passive' | 'front-to-rear' | 'rear-to-front' | 'side-to-rear';
-
-/**
  * Weight unit types (NetBox-compatible)
  */
 export type WeightUnit = 'kg' | 'lb';
@@ -93,8 +87,6 @@ export interface DeviceType {
 	weight?: number;
 	/** Weight unit (required if weight is provided) */
 	weight_unit?: WeightUnit;
-	/** Airflow direction */
-	airflow?: Airflow;
 	/** Notes/comments */
 	comments?: string;
 	// Power device properties (category: 'power')
@@ -196,7 +188,6 @@ export interface CreateDeviceTypeData {
 	is_full_depth?: boolean;
 	weight?: number;
 	weight_unit?: WeightUnit;
-	airflow?: Airflow;
 	comments?: string;
 	tags?: string[];
 	// Power device properties
@@ -258,6 +249,4 @@ export interface ExportOptions {
 	exportView?: ExportView;
 	/** Display mode */
 	displayMode?: DisplayMode;
-	/** Show airflow indicators */
-	airflowMode?: boolean;
 }

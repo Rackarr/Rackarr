@@ -39,13 +39,6 @@ describe('Ubiquiti Brand Pack', () => {
 				expect(validCategories).toContain(device.rackarr.category);
 			}
 		});
-
-		it('all devices have valid airflow', () => {
-			const validAirflows = ['passive', 'front-to-rear', 'rear-to-front', 'side-to-rear'];
-			for (const device of ubiquitiDevices) {
-				expect(validAirflows).toContain(device.airflow);
-			}
-		});
 	});
 
 	describe('Specific Devices', () => {
@@ -55,7 +48,6 @@ describe('Ubiquiti Brand Pack', () => {
 			expect(udmPro?.model).toBe('UDM-Pro');
 			expect(udmPro?.u_height).toBe(1);
 			expect(udmPro?.is_full_depth).toBe(true);
-			expect(udmPro?.airflow).toBe('front-to-rear');
 			expect(udmPro?.rackarr.category).toBe('network');
 		});
 
@@ -65,7 +57,6 @@ describe('Ubiquiti Brand Pack', () => {
 			expect(pdu?.model).toBe('USP-PDU-Pro');
 			expect(pdu?.u_height).toBe(1);
 			expect(pdu?.is_full_depth).toBe(false);
-			expect(pdu?.airflow).toBe('passive');
 			expect(pdu?.rackarr.category).toBe('power');
 		});
 
@@ -75,7 +66,6 @@ describe('Ubiquiti Brand Pack', () => {
 			expect(unvrPro?.model).toBe('UNVR-Pro');
 			expect(unvrPro?.u_height).toBe(2);
 			expect(unvrPro?.is_full_depth).toBe(true);
-			expect(unvrPro?.airflow).toBe('front-to-rear');
 			expect(unvrPro?.rackarr.category).toBe('storage');
 		});
 	});

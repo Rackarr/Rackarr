@@ -61,15 +61,6 @@ export const FormFactorSchema = z.enum([
 ]);
 
 /**
- * Airflow direction enum (NetBox-compatible)
- * - passive: No active cooling
- * - front-to-rear: Standard server airflow
- * - rear-to-front: Reverse airflow
- * - side-to-rear: Side intake (e.g., network switches)
- */
-export const AirflowSchema = z.enum(['passive', 'front-to-rear', 'rear-to-front', 'side-to-rear']);
-
-/**
  * Device face in rack
  */
 export const DeviceFaceSchema = z.enum(['front', 'rear', 'both']);
@@ -141,7 +132,6 @@ export const DeviceTypeSchema = z.object({
 	is_full_depth: z.boolean().optional(),
 	weight: z.number().positive().optional(),
 	weight_unit: WeightUnitSchema.optional(),
-	airflow: AirflowSchema.optional(),
 	comments: z.string().max(1000).optional(),
 
 	// Power device properties (category: 'power')
@@ -216,7 +206,6 @@ export const LayoutSchema = LayoutSchemaBase.superRefine((data, ctx) => {
 export type Slug = z.infer<typeof SlugSchema>;
 export type DeviceCategory = z.infer<typeof DeviceCategorySchema>;
 export type FormFactor = z.infer<typeof FormFactorSchema>;
-export type Airflow = z.infer<typeof AirflowSchema>;
 export type DeviceFace = z.infer<typeof DeviceFaceSchema>;
 export type WeightUnit = z.infer<typeof WeightUnitSchema>;
 export type DisplayMode = z.infer<typeof DisplayModeSchema>;

@@ -39,13 +39,6 @@ describe('Mikrotik Brand Pack', () => {
 				expect(device.rackarr.category).toBe('network');
 			}
 		});
-
-		it('all devices have valid airflow', () => {
-			const validAirflows = ['passive', 'front-to-rear', 'rear-to-front', 'side-to-rear'];
-			for (const device of mikrotikDevices) {
-				expect(validAirflows).toContain(device.airflow);
-			}
-		});
 	});
 
 	describe('Specific Devices', () => {
@@ -55,7 +48,6 @@ describe('Mikrotik Brand Pack', () => {
 			expect(crs326?.slug).toBe('crs326-24g-2s-plus');
 			expect(crs326?.u_height).toBe(1);
 			expect(crs326?.is_full_depth).toBe(true);
-			expect(crs326?.airflow).toBe('side-to-rear');
 		});
 
 		it('includes CCR2004-1G-12S+2XS with correct properties', () => {
@@ -64,7 +56,6 @@ describe('Mikrotik Brand Pack', () => {
 			expect(ccr2004?.slug).toBe('ccr2004-1g-12s-plus-2xs');
 			expect(ccr2004?.u_height).toBe(1);
 			expect(ccr2004?.is_full_depth).toBe(true);
-			expect(ccr2004?.airflow).toBe('front-to-rear');
 		});
 
 		it('handles special characters in model names correctly', () => {

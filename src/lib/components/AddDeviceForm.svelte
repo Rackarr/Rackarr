@@ -5,7 +5,7 @@
 <script lang="ts">
 	import Dialog from './Dialog.svelte';
 	import ImageUpload from './ImageUpload.svelte';
-	import type { DeviceCategory, Airflow } from '$lib/types';
+	import type { DeviceCategory } from '$lib/types';
 	import type { ImageData } from '$lib/types/images';
 	import {
 		ALL_CATEGORIES,
@@ -15,13 +15,6 @@
 	} from '$lib/types/constants';
 	import { getDefaultColour } from '$lib/utils/device';
 
-	const AIRFLOW_OPTIONS: { value: Airflow; label: string }[] = [
-		{ value: 'passive', label: 'Passive (no active cooling)' },
-		{ value: 'front-to-rear', label: 'Front to Rear' },
-		{ value: 'rear-to-front', label: 'Rear to Front' },
-		{ value: 'side-to-rear', label: 'Side to Rear' }
-	];
-
 	interface Props {
 		open: boolean;
 		onadd?: (data: {
@@ -29,7 +22,6 @@
 			height: number;
 			category: DeviceCategory;
 			colour: string;
-			airflow: Airflow;
 			notes: string;
 			frontImage?: ImageData;
 			rearImage?: ImageData;
@@ -44,7 +36,6 @@
 	let height = $state(1);
 	let category = $state<DeviceCategory>('server');
 	let colour = $state(getDefaultColour('server'));
-	let airflow = $state<Airflow>('passive');
 	let notes = $state('');
 	let userChangedColour = $state(false);
 
@@ -63,7 +54,6 @@
 			height = 1;
 			category = 'server';
 			colour = getDefaultColour('server');
-			airflow = 'passive';
 			notes = '';
 			userChangedColour = false;
 			nameError = '';
@@ -131,7 +121,6 @@
 				height,
 				category,
 				colour,
-				airflow,
 				notes: notes.trim(),
 				frontImage,
 				rearImage
@@ -228,15 +217,6 @@
 					></button>
 				{/each}
 			</div>
-		</div>
-
-		<div class="form-group">
-			<label for="device-airflow">Airflow Direction</label>
-			<select id="device-airflow" class="input-field" bind:value={airflow}>
-				{#each AIRFLOW_OPTIONS as option (option.value)}
-					<option value={option.value}>{option.label}</option>
-				{/each}
-			</select>
 		</div>
 
 		<div class="form-group">

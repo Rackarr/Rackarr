@@ -20,7 +20,6 @@ export interface AnalyticsEvents {
 
 	// Feature usage
 	'feature:display_mode': { mode: 'label' | 'image' | 'image-label' };
-	'feature:airflow_view': { enabled: boolean };
 	'feature:rack_resize': { height: number };
 
 	// Keyboard shortcuts
@@ -132,8 +131,6 @@ export const analytics = {
 	// Feature usage
 	trackDisplayModeToggle: (mode: 'label' | 'image' | 'image-label') =>
 		trackEvent('feature:display_mode', { mode }),
-
-	trackAirflowView: (enabled: boolean) => trackEvent('feature:airflow_view', { enabled }),
 
 	trackRackResize: (height: number) => trackEvent('feature:rack_resize', { height }),
 

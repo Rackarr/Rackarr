@@ -296,31 +296,4 @@ describe('UI Store', () => {
 		});
 	});
 
-	describe('Airflow Mode', () => {
-		it('initial airflowMode is false', () => {
-			const store = getUIStore();
-			expect(store.airflowMode).toBe(false);
-		});
-
-		it('toggleAirflowMode toggles value', () => {
-			const store = getUIStore();
-			expect(store.airflowMode).toBe(false);
-
-			store.toggleAirflowMode();
-			expect(store.airflowMode).toBe(true);
-
-			store.toggleAirflowMode();
-			expect(store.airflowMode).toBe(false);
-		});
-
-		it('setAirflowMode sets specific value', () => {
-			const store = getUIStore();
-
-			store.setAirflowMode(true);
-			expect(store.airflowMode).toBe(true);
-
-			store.setAirflowMode(false);
-			expect(store.airflowMode).toBe(false);
-		});
-	});
 });

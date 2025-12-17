@@ -8,7 +8,6 @@ import {
 	SlugSchema,
 	DeviceCategorySchema,
 	FormFactorSchema,
-	AirflowSchema,
 	DeviceFaceSchema,
 	WeightUnitSchema,
 	DisplayModeSchema,
@@ -157,18 +156,6 @@ describe('FormFactorSchema', () => {
 
 	it('rejects invalid form factor', () => {
 		expect(FormFactorSchema.safeParse('invalid').success).toBe(false);
-	});
-});
-
-describe('AirflowSchema', () => {
-	const validAirflows = ['passive', 'front-to-rear', 'rear-to-front', 'side-to-rear'];
-
-	it.each(validAirflows)('accepts valid airflow: %s', (airflow) => {
-		expect(AirflowSchema.safeParse(airflow).success).toBe(true);
-	});
-
-	it('rejects invalid airflow', () => {
-		expect(AirflowSchema.safeParse('top-to-bottom').success).toBe(false);
 	});
 });
 
@@ -424,7 +411,6 @@ describe('DeviceTypeSchema', () => {
 				is_full_depth: true,
 				weight: 25.5,
 				weight_unit: 'kg' as const,
-				airflow: 'front-to-rear' as const,
 				comments: 'Test comments',
 				outlet_count: 8,
 				va_rating: 1500,

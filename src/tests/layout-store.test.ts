@@ -1159,7 +1159,6 @@ describe('Layout Store (v0.2)', () => {
 
 			const imported = store.device_types.find((d) => d.slug === 'usw-pro-24');
 			expect(imported?.is_full_depth).toBe(true);
-			expect(imported?.airflow).toBe('side-to-rear');
 			expect(imported?.rackarr?.category).toBe('network');
 		});
 

@@ -5,7 +5,6 @@
 -->
 <script lang="ts">
 	import type { Rack as RackType, DeviceType, DisplayMode } from '$lib/types';
-	import { SvelteSet } from 'svelte/reactivity';
 	import RackDevice from './RackDevice.svelte';
 	import {
 		parseDragData,
@@ -16,7 +15,6 @@
 	import { screenToSVG } from '$lib/utils/coordinates';
 	import { getCanvasStore } from '$lib/stores/canvas.svelte';
 	import { getBlockedSlots } from '$lib/utils/blocked-slots';
-	import { findAirflowConflicts } from '$lib/utils/airflow';
 
 	const canvasStore = getCanvasStore();
 
@@ -31,7 +29,6 @@
 		selectedDeviceIndex?: number | null;
 		displayMode?: DisplayMode;
 		showLabelsOnImages?: boolean;
-		airflowMode?: boolean;
 		/** Filter devices by face - when set, overrides rack.view for filtering */
 		faceFilter?: 'front' | 'rear';
 		/** Label to show above the rack (e.g., "FRONT" or "REAR") */
@@ -61,7 +58,6 @@
 		selectedDeviceIndex = null,
 		displayMode = 'label',
 		showLabelsOnImages = false,
-		airflowMode = false,
 		faceFilter,
 		viewLabel,
 		hideRackName = false,
@@ -134,39 +130,6 @@
 
 	// Filter devices by face - use faceFilter prop if provided, otherwise fall back to rack.view
 	const effectiveFaceFilter = $derived(faceFilter ?? rack.view);
-
-	// Calculate airflow conflicts for this rack (only when airflowMode is enabled)
-	const airflowConflicts = $derived.by(() => {
-		if (!airflowMode) return new SvelteSet<number>();
-		const conflicts = findAirflowConflicts(rack, deviceLibrary);
-		// Build a set of device indices that have conflicts
-		const conflictingIndices = new SvelteSet<number>();
-		for (const conflict of conflicts) {
-			// Find the device at the conflict position
-			const deviceIdx = rack.devices.findIndex((d) => d.position === conflict.position);
-			if (deviceIdx !== -1) {
-				conflictingIndices.add(deviceIdx);
-			}
-			// Also mark the device below (the exhaust source)
-			const deviceAtPosition = rack.devices[deviceIdx];
-			if (deviceAtPosition) {
-				const deviceDef = deviceLibrary.find((d) => d.slug === deviceAtPosition.device_type);
-				if (deviceDef) {
-					// Find the device directly below this one
-					const belowDeviceIdx = rack.devices.findIndex((d) => {
-						const belowDef = deviceLibrary.find((lib) => lib.slug === d.device_type);
-						if (!belowDef) return false;
-						// Check if this device's top position (position + u_height - 1) is adjacent to conflict position
-						return d.position + belowDef.u_height === conflict.position;
-					});
-					if (belowDeviceIdx !== -1) {
-						conflictingIndices.add(belowDeviceIdx);
-					}
-				}
-			}
-		}
-		return conflictingIndices;
-	});
 
 	// Filter devices by face and preserve original indices for selection tracking
 	const visibleDevices = $derived(
@@ -531,8 +494,6 @@
 						{displayMode}
 						rackView={effectiveFaceFilter}
 						{showLabelsOnImages}
-						{airflowMode}
-						hasConflict={airflowConflicts.has(originalIndex)}
 						placedDeviceName={placedDevice.name}
 						onselect={ondeviceselect}
 						ondragstart={() => handleDeviceDragStart(originalIndex)}

@@ -8,8 +8,7 @@ import type {
 	ExportOptions,
 	ExportFormat,
 	DeviceCategory,
-	ExportBackground,
-	Airflow
+	ExportBackground
 } from '$lib/types';
 import type { ImageStoreMap } from '$lib/types/images';
 import { jsPDF } from 'jspdf';
@@ -37,11 +36,6 @@ const DARK_TEXT = '#ffffff';
 const LIGHT_TEXT = '#1a1a1a';
 const DARK_GRID = '#505050';
 const LIGHT_GRID = '#a0a0a0';
-
-// Airflow colours
-const AIRFLOW_INTAKE = '#60a5fa'; // blue-400
-const AIRFLOW_EXHAUST = '#f87171'; // red-400
-const AIRFLOW_PASSIVE = '#9ca3af'; // neutral-400
 
 /**
  * Filter devices by face for export
@@ -312,105 +306,6 @@ function createCategoryIconElements(
 }
 
 /**
- * Create SVG elements for an airflow indicator
- * Edge stripe + small arrow design matching AirflowIndicator.svelte
- * @param airflow - Airflow direction
- * @param faceFilter - Current view (front or rear)
- * @param width - Width of the indicator area
- * @param height - Height of the indicator area
- * @returns SVG group element containing the airflow indicator
- */
-function createAirflowIndicator(
-	airflow: Airflow,
-	faceFilter: 'front' | 'rear',
-	width: number,
-	height: number
-): SVGGElement {
-	const ns = 'http://www.w3.org/2000/svg';
-	const group = document.createElementNS(ns, 'g');
-	group.setAttribute('class', 'airflow-indicator');
-
-	const STRIPE_WIDTH = 4;
-	const ARROW_SIZE = 8;
-
-	if (airflow === 'passive') {
-		// Passive: hollow circle
-		const circle = document.createElementNS(ns, 'circle');
-		circle.setAttribute('cx', String(width / 2));
-		circle.setAttribute('cy', String(height / 2));
-		circle.setAttribute('r', String(Math.min(10, height / 4)));
-		circle.setAttribute('stroke', AIRFLOW_PASSIVE);
-		circle.setAttribute('stroke-width', '2');
-		circle.setAttribute('fill', 'none');
-		circle.setAttribute('opacity', '0.7');
-		group.appendChild(circle);
-		return group;
-	}
-
-	// Determine if this view shows intake or exhaust
-	let isIntakeSide = false;
-	if (airflow === 'front-to-rear') {
-		isIntakeSide = faceFilter === 'front';
-	} else if (airflow === 'rear-to-front') {
-		isIntakeSide = faceFilter === 'rear';
-	} else if (airflow === 'side-to-rear') {
-		isIntakeSide = faceFilter === 'front';
-	}
-
-	// Stripe color based on intake/exhaust
-	const stripeColor = isIntakeSide ? AIRFLOW_INTAKE : AIRFLOW_EXHAUST;
-
-	// Stripe position: LEFT for front view, RIGHT for rear view
-	const stripeX = faceFilter === 'front' ? 0 : width - STRIPE_WIDTH;
-
-	// Edge stripe
-	const stripe = document.createElementNS(ns, 'rect');
-	stripe.setAttribute('x', String(stripeX));
-	stripe.setAttribute('y', '0');
-	stripe.setAttribute('width', String(STRIPE_WIDTH));
-	stripe.setAttribute('height', String(height));
-	stripe.setAttribute('fill', stripeColor);
-	stripe.setAttribute('opacity', '0.85');
-	group.appendChild(stripe);
-
-	// Arrow positioning - next to stripe, centered vertically
-	const arrowX = faceFilter === 'front' ? STRIPE_WIDTH + 8 : width - STRIPE_WIDTH - ARROW_SIZE - 8;
-	const arrowY = height / 2;
-
-	// Arrow points - chevron shape
-	let arrowPoints: string;
-	if (faceFilter === 'front') {
-		if (isIntakeSide) {
-			// Intake on front: arrow points right (into device)
-			arrowPoints = `${arrowX},${arrowY - ARROW_SIZE / 2} ${arrowX + ARROW_SIZE},${arrowY} ${arrowX},${arrowY + ARROW_SIZE / 2}`;
-		} else {
-			// Exhaust on front: arrow points left (out of device)
-			arrowPoints = `${arrowX + ARROW_SIZE},${arrowY - ARROW_SIZE / 2} ${arrowX},${arrowY} ${arrowX + ARROW_SIZE},${arrowY + ARROW_SIZE / 2}`;
-		}
-	} else {
-		if (isIntakeSide) {
-			// Intake on rear: arrow points left (into device)
-			arrowPoints = `${arrowX + ARROW_SIZE},${arrowY - ARROW_SIZE / 2} ${arrowX},${arrowY} ${arrowX + ARROW_SIZE},${arrowY + ARROW_SIZE / 2}`;
-		} else {
-			// Exhaust on rear: arrow points right (out of device)
-			arrowPoints = `${arrowX},${arrowY - ARROW_SIZE / 2} ${arrowX + ARROW_SIZE},${arrowY} ${arrowX},${arrowY + ARROW_SIZE / 2}`;
-		}
-	}
-
-	// Directional arrow (static in exports - no animation)
-	const arrow = document.createElementNS(ns, 'polyline');
-	arrow.setAttribute('points', arrowPoints);
-	arrow.setAttribute('stroke', stripeColor);
-	arrow.setAttribute('stroke-width', '2');
-	arrow.setAttribute('stroke-linecap', 'round');
-	arrow.setAttribute('stroke-linejoin', 'round');
-	arrow.setAttribute('fill', 'none');
-	group.appendChild(arrow);
-
-	return group;
-}
-
-/**
  * Generate an SVG element for export
  * @param racks - Racks to export
  * @param deviceLibrary - Device library for device definitions
@@ -423,14 +318,7 @@ export function generateExportSVG(
 	options: ExportOptions,
 	images?: ImageStoreMap
 ): SVGElement {
-	const {
-		includeNames,
-		includeLegend,
-		background,
-		exportView,
-		displayMode = 'label',
-		airflowMode = false
-	} = options;
+	const { includeNames, includeLegend, background, exportView, displayMode = 'label' } = options;
 
 	// Determine if we're doing dual-view export
 	const isDualView = exportView === 'both';
@@ -724,18 +612,6 @@ export function generateExportSVG(
 			}
 			deviceNameEl.textContent = placedDevice.name || deviceDisplayName;
 			rackGroup.appendChild(deviceNameEl);
-
-			// Airflow indicator (if airflowMode is enabled and device has airflow)
-			if (airflowMode && device.airflow) {
-				const indicatorGroup = createAirflowIndicator(
-					device.airflow,
-					faceFilter || 'front',
-					deviceWidth,
-					deviceHeight
-				);
-				indicatorGroup.setAttribute('transform', `translate(${RAIL_WIDTH + 2}, ${deviceY + 1})`);
-				rackGroup.appendChild(indicatorGroup);
-			}
 		}
 
 		// View label (FRONT/REAR) for dual-view export

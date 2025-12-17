@@ -224,7 +224,6 @@
 						: null}
 					displayMode={uiStore.displayMode}
 					showLabelsOnImages={uiStore.showLabelsOnImages}
-					airflowMode={uiStore.airflowMode}
 					onselect={(e) => handleRackSelect(e)}
 					ondeviceselect={(e) => handleDeviceSelect(e)}
 					ondevicedrop={(e) => handleDeviceDrop(e)}

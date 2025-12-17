@@ -37,7 +37,6 @@ describe('AddDeviceForm Component', () => {
 			expect(screen.getByLabelText(/^height/i)).toBeInTheDocument();
 			expect(screen.getByLabelText(/^category$/i)).toBeInTheDocument();
 			expect(screen.getByLabelText(/^colour$/i)).toBeInTheDocument();
-			expect(screen.getByLabelText(/^airflow/i)).toBeInTheDocument();
 			expect(screen.getByLabelText(/^notes/i)).toBeInTheDocument();
 		});
 
@@ -49,23 +48,6 @@ describe('AddDeviceForm Component', () => {
 			ALL_CATEGORIES.forEach((category) => {
 				const option = categorySelect.querySelector(`option[value="${category}"]`);
 				expect(option).toBeInTheDocument();
-			});
-		});
-
-		it('airflow dropdown defaults to passive', () => {
-			render(AddDeviceForm, { props: { open: true } });
-			const airflowSelect = screen.getByLabelText(/^airflow/i) as HTMLSelectElement;
-			expect(airflowSelect.value).toBe('passive');
-		});
-
-		it('airflow dropdown has all options (4 types as of v0.5.0)', () => {
-			render(AddDeviceForm, { props: { open: true } });
-			const airflowSelect = screen.getByLabelText(/^airflow/i) as HTMLSelectElement;
-
-			const expectedOptions = ['passive', 'front-to-rear', 'rear-to-front', 'side-to-rear'];
-
-			expectedOptions.forEach((option) => {
-				expect(airflowSelect.querySelector(`option[value="${option}"]`)).toBeInTheDocument();
 			});
 		});
 	});
@@ -164,27 +146,6 @@ describe('AddDeviceForm Component', () => {
 			expect(callArg.category).toBe('server');
 			expect(callArg.colour.toLowerCase()).toBe('#4a7a8a'); // muted cyan
 			expect(callArg.notes).toBe('Test notes');
-			expect(callArg.airflow).toBe('passive');
-		});
-
-		it('submits with selected airflow direction', async () => {
-			const onAdd = vi.fn();
-			render(AddDeviceForm, { props: { open: true, onadd: onAdd } });
-
-			const nameInput = screen.getByLabelText(/^name$/i);
-			await fireEvent.input(nameInput, { target: { value: 'Server' } });
-
-			const airflowSelect = screen.getByLabelText(/^airflow/i);
-			await fireEvent.change(airflowSelect, { target: { value: 'front-to-rear' } });
-
-			const submitBtn = screen.getByRole('button', { name: /add/i });
-			await fireEvent.click(submitBtn);
-
-			expect(onAdd).toHaveBeenCalledWith(
-				expect.objectContaining({
-					airflow: 'front-to-rear'
-				})
-			);
 		});
 
 		it('submits with empty notes', async () => {

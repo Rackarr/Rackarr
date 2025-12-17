@@ -19,7 +19,6 @@ import type {
 	PlacedDevice,
 	DeviceFace,
 	DeviceCategory,
-	Airflow,
 	Layout,
 	LayoutSettings
 } from '$lib/types';
