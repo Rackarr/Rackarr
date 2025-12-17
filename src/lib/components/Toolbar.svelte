@@ -279,10 +279,10 @@
 
 		<div class="separator" aria-hidden="true"></div>
 
-		<Tooltip text="Help & Shortcuts" shortcut="?" position="bottom">
-			<button class="toolbar-action-btn" aria-label="Help" onclick={onhelp} data-testid="btn-help">
+		<Tooltip text="About & Shortcuts" shortcut="?" position="bottom">
+			<button class="toolbar-action-btn" aria-label="About" onclick={onhelp} data-testid="btn-about">
 				<IconHelp size={16} />
-				<span>Help</span>
+				<span>About</span>
 			</button>
 		</Tooltip>
 	</div>

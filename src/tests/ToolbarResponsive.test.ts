@@ -40,7 +40,7 @@ describe('Toolbar Responsive Structure', () => {
 			expect(textsFound).toContain('New Rack');
 			expect(textsFound).toContain('Save');
 			expect(textsFound).toContain('Export');
-			expect(textsFound).toContain('Help');
+			expect(textsFound).toContain('About');
 		});
 	});
 
@@ -55,11 +55,11 @@ describe('Toolbar Responsive Structure', () => {
 			expect(logoTitle?.querySelector('text')?.textContent).toBe('Rackarr');
 		});
 
-		it('brand section does not contain tagline (moved to Help)', () => {
+		it('brand section does not contain tagline (moved to About)', () => {
 			const { container } = render(Toolbar);
 
 			// Tagline was removed from toolbar to prevent overlap issues
-			// It is now displayed in the Help panel instead
+			// It is now displayed in the About panel instead
 			const tagline = container.querySelector('.brand-tagline');
 			expect(tagline).not.toBeInTheDocument();
 		});

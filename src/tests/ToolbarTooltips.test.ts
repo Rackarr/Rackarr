@@ -97,25 +97,25 @@ describe('Toolbar Tooltips', () => {
 			expect(shortcut).toHaveTextContent('Del');
 		});
 
-		it('Help button shows shortcut in tooltip', async () => {
+		it('About button shows shortcut in tooltip', async () => {
 			const { container } = render(Toolbar, {
 				props: { theme: 'dark' }
 			});
 
 			const tooltipWrappers = container.querySelectorAll('.tooltip-wrapper');
-			const helpWrapper = Array.from(tooltipWrappers).find((wrapper) => {
+			const aboutWrapper = Array.from(tooltipWrappers).find((wrapper) => {
 				const btn = wrapper.querySelector('button');
-				return btn?.textContent?.includes('Help');
+				return btn?.textContent?.includes('About');
 			});
 
-			expect(helpWrapper).toBeTruthy();
+			expect(aboutWrapper).toBeTruthy();
 
-			const trigger = helpWrapper!.querySelector('.tooltip-trigger');
+			const trigger = aboutWrapper!.querySelector('.tooltip-trigger');
 			await fireEvent.mouseEnter(trigger!);
 			vi.advanceTimersByTime(500);
 			await tick();
 
-			const shortcut = helpWrapper!.querySelector('.tooltip-shortcut');
+			const shortcut = aboutWrapper!.querySelector('.tooltip-shortcut');
 			expect(shortcut).toBeInTheDocument();
 			expect(shortcut).toHaveTextContent('?');
 		});

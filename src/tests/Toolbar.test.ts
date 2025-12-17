@@ -29,7 +29,7 @@ describe('Toolbar Component', () => {
 			expect(screen.getByRole('button', { name: /delete/i })).toBeInTheDocument();
 			expect(screen.getByRole('button', { name: /reset view/i })).toBeInTheDocument();
 			expect(screen.getByRole('button', { name: /toggle theme/i })).toBeInTheDocument();
-			expect(screen.getByRole('button', { name: /help/i })).toBeInTheDocument();
+			expect(screen.getByRole('button', { name: /about/i })).toBeInTheDocument();
 		});
 	});
 
@@ -138,11 +138,11 @@ describe('Toolbar Component', () => {
 			expect(onToggleTheme).toHaveBeenCalledTimes(1);
 		});
 
-		it('dispatches help event when Help clicked', async () => {
+		it('dispatches help event when About clicked', async () => {
 			const onHelp = vi.fn();
 			render(Toolbar, { props: { onhelp: onHelp } });
 
-			await fireEvent.click(screen.getByRole('button', { name: /help/i }));
+			await fireEvent.click(screen.getByRole('button', { name: /about/i }));
 			expect(onHelp).toHaveBeenCalledTimes(1);
 		});
 	});

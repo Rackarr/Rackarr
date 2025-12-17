@@ -217,9 +217,9 @@
 				<span>Reset View</span>
 				<kbd class="drawer-shortcut">F</kbd>
 			</button>
-			<button class="drawer-item" aria-label="Help" onclick={() => handleAction(onhelp)}>
+			<button class="drawer-item" aria-label="About" onclick={() => handleAction(onhelp)}>
 				<IconHelp size={18} />
-				<span>Help</span>
+				<span>About</span>
 				<kbd class="drawer-shortcut">?</kbd>
 			</button>
 		</section>

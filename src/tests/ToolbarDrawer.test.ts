@@ -108,13 +108,13 @@ describe('ToolbarDrawer Component', () => {
 			expect(screen.getByRole('button', { name: /delete/i })).toBeInTheDocument();
 		});
 
-		it('renders view group with display mode, airflow, reset view, help', () => {
+		it('renders view group with display mode, airflow, reset view, about', () => {
 			render(ToolbarDrawer, { props: { open: true } });
 
 			expect(screen.getByRole('button', { name: /mode/i })).toBeInTheDocument();
 			expect(screen.getByRole('button', { name: /airflow/i })).toBeInTheDocument();
 			expect(screen.getByRole('button', { name: /reset view/i })).toBeInTheDocument();
-			expect(screen.getByRole('button', { name: /help/i })).toBeInTheDocument();
+			expect(screen.getByRole('button', { name: /about/i })).toBeInTheDocument();
 		});
 
 		it('clicking menu item calls action and closes drawer', async () => {
