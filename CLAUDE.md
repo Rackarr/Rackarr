@@ -27,8 +27,21 @@ We follow [Cargo semver](https://doc.rust-lang.org/cargo/reference/semver.html) 
 
 - **Don't tag every commit** — accumulate changes on `main`
 - **Tag releases** when there's a coherent set of changes worth announcing
-- **Use pre-release tags** for development checkpoints: `0.5.0-alpha.1`, `0.5.0-beta.1`
+- **Use pre-release tags** for development checkpoints: `v0.5.0-alpha.1`, `v0.5.0-beta.1`
 - **Batch related fixes** into single patch releases
+
+**Release Process:**
+
+Use `npm version` to create releases (auto-creates correctly-formatted tags):
+
+```bash
+npm version patch   # 0.5.8 → 0.5.9, creates v0.5.9 tag
+npm version minor   # 0.5.9 → 0.6.0, creates v0.6.0 tag
+npm version major   # 0.6.0 → 1.0.0, creates v1.0.0 tag
+git push && git push --tags
+```
+
+**Tag format:** Always use `v` prefix (e.g., `v0.5.8`, not `0.5.8`)
 
 **Current milestones:**
 
