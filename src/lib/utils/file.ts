@@ -17,9 +17,14 @@ export function openFilePicker(): Promise<File | null> {
 		input.accept = '.zip,application/zip,application/x-zip-compressed';
 
 		let resolved = false;
+		// Track change event separately to prevent race condition with focus timeout
+		// This flag is set immediately when change fires, before any other logic
+		let changeReceived = false;
 
 		// Handle file selection
 		const handleChange = () => {
+			// Set flag immediately to prevent race with focus timeout
+			changeReceived = true;
 			if (resolved) return;
 			resolved = true;
 			cleanup();
@@ -31,7 +36,8 @@ export function openFilePicker(): Promise<File | null> {
 		const handleFocus = () => {
 			// Delay to allow change event to fire first
 			setTimeout(() => {
-				if (resolved) return;
+				// Only treat as cancel if no change event was received
+				if (resolved || changeReceived) return;
 				resolved = true;
 				cleanup();
 				resolve(null);

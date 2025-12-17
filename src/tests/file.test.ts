@@ -86,6 +86,41 @@ describe('File Utilities', () => {
 
 			expect(result).toBeNull();
 		});
+
+		it('handles rapid file selection correctly (race condition fix)', async () => {
+			// This test simulates the race condition where focus fires
+			// very close to change, potentially before the change handler completes
+			const testFile = new File(['test'], 'rapid.zip', { type: 'application/zip' });
+
+			setTimeout(() => {
+				// Simulate focus firing (dialog closing)
+				window.dispatchEvent(new Event('focus'));
+
+				// Immediately after, change fires with file
+				Object.defineProperty(mockInput, 'files', {
+					value: [testFile]
+				});
+				mockInput.dispatchEvent(new Event('change'));
+			}, 10);
+
+			const result = await openFilePicker();
+
+			// Should return the file, not null (cancel)
+			expect(result).toBe(testFile);
+		});
+
+		it('returns null on cancel even with rapid interaction', async () => {
+			// Focus fires, no change follows within timeout
+			setTimeout(() => {
+				window.dispatchEvent(new Event('focus'));
+				// No change event - simulates actual cancel
+			}, 10);
+
+			const result = await openFilePicker();
+
+			// Should correctly detect cancel
+			expect(result).toBeNull();
+		}, 1000);
 	});
 
 	describe('readFileAsText', () => {
