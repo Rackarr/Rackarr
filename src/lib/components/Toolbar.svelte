@@ -15,7 +15,6 @@
 		IconFitAll,
 		IconSun,
 		IconMoon,
-		IconHelp,
 		IconLabel,
 		IconImage,
 		IconUndo,
@@ -143,9 +142,17 @@
 				</span>
 			</button>
 		{:else}
-			<div class="toolbar-brand">
-				<LogoLockup size={36} {partyMode} />
-			</div>
+			<Tooltip text="About & Shortcuts" shortcut="?" position="bottom">
+				<button
+					class="toolbar-brand toolbar-brand--clickable"
+					type="button"
+					aria-label="About & Shortcuts"
+					onclick={onhelp}
+					data-testid="btn-logo-about"
+				>
+					<LogoLockup size={36} {partyMode} />
+				</button>
+			</Tooltip>
 		{/if}
 	</div>
 
@@ -165,7 +172,12 @@
 		</Tooltip>
 
 		<Tooltip text="Load Layout" shortcut="Ctrl+O" position="bottom">
-			<button class="toolbar-action-btn" aria-label="Load Layout" onclick={onload} data-testid="btn-load-layout">
+			<button
+				class="toolbar-action-btn"
+				aria-label="Load Layout"
+				onclick={onload}
+				data-testid="btn-load-layout"
+			>
 				<IconLoad size={16} />
 				<span>Load Layout</span>
 			</button>
@@ -181,7 +193,12 @@
 		</Tooltip>
 
 		<Tooltip text="Export Image" shortcut="Ctrl+E" position="bottom">
-			<button class="toolbar-action-btn" aria-label="Export" onclick={onexport} data-testid="btn-export">
+			<button
+				class="toolbar-action-btn"
+				aria-label="Export"
+				onclick={onexport}
+				data-testid="btn-export"
+			>
 				<IconExport size={16} />
 				<span>Export</span>
 			</button>
@@ -252,18 +269,14 @@
 		</Tooltip>
 
 		<Tooltip text="Reset View" shortcut="F" position="bottom">
-			<button class="toolbar-action-btn" aria-label="Reset View" onclick={onfitall} data-testid="btn-reset-view">
+			<button
+				class="toolbar-action-btn"
+				aria-label="Reset View"
+				onclick={onfitall}
+				data-testid="btn-reset-view"
+			>
 				<IconFitAll size={16} />
 				<span>Reset View</span>
-			</button>
-		</Tooltip>
-
-		<div class="separator" aria-hidden="true"></div>
-
-		<Tooltip text="About & Shortcuts" shortcut="?" position="bottom">
-			<button class="toolbar-action-btn" aria-label="About" onclick={onhelp} data-testid="btn-about">
-				<IconHelp size={16} />
-				<span>About</span>
 			</button>
 		</Tooltip>
 	</div>
@@ -360,6 +373,20 @@
 		background: transparent;
 		border: none;
 		font: inherit;
+	}
+
+	/* Clickable brand (opens About in non-hamburger mode) */
+	.toolbar-brand--clickable {
+		cursor: pointer;
+	}
+
+	.toolbar-brand--clickable:hover {
+		background: var(--colour-surface-hover);
+	}
+
+	.toolbar-brand--clickable:focus-visible {
+		outline: none;
+		box-shadow: 0 0 0 2px var(--colour-focus-ring);
 	}
 
 	/* Hamburger icon hidden by default */

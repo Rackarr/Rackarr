@@ -138,11 +138,12 @@ describe('Toolbar Component', () => {
 			expect(onToggleTheme).toHaveBeenCalledTimes(1);
 		});
 
-		it('dispatches help event when About clicked', async () => {
+		it('dispatches help event when LogoLockup clicked', async () => {
 			const onHelp = vi.fn();
 			render(Toolbar, { props: { onhelp: onHelp } });
 
-			await fireEvent.click(screen.getByRole('button', { name: /about/i }));
+			// LogoLockup now serves as the About button in non-hamburger mode
+			await fireEvent.click(screen.getByTestId('btn-logo-about'));
 			expect(onHelp).toHaveBeenCalledTimes(1);
 		});
 	});

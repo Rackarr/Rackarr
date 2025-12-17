@@ -36,11 +36,11 @@ describe('Toolbar Responsive Structure', () => {
 			const spans = container.querySelectorAll('.toolbar-action-btn span');
 			const textsFound = Array.from(spans).map((span) => span.textContent?.trim());
 
-			// Should contain expected button labels
+			// Should contain expected button labels (About moved to LogoLockup)
 			expect(textsFound).toContain('New Rack');
 			expect(textsFound).toContain('Save');
 			expect(textsFound).toContain('Export');
-			expect(textsFound).toContain('About');
+			expect(textsFound).toContain('Reset View');
 		});
 	});
 

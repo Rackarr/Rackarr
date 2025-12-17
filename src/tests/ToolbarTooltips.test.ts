@@ -97,15 +97,19 @@ describe('Toolbar Tooltips', () => {
 			expect(shortcut).toHaveTextContent('Del');
 		});
 
-		it('About button shows shortcut in tooltip', async () => {
+		it('LogoLockup (About) button shows shortcut in tooltip', async () => {
 			const { container } = render(Toolbar, {
 				props: { theme: 'dark' }
 			});
 
+			// LogoLockup now serves as the About button
+			const logoButton = container.querySelector('[data-testid="btn-logo-about"]');
+			expect(logoButton).toBeTruthy();
+
+			// Find the tooltip wrapper containing the logo button
 			const tooltipWrappers = container.querySelectorAll('.tooltip-wrapper');
 			const aboutWrapper = Array.from(tooltipWrappers).find((wrapper) => {
-				const btn = wrapper.querySelector('button');
-				return btn?.textContent?.includes('About');
+				return wrapper.querySelector('[data-testid="btn-logo-about"]');
 			});
 
 			expect(aboutWrapper).toBeTruthy();
