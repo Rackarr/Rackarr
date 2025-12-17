@@ -14,7 +14,7 @@ import {
 } from '$lib/utils/archive';
 import { getImageStore, resetImageStore } from '$lib/stores/images.svelte';
 import type { Layout } from '$lib/types';
-import type { ImageStoreMap, ImageData, DeviceImageData } from '$lib/types/images';
+import type { ImageStoreMap, ImageData } from '$lib/types/images';
 
 describe('Folder Archive Utilities', () => {
 	const createTestLayout = (): Layout => ({
