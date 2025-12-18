@@ -18,8 +18,17 @@ declare global {
 	}
 }
 
-// Check for debug flag - automatically enabled in dev mode
+// Check for debug flag - automatically enabled in dev mode (except tests)
 const getDebugFlag = (): boolean => {
+	// Disable in test environment to reduce noise
+	if ((import.meta as ImportMeta & { env?: { MODE?: string } }).env?.MODE === 'test') {
+		// Allow override via window flag even in tests
+		if (typeof window !== 'undefined' && window.RACKARR_DEBUG === true) {
+			return true;
+		}
+		return false;
+	}
+
 	// Always enable in development mode
 	if ((import.meta as ImportMeta & { env?: { DEV?: boolean } }).env?.DEV) {
 		return true;
@@ -155,6 +164,11 @@ export const debug = {
 	}
 };
 
+// Check if running in test environment
+const isTestEnv = (): boolean => {
+	return (import.meta as ImportMeta & { env?: { MODE?: string } }).env?.MODE === 'test';
+};
+
 // Expose control functions to window (for production debugging)
 if (typeof window !== 'undefined') {
 	window.enableRackarrDebug = () => {
@@ -167,8 +181,8 @@ if (typeof window !== 'undefined') {
 		console.log(`[${LOG_PREFIX}] debug logging disabled`);
 	};
 
-	// Log mode on startup
-	if ((import.meta as ImportMeta & { env?: { DEV?: boolean } }).env?.DEV) {
+	// Log mode on startup (skip in tests to reduce noise)
+	if ((import.meta as ImportMeta & { env?: { DEV?: boolean } }).env?.DEV && !isTestEnv()) {
 		console.log(`[${LOG_PREFIX}] running in development mode - debug logging enabled`);
 	}
 }

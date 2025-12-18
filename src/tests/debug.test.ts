@@ -1,6 +1,9 @@
 /**
  * Debug Logging Utility Tests
  * Verifies console logging uses standardized [rackarr:category] format
+ *
+ * Note: Debug logging is disabled by default in tests to reduce noise.
+ * These tests enable it via window.RACKARR_DEBUG to verify functionality.
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -10,11 +13,14 @@ describe('Debug Logging', () => {
 	let consoleSpy: ReturnType<typeof vi.spyOn>;
 
 	beforeEach(() => {
+		// Enable debug for these tests
+		window.RACKARR_DEBUG = true;
 		consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 	});
 
 	afterEach(() => {
 		consoleSpy.mockRestore();
+		window.RACKARR_DEBUG = undefined;
 	});
 
 	describe('Log Format Standards', () => {
@@ -128,9 +134,15 @@ describe('Debug Logging', () => {
 	});
 
 	describe('Debug State', () => {
-		it('isEnabled() returns true in test environment', () => {
-			// In test environment, debug should be enabled
+		it('isEnabled() returns true when RACKARR_DEBUG is set', () => {
+			// window.RACKARR_DEBUG is set in beforeEach
 			expect(debug.isEnabled()).toBe(true);
+		});
+
+		it('isEnabled() returns false by default in test environment', () => {
+			// Temporarily disable
+			window.RACKARR_DEBUG = undefined;
+			expect(debug.isEnabled()).toBe(false);
 		});
 	});
 });
