@@ -44,18 +44,24 @@ fi
 
 # --- CI Monitoring starts here ---
 
+# Target workflow name (the main build/deploy workflow)
+TARGET_WORKFLOW="Deploy to Dev (GitHub Pages)"
+
 echo "Waiting for CI workflow to start..." >&2
 
-# Wait for workflow to appear (max 30 seconds)
+# Wait for workflow to appear (max 60 seconds)
 workflow_found=false
-for i in {1..6}; do
+for i in {1..12}; do
   sleep 5
-  # Get the most recent workflow run
-  run_info=$(gh run list --limit 1 --json databaseId,status,conclusion,name,headBranch,createdAt,url 2>/dev/null || echo "")
+  # Get recent workflow runs, filter for target workflow on main
+  run_info=$(gh run list --limit 10 --json databaseId,status,conclusion,name,headBranch,createdAt,url 2>/dev/null || echo "")
 
   if [[ -n "$run_info" ]] && [[ "$run_info" != "[]" ]]; then
-    head_branch=$(echo "$run_info" | jq -r '.[0].headBranch // ""')
-    if [[ "$head_branch" == "main" ]]; then
+    # Find the target workflow on main branch
+    filtered=$(echo "$run_info" | jq -r --arg name "$TARGET_WORKFLOW" '[.[] | select(.name == $name and .headBranch == "main")] | .[0] // empty')
+
+    if [[ -n "$filtered" ]] && [[ "$filtered" != "null" ]]; then
+      run_info="[$filtered]"
       workflow_found=true
       break
     fi
@@ -63,7 +69,7 @@ for i in {1..6}; do
 done
 
 if [[ "$workflow_found" != "true" ]]; then
-  echo "Warning: No CI workflow detected after push to main" >&2
+  echo "Warning: No '$TARGET_WORKFLOW' workflow detected after push to main" >&2
   exit 0
 fi
 
