@@ -24,6 +24,9 @@ export interface AnalyticsEvents {
 
 	// Keyboard shortcuts
 	'keyboard:shortcut': { shortcut: string };
+
+	// Session tracking
+	'session:heartbeat': { session_minutes: number };
 }
 
 // Session properties (privacy-compliant)
@@ -36,6 +39,13 @@ export interface SessionProperties {
 // Internal state
 let isInitialized = false;
 let isEnabled = false;
+
+// Heartbeat tracking state
+const HEARTBEAT_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
+const ACTIVITY_TIMEOUT_MS = 2 * 60 * 1000; // 2 minutes - consider idle after this
+let sessionStartTime: number | null = null;
+let lastActivityTime: number | null = null;
+let heartbeatIntervalId: ReturnType<typeof setInterval> | null = null;
 
 /**
  * Check if analytics is available and enabled
@@ -70,7 +80,10 @@ export function initAnalytics(): void {
 	script.defer = true;
 	script.src = scriptUrl;
 	script.dataset.websiteId = websiteId;
-	script.onload = () => identifySession();
+	script.onload = () => {
+		identifySession();
+		startHeartbeatTracking();
+	};
 	document.head.appendChild(script);
 }
 
@@ -87,6 +100,53 @@ function identifySession(): void {
 	};
 
 	window.umami?.identify(properties);
+}
+
+/**
+ * Start heartbeat tracking for session duration estimation
+ * Sends periodic heartbeats while user is actively engaged
+ */
+function startHeartbeatTracking(): void {
+	if (typeof window === 'undefined') return;
+
+	sessionStartTime = Date.now();
+	lastActivityTime = Date.now();
+
+	// Track user activity with passive listeners for performance
+	const updateActivity = () => {
+		lastActivityTime = Date.now();
+	};
+
+	document.addEventListener('pointerdown', updateActivity, { passive: true });
+	document.addEventListener('keydown', updateActivity, { passive: true });
+	document.addEventListener('wheel', updateActivity, { passive: true });
+
+	// Send heartbeat every 5 minutes if user was active in last 2 minutes
+	heartbeatIntervalId = setInterval(() => {
+		if (!isAnalyticsEnabled() || !sessionStartTime || !lastActivityTime) return;
+
+		const now = Date.now();
+		const timeSinceActivity = now - lastActivityTime;
+
+		// Only send heartbeat if user was active recently
+		if (timeSinceActivity < ACTIVITY_TIMEOUT_MS) {
+			const sessionMinutes = Math.round((now - sessionStartTime) / 60000);
+			trackEvent('session:heartbeat', { session_minutes: sessionMinutes });
+		}
+	}, HEARTBEAT_INTERVAL_MS);
+
+	// Cleanup on page unload
+	window.addEventListener('beforeunload', stopHeartbeatTracking);
+}
+
+/**
+ * Stop heartbeat tracking and cleanup
+ */
+function stopHeartbeatTracking(): void {
+	if (heartbeatIntervalId !== null) {
+		clearInterval(heartbeatIntervalId);
+		heartbeatIntervalId = null;
+	}
 }
 
 /**
