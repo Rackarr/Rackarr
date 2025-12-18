@@ -667,20 +667,4 @@
 		height: 16px;
 		cursor: pointer;
 	}
-
-	.select-field {
-		width: 100%;
-		padding: var(--space-2) var(--space-3);
-		background: var(--input-bg);
-		border: 1px solid var(--input-border);
-		border-radius: var(--radius-sm);
-		color: var(--colour-text);
-		font-size: var(--font-size-base);
-		cursor: pointer;
-	}
-
-	.select-field:focus {
-		outline: none;
-		border-color: var(--colour-selection);
-	}
 </style>
