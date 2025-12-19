@@ -66,19 +66,41 @@ const STARTER_DEVICES: StarterDeviceSpec[] = [
 	{ name: '1U Cable Management', u_height: 1, category: 'cable-management', is_full_depth: false }
 ];
 
+// Cached starter library (computed once)
+let cachedStarterLibrary: DeviceType[] | null = null;
+
 /**
  * Get the starter device type library
  * These are the default device types available in a new layout
+ * Returns a cached copy for performance (called frequently by DevicePalette)
  */
 export function getStarterLibrary(): DeviceType[] {
-	return STARTER_DEVICES.map((spec) => ({
-		slug: slugify(spec.name),
-		u_height: spec.u_height,
-		model: spec.name,
-		is_full_depth: spec.is_full_depth, // undefined means full-depth (true default)
-		va_rating: spec.va_rating,
-		// Flat structure (not nested in rackarr object)
-		colour: CATEGORY_COLOURS[spec.category],
-		category: spec.category
-	}));
+	if (!cachedStarterLibrary) {
+		cachedStarterLibrary = STARTER_DEVICES.map((spec) => ({
+			slug: slugify(spec.name),
+			u_height: spec.u_height,
+			model: spec.name,
+			is_full_depth: spec.is_full_depth, // undefined means full-depth (true default)
+			va_rating: spec.va_rating,
+			// Flat structure (not nested in rackarr object)
+			colour: CATEGORY_COLOURS[spec.category],
+			category: spec.category
+		}));
+	}
+	return cachedStarterLibrary;
+}
+
+/**
+ * Find a device type in the starter library by slug
+ * Used for auto-importing starter devices when placed
+ */
+export function findStarterDevice(slug: string): DeviceType | undefined {
+	return getStarterLibrary().find((d) => d.slug === slug);
+}
+
+/**
+ * Get set of all starter library slugs for efficient lookup
+ */
+export function getStarterSlugs(): Set<string> {
+	return new Set(getStarterLibrary().map((d) => d.slug));
 }

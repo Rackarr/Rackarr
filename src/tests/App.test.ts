@@ -5,6 +5,7 @@ import { resetLayoutStore, getLayoutStore } from '$lib/stores/layout.svelte';
 import { resetSelectionStore, getSelectionStore } from '$lib/stores/selection.svelte';
 import { resetUIStore } from '$lib/stores/ui.svelte';
 import { resetCanvasStore } from '$lib/stores/canvas.svelte';
+import { getStarterLibrary } from '$lib/data/starterLibrary';
 
 describe('App Component', () => {
 	beforeEach(() => {
@@ -417,8 +418,9 @@ describe('App Component', () => {
 
 			// Add a rack with a device
 			layoutStore.addRack('Test Rack', 42);
-			// Add a device to the rack
-			const device = layoutStore.device_types[0];
+			// Add a device to the rack (use starter library directly since layout.device_types is empty)
+			const starterLibrary = getStarterLibrary();
+			const device = starterLibrary[0];
 			if (device) {
 				layoutStore.placeDevice(RACK_ID, device.slug, 1);
 			}

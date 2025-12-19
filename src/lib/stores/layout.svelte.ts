@@ -22,6 +22,7 @@ import {
 	type CreateDeviceTypeInput
 } from '$lib/stores/layout-helpers';
 import { findBrandDevice } from '$lib/data/brandPacks';
+import { findStarterDevice } from '$lib/data/starterLibrary';
 import { debug } from '$lib/utils/debug';
 import { getHistoryStore } from './history.svelte';
 import {
@@ -847,10 +848,20 @@ function deleteDeviceTypeRecorded(slug: string): void {
  * @returns true if placed successfully
  */
 function placeDeviceRecorded(deviceTypeSlug: string, position: number, face?: DeviceFace): boolean {
-	// First try to find in layout's device_types
+	// First try to find in layout's device_types (already imported devices)
 	let deviceType = findDeviceType(layout.device_types, deviceTypeSlug);
 
-	// If not found, check brand packs and auto-import if found
+	// If not found, check starter library and auto-import if found
+	if (!deviceType) {
+		const starterDevice = findStarterDevice(deviceTypeSlug);
+		if (starterDevice) {
+			// Import starter device into the layout's device_types
+			layout.device_types = [...layout.device_types, starterDevice];
+			deviceType = starterDevice;
+		}
+	}
+
+	// If still not found, check brand packs and auto-import if found
 	if (!deviceType) {
 		const brandDevice = findBrandDevice(deviceTypeSlug);
 		if (brandDevice) {
@@ -858,19 +869,21 @@ function placeDeviceRecorded(deviceTypeSlug: string, position: number, face?: De
 			// Use spread to create new array reference for Svelte 5 reactivity
 			layout.device_types = [...layout.device_types, brandDevice];
 			deviceType = brandDevice;
-		} else {
-			// Not found in library or brand packs
-			debug.devicePlace({
-				slug: deviceTypeSlug,
-				position,
-				passedFace: face,
-				effectiveFace: 'N/A',
-				deviceName: 'unknown',
-				isFullDepth: false,
-				result: 'not_found'
-			});
-			return false;
 		}
+	}
+
+	// If still not found, device type doesn't exist
+	if (!deviceType) {
+		debug.devicePlace({
+			slug: deviceTypeSlug,
+			position,
+			passedFace: face,
+			effectiveFace: 'N/A',
+			deviceName: 'unknown',
+			isFullDepth: false,
+			result: 'not_found'
+		});
+		return false;
 	}
 
 	// Determine face based on device depth

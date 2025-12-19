@@ -408,16 +408,23 @@ describe('Starter Device Type Library', () => {
 	});
 
 	describe('Layout integration', () => {
-		it('new layout includes starter library', () => {
+		it('new layout has empty device_types (starter library is runtime constant)', () => {
 			const layout = createLayout();
 
-			expect(layout.device_types.length).toBe(26);
-			expect(layout.device_types[0]?.slug).toBeTruthy();
+			// device_types starts empty - starter library is a runtime constant
+			expect(layout.device_types.length).toBe(0);
+		});
+
+		it('starter library is available as a constant', () => {
+			const starterLibrary = getStarterLibrary();
+
+			expect(starterLibrary.length).toBe(26);
+			expect(starterLibrary[0]?.slug).toBeTruthy();
 		});
 
 		it('starter device types have valid structure', () => {
-			const layout = createLayout();
-			const starterDeviceType = layout.device_types[0];
+			const starterLibrary = getStarterLibrary();
+			const starterDeviceType = starterLibrary[0];
 
 			expect(starterDeviceType).toBeDefined();
 			expect(starterDeviceType!.slug).toBeTruthy();

@@ -17,8 +17,8 @@ describe('Layout Store (v0.2)', () => {
 			// v0.2 has a single rack, not an array
 			expect(store.layout.rack).toBeDefined();
 			expect(store.layout.rack.devices).toEqual([]);
-			// Starter library has 26 device types
-			expect(store.layout.device_types.length).toBe(26);
+			// device_types starts empty (starter library is a runtime constant, not stored)
+			expect(store.layout.device_types.length).toBe(0);
 		});
 
 		it('initializes isDirty as false', () => {
@@ -69,7 +69,7 @@ describe('Layout Store (v0.2)', () => {
 			expect(store.layout.rack.devices).toEqual([]);
 		});
 
-		it('resets device_types to starter library', () => {
+		it('resets device_types to empty array', () => {
 			const store = getLayoutStore();
 			store.addDeviceType({
 				name: 'Test',
@@ -78,8 +78,8 @@ describe('Layout Store (v0.2)', () => {
 				colour: '#4A90D9'
 			});
 			store.createNewLayout('New Layout');
-			// Starter library has 26 device types
-			expect(store.device_types.length).toBe(26);
+			// device_types starts empty (starter library is a runtime constant, not stored)
+			expect(store.device_types.length).toBe(0);
 		});
 
 		it('sets isDirty to false', () => {
@@ -1059,8 +1059,8 @@ describe('Layout Store (v0.2)', () => {
 
 			expect(freshStore.layout.name).toBe('Racky McRackface');
 			expect(freshStore.layout.rack.devices).toEqual([]);
-			// Starter library has 26 device types
-			expect(freshStore.device_types.length).toBe(26);
+			// device_types starts empty (starter library is a runtime constant, not stored)
+			expect(freshStore.device_types.length).toBe(0);
 			expect(freshStore.isDirty).toBe(false);
 		});
 	});

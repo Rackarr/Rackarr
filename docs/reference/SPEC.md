@@ -943,6 +943,61 @@ Brand packs are **bundled with the application**:
 - No network requests required — fully offline capable
 - Fallback to category-colored rectangles for missing images
 
+### 11.7 Device Type Storage Architecture
+
+Device types are organized into three sources with distinct storage behaviours:
+
+#### 11.7.1 Sources
+
+| Source                  | Count  | Storage               | Persistence                 |
+| ----------------------- | ------ | --------------------- | --------------------------- |
+| **Starter Library**     | 26     | Runtime constant      | Never saved to YAML         |
+| **Brand Packs**         | ~15+   | Runtime constant      | Imported on first placement |
+| **Layout Device Types** | varies | `layout.device_types` | Saved to YAML               |
+
+#### 11.7.2 Storage Rules
+
+1. **`layout.device_types` only contains placed devices** — Device types are added to the layout when first placed in the rack
+2. **Starter library and brand packs are runtime constants** — Always available, never stored in YAML exports
+3. **YAML exports are minimal** — Only device types actually placed in rack are serialized
+4. **Auto-import on placement** — When placing a device from starter library or brand pack, its definition is copied to `layout.device_types`
+
+#### 11.7.3 Placement Flow
+
+```
+User drags device from palette
+        ↓
+1. Check layout.device_types for slug
+        ↓ (not found)
+2. Check starter library for slug
+        ↓ (not found)
+3. Check brand packs for slug
+        ↓ (found in any)
+4. Copy device type to layout.device_types
+        ↓
+5. Place device in rack
+```
+
+#### 11.7.4 DevicePalette Display
+
+The palette merges all sources for display:
+
+```typescript
+// Display priority (user sees all available devices)
+allGenericDevices = [
+	...starterLibrary.filter((d) => !placedSlugs.has(d.slug)), // Starter (not yet placed)
+	...layoutDeviceTypes.filter((d) => starterSlugs.has(d.slug)), // Placed starter devices
+	...layoutDeviceTypes.filter((d) => !starterSlugs.has(d.slug)) // Custom devices
+];
+```
+
+**Benefits:**
+
+- Smaller YAML files (no redundant starter library)
+- Starter library never "lost" on load (always available as constant)
+- Share links work naturally (minimal device_types)
+- Clear separation between reference data and user data
+
 ---
 
 ## 12. Commands

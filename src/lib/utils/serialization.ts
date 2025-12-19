@@ -3,20 +3,19 @@
  */
 
 import type { Layout, Rack, FormFactor } from '$lib/types';
-import { getStarterLibrary } from '$lib/data/starterLibrary';
 import { VERSION } from '$lib/version';
 
 /**
  * Create a new empty layout
  * @param name - Layout name (default: "Racky McRackface")
- * @returns New Layout object with starter device type library
+ * @returns New Layout object with empty device_types (starter library is a runtime constant)
  */
 export function createLayout(name: string = 'Racky McRackface'): Layout {
 	return {
 		version: VERSION,
 		name,
 		rack: createDefaultRack(name),
-		device_types: getStarterLibrary(),
+		device_types: [], // Starter library is a runtime constant, not stored in layout
 		settings: {
 			display_mode: 'label',
 			show_labels_on_images: false

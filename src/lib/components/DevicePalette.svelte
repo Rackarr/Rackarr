@@ -14,6 +14,7 @@
 	} from '$lib/utils/deviceFilters';
 	import { parseDeviceLibraryImport } from '$lib/utils/import';
 	import { getBrandPacks } from '$lib/data/brandPacks';
+	import { getStarterLibrary, getStarterSlugs } from '$lib/data/starterLibrary';
 	import DevicePaletteItem from './DevicePaletteItem.svelte';
 	import BrandIcon from './BrandIcon.svelte';
 	import type { DeviceType } from '$lib/types';
@@ -52,8 +53,25 @@
 	// Get brand packs
 	const brandPacks = getBrandPacks();
 
-	// Filter generic devices (from layout store)
-	const filteredGenericDevices = $derived(searchDevices(layoutStore.device_types, searchQuery));
+	// Merge starter library with layout device types for display
+	// Starter library is always available; layout.device_types contains placed/custom devices
+	// Custom devices with same slug as starter will shadow (replace) the starter version
+	const allGenericDevices = $derived.by(() => {
+		const starter = getStarterLibrary();
+		const placed = layoutStore.device_types;
+		const placedSlugs = new Set(placed.map((d) => d.slug));
+		const starterSlugs = getStarterSlugs();
+
+		// Starter devices (excluding any shadowed by placed), then custom devices not in starter
+		return [
+			...starter.filter((d) => !placedSlugs.has(d.slug)),
+			...placed.filter((d) => starterSlugs.has(d.slug)), // Placed versions of starter devices
+			...placed.filter((d) => !starterSlugs.has(d.slug)) // Custom devices not in starter
+		];
+	});
+
+	// Filter generic devices (merged starter + layout)
+	const filteredGenericDevices = $derived(searchDevices(allGenericDevices, searchQuery));
 	const groupedGenericDevices = $derived(groupDevicesByCategory(filteredGenericDevices));
 
 	// Filter brand pack devices by search
@@ -77,7 +95,7 @@
 
 	// Check if any section has devices (filtered by search)
 	const totalDevicesCount = $derived(sections.reduce((acc, s) => acc + s.devices.length, 0));
-	const hasDevices = $derived(layoutStore.device_types.length > 0);
+	const hasDevices = $derived(allGenericDevices.length > 0 || brandPacks.length > 0);
 	const hasResults = $derived(totalDevicesCount > 0);
 
 	function handleAddDevice() {
