@@ -1030,10 +1030,43 @@ npm run check        # Svelte type check
 
 ## 13. Deployment
 
-- **Platform:** GitHub Pages
-- **Trigger:** Push to `main` branch
-- **Workflow:** GitHub Actions
-- **Manual:** `git push github main`
+### 13.1 Environments
+
+| Environment | URL             | Trigger        | Platform     |
+| ----------- | --------------- | -------------- | ------------ |
+| Dev         | dev.rackarr.com | Push to `main` | GitHub Pages |
+| Production  | app.rackarr.com | Git tag `v*`   | VPS (Docker) |
+
+### 13.2 Security Headers
+
+Production (nginx) includes these security headers:
+
+| Header                  | Value         |
+| ----------------------- | ------------- |
+| X-Frame-Options         | SAMEORIGIN    |
+| X-Content-Type-Options  | nosniff       |
+| X-XSS-Protection        | 1; mode=block |
+| Content-Security-Policy | See below     |
+
+**CSP Policy:**
+
+```
+default-src 'self';
+script-src 'self';
+style-src 'self' 'unsafe-inline';
+img-src 'self' data: blob:;
+font-src 'self';
+connect-src 'self' https://analytics.rackarr.com;
+frame-ancestors 'self';
+```
+
+Notes:
+
+- `'unsafe-inline'` for styles required for Svelte scoped styles
+- `data:` and `blob:` for images support export previews and device images
+- GitHub Pages (dev) does not support custom headers
+
+See [#102](https://github.com/Rackarr/Rackarr/issues/102) for security research.
 
 ---
 

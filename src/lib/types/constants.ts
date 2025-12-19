@@ -111,7 +111,12 @@ export const DEFAULT_DEVICE_FACE: DeviceFace = 'front';
  */
 
 /**
- * Supported image MIME types for device images
+ * Supported image MIME types for device images.
+ *
+ * SECURITY: SVG is intentionally excluded to prevent XSS attacks.
+ * SVG files can contain embedded JavaScript that executes when rendered.
+ * By only accepting raster formats, we avoid this attack vector entirely.
+ * See: https://github.com/Rackarr/Rackarr/issues/102
  */
 export const SUPPORTED_IMAGE_FORMATS: readonly string[] = [
 	'image/png',
