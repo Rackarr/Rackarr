@@ -18,7 +18,7 @@ Rackarr is a lightweight, FOSS, web-based rack layout designer for homelabbers t
 
 ### 1.3 Target User
 
-Homelabbers planning rack layouts. Desktop browser users (mobile support planned).
+Homelabbers planning rack layouts. Desktop browser users for creation/editing, mobile for viewing.
 
 ### 1.4 Design Principles
 
@@ -538,7 +538,84 @@ The toolbar adapts to viewport width with two distinct modes:
 - No hamburger icon visible
 - Standard toolbar layout
 
-### 6.8 First-Load Experience
+### 6.8 Mobile View Experience
+
+**Overview:**
+
+View-only mobile experience for phones (<1024px viewport) enabling users to view rack layouts on mobile via shareable links. Desktop experience is preserved for tablets (≥1024px).
+
+**Viewport Breakpoint:**
+
+| Viewport | Experience | Layout |
+| -------- | ---------- | ------ |
+| < 1024px | Mobile | View-only, simplified UI |
+| ≥ 1024px | Desktop | Full editing capabilities |
+
+**Mobile Specifications:**
+
+| Requirement | Value/Behavior |
+| ----------- | -------------- |
+| Minimum width | 375px (iPhone 12 mini) |
+| Orientation | Portrait-first (landscape acceptable) |
+| Data access | Shareable URL links (`?layout=` parameter) |
+| Auto-zoom | Device selected → zoom to device<br>No selection → fit entire rack |
+| Device details | Long-press (500ms) → bottom sheet |
+| Gestures | Long-press, swipe-to-dismiss |
+| Panning | Disabled (auto-zoom only) |
+
+**Available Controls (Mobile):**
+
+- Front/rear view toggle
+- Display mode toggle (labels/images)
+- Hamburger menu (about, help, theme)
+
+**Hidden Controls (Mobile):**
+
+- Device library panel
+- Edit panel
+- Zoom controls (auto-zoom replaces manual)
+- Undo/redo
+- Save/load
+- Export
+- Airflow toggle
+
+**Mobile Layout:**
+
+- Full-height viewport (`100dvh`)
+- Simplified toolbar at top
+- Canvas fills remaining space
+- Bottom sheet for device details
+- No sidebars
+
+**Touch Interactions:**
+
+| Gesture | Action |
+| ------- | ------ |
+| Long-press device (500ms) | Select device + show details sheet |
+| Tap bottom sheet backdrop | Dismiss sheet |
+| Swipe down on sheet | Dismiss sheet |
+| Tap device (short) | No action (prevents conflicts) |
+
+**Bottom Sheet Content:**
+
+When device is long-pressed, shows:
+- Device name (or model if no custom name)
+- Height (e.g., "2U")
+- Category with icon
+- Position (e.g., "U12-U13, Front")
+- Manufacturer (if available)
+
+**Out of Scope (Mobile v1):**
+
+- Creating/editing layouts
+- PWA/offline support
+- Pinch-to-zoom gestures
+- File picker
+- Export functionality
+
+**Implementation:** See issue #85 and mobile view implementation plan.
+
+### 6.9 First-Load Experience
 
 When `rackCount === 0` (no rack exists), the app guides users to create their first rack:
 
