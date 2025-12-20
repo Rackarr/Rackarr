@@ -19,13 +19,17 @@
 	import ExportDialog from '$lib/components/ExportDialog.svelte';
 	import ShareDialog from '$lib/components/ShareDialog.svelte';
 	import HelpPanel from '$lib/components/HelpPanel.svelte';
-	import { getShareParam, clearShareParam, decodeLayout } from '$lib/utils/share';
-	import { getLayoutStore } from '$lib/stores/layout.svelte';
+	import BottomSheet from '$lib/components/BottomSheet.svelte';
+	import DeviceDetails from '$lib/components/DeviceDetails.svelte';
+import { getShareParam, clearShareParam, decodeLayout } from '$lib/utils/share';
+import { saveSession, loadSession, clearSession } from '$lib/utils/session-storage';
+import { getLayoutStore } from '$lib/stores/layout.svelte';
 	import { getSelectionStore } from '$lib/stores/selection.svelte';
 	import { getUIStore } from '$lib/stores/ui.svelte';
 	import { getCanvasStore } from '$lib/stores/canvas.svelte';
 	import { getToastStore } from '$lib/stores/toast.svelte';
 	import { getImageStore } from '$lib/stores/images.svelte';
+	import { getViewportStore } from '$lib/utils/viewport.svelte';
 	import { createKonamiDetector } from '$lib/utils/konami';
 	import type { ImageData } from '$lib/types/images';
 	import { openFilePicker } from '$lib/utils/file';
@@ -56,6 +60,7 @@
 	const canvasStore = getCanvasStore();
 	const toastStore = getToastStore();
 	const imageStore = getImageStore();
+	const viewportStore = getViewportStore();
 
 	// Dialog state
 	let newRackFormOpen = $state(false);
@@ -67,6 +72,10 @@
 	let deleteTarget: { type: 'rack' | 'device'; name: string } | null = $state(null);
 	let showReplaceDialog = $state(false);
 	let pendingSaveFirst = $state(false);
+
+	// Mobile bottom sheet state
+	let bottomSheetOpen = $state(false);
+	let selectedDeviceForSheet: number | null = $state(null);
 
 	// Party Mode easter egg (triggered by Konami code)
 	let partyMode = $state(false);
@@ -103,7 +112,7 @@
 	// Also handles loading shared layouts from URL params
 	// Uses onMount to run once on initial load, not reactively
 	onMount(() => {
-		// Check for shared layout in URL
+		// Priority 1: Check for shared layout in URL (highest priority)
 		const shareParam = getShareParam();
 		if (shareParam) {
 			const sharedLayout = decodeLayout(shareParam);
@@ -117,13 +126,28 @@
 				requestAnimationFrame(() => {
 					canvasStore.fitAll(layoutStore.rack ? [layoutStore.rack] : []);
 				});
-				return; // Don't show new rack dialog
+				return; // Don't check autosave or show new rack dialog
 			} else {
 				clearShareParam();
 				toastStore.showToast('Invalid share link', 'error');
 			}
 		}
 
+		// Priority 2: Check for autosaved session (if no share link)
+		const autosaved = loadSession();
+		if (autosaved) {
+			layoutStore.loadLayout(autosaved);
+			// Mark as dirty since this is an autosaved session (not explicitly saved)
+			layoutStore.markDirty();
+			// Don't show new rack dialog - user has work in progress
+			// Reset view to center the loaded rack after DOM updates
+			requestAnimationFrame(() => {
+				canvasStore.fitAll(layoutStore.rack ? [layoutStore.rack] : []);
+			});
+			return;
+		}
+
+		// Priority 3: No share link or autosave, show new rack dialog if empty
 		if (layoutStore.rackCount === 0) {
 			newRackFormOpen = true;
 		}
@@ -160,6 +184,8 @@
 		// Clean up orphaned user images (layout is now empty)
 		const usedSlugs = layoutStore.getUsedDeviceTypeSlugs();
 		imageStore.cleanupOrphanedImages(usedSlugs);
+		// Clear autosaved session when explicitly creating new rack
+		clearSession();
 		newRackFormOpen = true;
 	}
 
@@ -178,6 +204,8 @@
 			// Save as folder archive (.rackarr.zip)
 			await downloadArchive(layoutStore.layout, images);
 			layoutStore.markClean();
+			// Clear autosaved session when explicitly saving
+			clearSession();
 			toastStore.showToast(`Saved ${filename}`, 'success', 3000);
 
 			// Track save event
@@ -228,6 +256,8 @@
 
 			layoutStore.loadLayout(layout);
 			layoutStore.markClean();
+			// Clear autosaved session when explicitly loading
+			clearSession();
 			selectionStore.clearSelection();
 
 			// Reset view to center the loaded rack after DOM updates
@@ -509,6 +539,61 @@
 			document.title = `${envPrefix}${document.title}`;
 		}
 	});
+
+	// Watch for device selection changes to trigger mobile bottom sheet
+	$effect(() => {
+		if (viewportStore.isMobile && selectionStore.isDeviceSelected) {
+			const deviceIndex = selectionStore.selectedDeviceIndex;
+			console.log('[Mobile] Device selected:', { deviceIndex, hasRack: !!layoutStore.rack });
+			if (deviceIndex !== null && layoutStore.rack) {
+				selectedDeviceForSheet = deviceIndex;
+				bottomSheetOpen = true;
+				console.log('[Mobile] Opening bottom sheet and auto-zooming to device', deviceIndex);
+
+				// Auto-zoom to device on mobile
+				canvasStore.zoomToDevice(layoutStore.rack, deviceIndex, layoutStore.device_types);
+			}
+		} else if (!selectionStore.isDeviceSelected) {
+			// When device deselected, close sheet and fit all
+			if (viewportStore.isMobile && bottomSheetOpen) {
+				console.log('[Mobile] Device deselected, closing bottom sheet and fitting all');
+				bottomSheetOpen = false;
+				selectedDeviceForSheet = null;
+				if (layoutStore.rack) {
+					canvasStore.fitAll([layoutStore.rack]);
+				}
+			}
+		}
+	});
+
+	// Handle bottom sheet close
+	function handleBottomSheetClose() {
+		bottomSheetOpen = false;
+		selectedDeviceForSheet = null;
+		selectionStore.clearSelection();
+	}
+
+	// Auto-save layout to localStorage with debouncing
+	let saveDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+	$effect(() => {
+		// Watch layout changes (triggered when layout.rack or any property changes)
+		// Access the layout to track it
+		const currentLayout = layoutStore.layout;
+
+		// Only save if there's a rack to save
+		if (layoutStore.hasRack) {
+			// Clear existing timer
+			if (saveDebounceTimer) {
+				clearTimeout(saveDebounceTimer);
+			}
+
+			// Debounce saves (1000ms)
+			saveDebounceTimer = setTimeout(() => {
+				saveSession(currentLayout);
+				saveDebounceTimer = null;
+			}, 1000);
+		}
+	});
 </script>
 
 <svelte:window
@@ -535,15 +620,30 @@
 		onhelp={handleHelp}
 	/>
 
-	<main class="app-main">
-		<Sidebar side="left">
-			<DevicePalette onadddevice={handleAddDevice} />
-		</Sidebar>
+	<main class="app-main" class:mobile={viewportStore.isMobile}>
+		{#if !viewportStore.isMobile}
+			<Sidebar side="left">
+				<DevicePalette onadddevice={handleAddDevice} />
+			</Sidebar>
+		{/if}
 
 		<Canvas onnewrack={handleNewRack} onload={handleLoad} />
 
-		<EditPanel />
+		{#if !viewportStore.isMobile}
+			<EditPanel />
+		{/if}
 	</main>
+
+	<!-- Mobile bottom sheet for device details -->
+	{#if viewportStore.isMobile && bottomSheetOpen && selectedDeviceForSheet !== null && layoutStore.rack}
+		{@const device = layoutStore.rack.devices[selectedDeviceForSheet]}
+		{@const deviceType = device ? layoutStore.device_types.find((dt) => dt.slug === device.device_type) : null}
+		{#if device && deviceType}
+			<BottomSheet bind:open={bottomSheetOpen} onclose={handleBottomSheetClose}>
+				<DeviceDetails {device} {deviceType} rackView={layoutStore.rack?.view} rackHeight={layoutStore.rack?.height} />
+			</BottomSheet>
+		{/if}
+	{/if}
 
 	<NewRackForm
 		open={newRackFormOpen}
@@ -612,7 +712,9 @@
 	.app-layout {
 		display: flex;
 		flex-direction: column;
+		/* Use 100dvh for mobile to account for browser UI */
 		height: 100vh;
+		height: 100dvh;
 		overflow: hidden;
 	}
 
@@ -622,4 +724,13 @@
 		position: relative;
 		overflow: hidden;
 	}
+
+	/* Mobile-specific styles */
+	.app-main.mobile {
+		/* Prevent overscroll/bounce on iOS */
+		overscroll-behavior: none;
+	}
+
+	/* Note: Mobile overscroll prevention should be in global styles (index.html or app.css) */
+	/* body { overscroll-behavior-y: contain; } for <1024px viewports */
 </style>

@@ -77,12 +77,12 @@
 	let drawerOpen = $state(false);
 	let brandRef: HTMLElement | null = $state(null);
 
-	// Track if we're in hamburger mode (< 1024px)
+	// Track if we're in hamburger mode (<= 1024px)
 	let isHamburgerMode = $state(false);
 
 	// Set up media query listener on mount
 	$effect(() => {
-		const mediaQuery = window.matchMedia('(max-width: 1023px)');
+		const mediaQuery = window.matchMedia('(max-width: 1024px)');
 		isHamburgerMode = mediaQuery.matches;
 
 		const handleChange = (e: MediaQueryListEvent) => {
@@ -297,24 +297,26 @@
 		</Tooltip>
 	</div>
 
-	<!-- Right section: Theme toggle (always visible) -->
+	<!-- Right section: Theme toggle (hidden on mobile, moved to drawer) -->
 	<div class="toolbar-section toolbar-right">
-		<Tooltip text="Toggle Theme" position="bottom">
-			<button
-				class="toolbar-action-btn theme-toggle-btn"
-				aria-label="Toggle Theme"
-				onclick={ontoggletheme}
-				data-testid="btn-toggle-theme"
-			>
-				{#if theme === 'dark'}
-					<IconSun size={16} />
-					<span>Light</span>
-				{:else}
-					<IconMoon size={16} />
-					<span>Dark</span>
-				{/if}
-			</button>
-		</Tooltip>
+		{#if !isHamburgerMode}
+			<Tooltip text="Toggle Theme" position="bottom">
+				<button
+					class="toolbar-action-btn theme-toggle-btn"
+					aria-label="Toggle Theme"
+					onclick={ontoggletheme}
+					data-testid="btn-toggle-theme"
+				>
+					{#if theme === 'dark'}
+						<IconSun size={16} />
+						<span>Light</span>
+					{:else}
+						<IconMoon size={16} />
+						<span>Dark</span>
+					{/if}
+				</button>
+			</Tooltip>
+		{/if}
 	</div>
 </header>
 
@@ -322,6 +324,7 @@
 <ToolbarDrawer
 	open={drawerOpen}
 	{displayMode}
+	{theme}
 	canUndo={layoutStore.canUndo}
 	canRedo={layoutStore.canRedo}
 	{hasSelection}
@@ -337,6 +340,7 @@
 	{ondelete}
 	{onfitall}
 	{ontoggledisplaymode}
+	{ontoggletheme}
 	{onhelp}
 	onundo={handleUndo}
 	onredo={handleRedo}
@@ -364,6 +368,14 @@
 	.toolbar-left {
 		flex: 0 0 var(--sidebar-width);
 		justify-content: center;
+	}
+
+	/* Mobile: make toolbar-left full width in hamburger mode */
+	@media (max-width: 1024px) {
+		.toolbar-left {
+			flex: 1;
+			justify-content: flex-start;
+		}
 	}
 
 	.toolbar-center {
@@ -407,7 +419,7 @@
 		box-shadow: 0 0 0 2px var(--colour-focus-ring);
 	}
 
-	/* Hamburger icon hidden by default */
+	/* Hamburger icon next to logo */
 	.hamburger-icon {
 		display: none;
 		align-items: center;
@@ -483,29 +495,26 @@
 		}
 	}
 
-	/* Responsive: Hamburger mode - hide center toolbar, show hamburger icon */
-	@media (max-width: 1023px) {
+	/* Responsive: Hamburger mode - hide center toolbar and right section */
+	@media (max-width: 1024px) {
 		.toolbar-center {
 			display: none;
 		}
 
-		/* Keep theme toggle icon-only in hamburger mode */
-		.theme-toggle-btn span {
+		.toolbar-right {
 			display: none;
-		}
-
-		.theme-toggle-btn {
-			padding: var(--space-2);
 		}
 	}
 
-	/* Hamburger mode button styles (applied via JS class) */
+	/* Hamburger mode button styles (Lockin logo + text + hamburger icon) */
 	.toolbar-brand.hamburger-mode {
 		cursor: pointer;
 		padding: var(--space-2);
 		border: 1px solid var(--colour-border);
 		border-radius: var(--radius-md);
 		background: transparent;
+		width: 100%;
+		justify-content: space-between;
 	}
 
 	.toolbar-brand.hamburger-mode .hamburger-icon {

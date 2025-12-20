@@ -8,6 +8,8 @@
 	import CategoryIcon from './CategoryIcon.svelte';
 	import { IconGrip } from './icons';
 	import { getImageStore } from '$lib/stores/images.svelte';
+	import { getViewportStore } from '$lib/utils/viewport.svelte';
+	import { useLongPress } from '$lib/utils/gestures';
 
 	interface Props {
 		device: DeviceType;
@@ -69,6 +71,12 @@
 	// Track dragging state for visual feedback
 	let isDragging = $state(false);
 
+	// Viewport detection for mobile-specific interactions
+	const viewportStore = getViewportStore();
+
+	// Drag handle element ref for long-press
+	let dragHandleElement: HTMLDivElement | null = $state(null);
+
 	// Rail width (matches Rack.svelte)
 	const RAIL_WIDTH = 17;
 
@@ -119,6 +127,21 @@
 		isDragging = false;
 		ondragendProp?.();
 	}
+
+	// Long-press handler for mobile (triggers selection + details)
+	function handleLongPress() {
+		console.log('[RackDevice] Long-press triggered:', { slug: device.slug, position });
+		onselect?.(new CustomEvent('select', { detail: { slug: device.slug, position } }));
+	}
+
+	// Set up long-press gesture on mobile (reactive to viewport changes)
+	$effect(() => {
+		if (viewportStore.isMobile && dragHandleElement) {
+			console.log('[RackDevice] Setting up long-press for device:', device.slug, 'isMobile:', viewportStore.isMobile);
+			const cleanup = useLongPress(dragHandleElement, handleLongPress);
+			return cleanup;
+		}
+	});
 </script>
 
 <g
@@ -202,6 +225,7 @@
 	<!-- Invisible HTML overlay for drag-and-drop (rendered last to be on top for click events) -->
 	<foreignObject x="0" y="0" width={deviceWidth} height={deviceHeight} class="drag-overlay">
 		<div
+			bind:this={dragHandleElement}
 			class="drag-handle"
 			role="button"
 			aria-label={ariaLabel}

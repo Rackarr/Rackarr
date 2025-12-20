@@ -290,11 +290,17 @@
 		}
 	}
 
-	/* Responsive: hide title on small screens */
+	/* Responsive: hide title on small screens (but not in toolbar hamburger mode) */
 	@media (max-width: 600px) {
 		.logo-title {
 			display: none;
 		}
+	}
+
+	/* Always show Rackarr text in toolbar hamburger button (mobile) */
+	:global(.toolbar-brand) .logo-title,
+	:global(.toolbar-brand.hamburger-mode) .logo-title {
+		display: block !important;
 	}
 
 	/* Wobble keyframe for party mode */
