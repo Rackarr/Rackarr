@@ -13,6 +13,7 @@ import type {
 	WeightUnit
 } from '$lib/types';
 import { generateDeviceSlug } from '$lib/utils/slug';
+import { generateId } from '$lib/utils/device';
 
 /**
  * Input data for creating a new device type
@@ -101,7 +102,7 @@ export function createDevice(
 	name?: string
 ): PlacedDevice {
 	const device: PlacedDevice = {
-		id: crypto.randomUUID(),
+		id: generateId(),
 		device_type,
 		position,
 		face

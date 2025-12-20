@@ -24,6 +24,7 @@ import {
 import { findBrandDevice } from '$lib/data/brandPacks';
 import { findStarterDevice } from '$lib/data/starterLibrary';
 import { debug } from '$lib/utils/debug';
+import { generateId } from '$lib/utils/device';
 import { getHistoryStore } from './history.svelte';
 import {
 	createAddDeviceTypeCommand,
@@ -917,6 +918,7 @@ function placeDeviceRecorded(deviceTypeSlug: string, position: number, face?: De
 	}
 
 	const device: PlacedDevice = {
+		id: generateId(),
 		device_type: deviceTypeSlug,
 		position,
 		face: effectiveFace
