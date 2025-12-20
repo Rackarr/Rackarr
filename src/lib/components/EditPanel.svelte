@@ -24,6 +24,7 @@
 	// Local state for form fields
 	let rackName = $state('');
 	let rackHeight = $state(42);
+	let rackNotes = $state('');
 
 	// State for device name editing
 	let editingDeviceName = $state(false);
@@ -77,6 +78,7 @@
 		if (selectedRack) {
 			rackName = selectedRack.name;
 			rackHeight = selectedRack.height;
+			rackNotes = selectedRack.notes ?? '';
 		}
 	});
 
@@ -94,6 +96,17 @@
 	function handleNameKeydown(event: KeyboardEvent) {
 		if (event.key === 'Enter') {
 			(event.target as HTMLInputElement).blur();
+		}
+	}
+
+	// Update rack notes on blur
+	function handleNotesBlur() {
+		if (selectedRack) {
+			const trimmedNotes = rackNotes.trim();
+			const notesToSave = trimmedNotes === '' ? undefined : trimmedNotes;
+			if (notesToSave !== selectedRack.notes) {
+				layoutStore.updateRack(RACK_ID, { notes: notesToSave });
+			}
 		}
 	}
 
@@ -247,6 +260,18 @@
 					<span class="info-label">Devices</span>
 					<span class="info-value">{selectedRack.devices.length}</span>
 				</div>
+			</div>
+
+			<div class="form-group">
+				<label for="rack-notes">Notes</label>
+				<textarea
+					id="rack-notes"
+					class="input-field textarea"
+					bind:value={rackNotes}
+					onblur={handleNotesBlur}
+					rows="4"
+					placeholder="Add notes about this rack..."
+				/>
 			</div>
 
 			<div class="actions">
@@ -446,6 +471,23 @@
 	.form-group input:disabled {
 		opacity: 0.6;
 		cursor: not-allowed;
+	}
+
+	.form-group textarea {
+		padding: var(--space-2) var(--space-3);
+		background: var(--input-bg);
+		border: 1px solid var(--input-border);
+		border-radius: var(--radius-sm);
+		color: var(--colour-text);
+		font-size: var(--font-size-base);
+		font-family: inherit;
+		resize: vertical;
+		min-height: 80px;
+	}
+
+	.form-group textarea:focus {
+		outline: none;
+		border-color: var(--colour-selection);
 	}
 
 	.helper-text {
