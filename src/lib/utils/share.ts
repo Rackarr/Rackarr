@@ -13,6 +13,7 @@ import {
 	type MinimalDeviceType,
 	type MinimalDevice
 } from '$lib/schemas/share';
+import { generateId } from './device';
 
 // =============================================================================
 // Layout Conversion Functions
@@ -76,7 +77,7 @@ export function fromMinimalLayout(minimal: MinimalLayout): Layout {
 
 	// Convert devices with generated UUIDs
 	const devices: PlacedDevice[] = minimal.r.d.map((d) => ({
-		id: crypto.randomUUID(),
+		id: generateId(),
 		device_type: d.t,
 		position: d.p,
 		face: d.f,
