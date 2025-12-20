@@ -616,7 +616,56 @@ When device is long-pressed, shows:
 
 **Implementation:** See issue #85 and mobile view implementation plan.
 
-### 6.9 First-Load Experience
+### 6.9 Session Persistence (localStorage)
+
+**Overview:**
+
+Automatic session persistence using localStorage enables users to resume work after page reloads without explicitly saving. Particularly valuable for mobile users who may reload the page.
+
+**Storage Key:** `rackarr:autosave`
+
+**Auto-Save Behavior:**
+
+- Layout changes trigger debounced save to localStorage (1000ms delay)
+- Only saves when `layoutStore.hasRack` is true
+- Transparent — no user interaction required
+
+**Auto-Restore Priority (on mount):**
+
+| Priority | Source                 | Behavior                                     |
+| -------- | ---------------------- | -------------------------------------------- |
+| 1        | Share link (`?l=...`)  | Highest priority, skips autosave check       |
+| 2        | localStorage autosave  | Restores if present, marks layout as dirty   |
+| 3        | Empty state            | Shows NewRackForm dialog if no rack          |
+
+**Auto-Clear Behavior:**
+
+Autosaved session is cleared on:
+
+- Explicit Save (`Ctrl+S` or File → Save)
+- Explicit Load (`Ctrl+O` or File → Load)
+- New Rack creation (after user confirms replace)
+
+**Error Handling:**
+
+- `QuotaExceededError` logged to console, app continues normally
+- Invalid JSON on restore is logged and ignored (shows NewRackForm)
+- Storage errors never break the application
+
+**Implementation:**
+
+```typescript
+// src/lib/utils/session-storage.ts
+export function saveSession(layout: Layout): boolean;
+export function loadSession(): Layout | null;
+export function clearSession(): void;
+```
+
+**Use Case:**
+
+User creates a rack layout on mobile via share link, makes modifications, then accidentally closes the tab. When they reopen the app, their modifications are preserved via localStorage.
+
+### 6.10 First-Load Experience
 
 When `rackCount === 0` (no rack exists), the app guides users to create their first rack:
 
