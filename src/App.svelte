@@ -19,6 +19,8 @@
 	import ExportDialog from '$lib/components/ExportDialog.svelte';
 	import ShareDialog from '$lib/components/ShareDialog.svelte';
 	import HelpPanel from '$lib/components/HelpPanel.svelte';
+	import BottomSheet from '$lib/components/BottomSheet.svelte';
+	import DeviceDetails from '$lib/components/DeviceDetails.svelte';
 	import { getShareParam, clearShareParam, decodeLayout } from '$lib/utils/share';
 	import { getLayoutStore } from '$lib/stores/layout.svelte';
 	import { getSelectionStore } from '$lib/stores/selection.svelte';
@@ -26,6 +28,7 @@
 	import { getCanvasStore } from '$lib/stores/canvas.svelte';
 	import { getToastStore } from '$lib/stores/toast.svelte';
 	import { getImageStore } from '$lib/stores/images.svelte';
+	import { getViewportStore } from '$lib/utils/viewport.svelte';
 	import { createKonamiDetector } from '$lib/utils/konami';
 	import type { ImageData } from '$lib/types/images';
 	import { openFilePicker } from '$lib/utils/file';
@@ -56,6 +59,7 @@
 	const canvasStore = getCanvasStore();
 	const toastStore = getToastStore();
 	const imageStore = getImageStore();
+	const viewportStore = getViewportStore();
 
 	// Dialog state
 	let newRackFormOpen = $state(false);
@@ -67,6 +71,10 @@
 	let deleteTarget: { type: 'rack' | 'device'; name: string } | null = $state(null);
 	let showReplaceDialog = $state(false);
 	let pendingSaveFirst = $state(false);
+
+	// Mobile bottom sheet state
+	let bottomSheetOpen = $state(false);
+	let selectedDeviceForSheet: number | null = $state(null);
 
 	// Party Mode easter egg (triggered by Konami code)
 	let partyMode = $state(false);
@@ -509,6 +517,36 @@
 			document.title = `${envPrefix}${document.title}`;
 		}
 	});
+
+	// Watch for device selection changes to trigger mobile bottom sheet
+	$effect(() => {
+		if (viewportStore.isMobile && selectionStore.isDeviceSelected) {
+			const deviceIndex = selectionStore.selectedDeviceIndex;
+			if (deviceIndex !== null && layoutStore.rack) {
+				selectedDeviceForSheet = deviceIndex;
+				bottomSheetOpen = true;
+
+				// Auto-zoom to device on mobile
+				canvasStore.zoomToDevice(layoutStore.rack, deviceIndex, layoutStore.device_types);
+			}
+		} else if (!selectionStore.isDeviceSelected) {
+			// When device deselected, close sheet and fit all
+			if (viewportStore.isMobile && bottomSheetOpen) {
+				bottomSheetOpen = false;
+				selectedDeviceForSheet = null;
+				if (layoutStore.rack) {
+					canvasStore.fitAll([layoutStore.rack]);
+				}
+			}
+		}
+	});
+
+	// Handle bottom sheet close
+	function handleBottomSheetClose() {
+		bottomSheetOpen = false;
+		selectedDeviceForSheet = null;
+		selectionStore.clearSelection();
+	}
 </script>
 
 <svelte:window
@@ -535,15 +573,30 @@
 		onhelp={handleHelp}
 	/>
 
-	<main class="app-main">
-		<Sidebar side="left">
-			<DevicePalette onadddevice={handleAddDevice} />
-		</Sidebar>
+	<main class="app-main" class:mobile={viewportStore.isMobile}>
+		{#if !viewportStore.isMobile}
+			<Sidebar side="left">
+				<DevicePalette onadddevice={handleAddDevice} />
+			</Sidebar>
+		{/if}
 
 		<Canvas onnewrack={handleNewRack} onload={handleLoad} />
 
-		<EditPanel />
+		{#if !viewportStore.isMobile}
+			<EditPanel />
+		{/if}
 	</main>
+
+	<!-- Mobile bottom sheet for device details -->
+	{#if viewportStore.isMobile && bottomSheetOpen && selectedDeviceForSheet !== null && layoutStore.rack}
+		{@const device = layoutStore.rack.devices[selectedDeviceForSheet]}
+		{@const deviceType = device ? layoutStore.device_types.find((dt) => dt.slug === device.device_type) : null}
+		{#if device && deviceType}
+			<BottomSheet bind:open={bottomSheetOpen} onclose={handleBottomSheetClose}>
+				<DeviceDetails {device} {deviceType} rackView={layoutStore.rack?.view} rackHeight={layoutStore.rack?.height} />
+			</BottomSheet>
+		{/if}
+	{/if}
 
 	<NewRackForm
 		open={newRackFormOpen}
@@ -612,7 +665,9 @@
 	.app-layout {
 		display: flex;
 		flex-direction: column;
+		/* Use 100dvh for mobile to account for browser UI */
 		height: 100vh;
+		height: 100dvh;
 		overflow: hidden;
 	}
 
@@ -622,4 +677,13 @@
 		position: relative;
 		overflow: hidden;
 	}
+
+	/* Mobile-specific styles */
+	.app-main.mobile {
+		/* Prevent overscroll/bounce on iOS */
+		overscroll-behavior: none;
+	}
+
+	/* Note: Mobile overscroll prevention should be in global styles (index.html or app.css) */
+	/* body { overscroll-behavior-y: contain; } for <1024px viewports */
 </style>

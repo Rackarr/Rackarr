@@ -76,7 +76,8 @@ export function getCanvasStore() {
 		getTransform,
 		moveTo,
 		smoothMoveTo,
-		fitAll
+		fitAll,
+		zoomToDevice
 	};
 }
 
@@ -256,4 +257,75 @@ function fitAll(racks: Rack[]): void {
 	}
 
 	debug.log('Transform after fitAll:', panzoomInstance.getTransform());
+}
+
+/**
+ * Zoom to a specific device in the rack (mobile auto-zoom)
+ * @param rack - The rack containing the device
+ * @param deviceIndex - Index of the device in the rack's devices array
+ * @param deviceTypes - Array of device types from the layout
+ */
+function zoomToDevice(rack: Rack, deviceIndex: number, deviceTypes: import('$lib/types').DeviceType[]): void {
+	if (!panzoomInstance || !canvasElement) return;
+	if (deviceIndex < 0 || deviceIndex >= rack.devices.length) return;
+
+	const device = rack.devices[deviceIndex];
+	if (!device) return;
+
+	// Find device type to get u_height
+	const deviceType = deviceTypes.find((dt) => dt.slug === device.device_type);
+	if (!deviceType) return;
+
+	// Rack rendering constants (must match canvas.ts and Rack.svelte)
+	const U_HEIGHT = 22;
+	const RACK_WIDTH = 220;
+	const RAIL_WIDTH = 17;
+	const RACK_PADDING = 18;
+	const DUAL_VIEW_EXTRA_HEIGHT = 56;
+	const RACK_ROW_PADDING = 16;
+	const DUAL_VIEW_GAP = 24;
+
+	// Calculate device position in SVG coordinates
+	// Device Y position: from top of SVG viewBox
+	const rackHeight = rack.height;
+	const deviceYInRack = (rackHeight - device.position - deviceType.u_height + 1) * U_HEIGHT;
+	const deviceHeight = deviceType.u_height * U_HEIGHT;
+
+	// Device absolute Y: includes rack padding, top rail, and dual-view extra height
+	const deviceAbsY = RACK_ROW_PADDING + DUAL_VIEW_EXTRA_HEIGHT + RACK_PADDING + RAIL_WIDTH + deviceYInRack;
+
+	// Device X position: centered between two rack views in dual-view mode
+	const dualViewWidth = RACK_WIDTH * 2 + DUAL_VIEW_GAP;
+	const deviceAbsX = RACK_ROW_PADDING + dualViewWidth / 2;
+
+	// Get viewport dimensions
+	const viewportWidth = canvasElement.clientWidth;
+	const viewportHeight = canvasElement.clientHeight;
+
+	// Target zoom: make device take up about 40% of viewport height
+	const targetDeviceHeightRatio = 0.4;
+	const targetZoom = Math.min(
+		(viewportHeight * targetDeviceHeightRatio) / deviceHeight,
+		ZOOM_MAX
+	);
+	const zoom = Math.max(ZOOM_MIN, targetZoom);
+
+	// Calculate pan to center device in viewport
+	// Pan formula: deviceCenter * zoom - viewportCenter = panOffset
+	const deviceCenterX = deviceAbsX;
+	const deviceCenterY = deviceAbsY + deviceHeight / 2;
+
+	// Invert panzoom transform: panOffset = viewportCenter - deviceCenter * zoom
+	const panX = viewportWidth / 2 - deviceCenterX * zoom;
+	const panY = viewportHeight / 2 - deviceCenterY * zoom;
+
+	debug.group('Zoom to Device');
+	debug.log('Device:', { index: deviceIndex, position: device.position, uHeight: deviceType.u_height });
+	debug.log('SVG coords:', { deviceYInRack, deviceHeight, deviceAbsX, deviceAbsY });
+	debug.log('Viewport:', { width: viewportWidth, height: viewportHeight });
+	debug.log('Calculated:', { zoom, panX, panY });
+	debug.groupEnd();
+
+	// Apply zoom and pan
+	smoothMoveTo(panX, panY, zoom);
 }
