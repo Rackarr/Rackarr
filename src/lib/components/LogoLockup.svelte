@@ -295,11 +295,12 @@
 		.logo-title {
 			display: none;
 		}
+	}
 
-		/* Always show in hamburger mode (toolbar brand button) */
-		.toolbar-brand .logo-title {
-			display: block;
-		}
+	/* Always show Rackarr text in toolbar hamburger button (mobile) */
+	:global(.toolbar-brand) .logo-title,
+	:global(.toolbar-brand.hamburger-mode) .logo-title {
+		display: block !important;
 	}
 
 	/* Wobble keyframe for party mode */
