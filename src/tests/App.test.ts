@@ -6,9 +6,12 @@ import { resetSelectionStore, getSelectionStore } from '$lib/stores/selection.sv
 import { resetUIStore } from '$lib/stores/ui.svelte';
 import { resetCanvasStore } from '$lib/stores/canvas.svelte';
 import { getStarterLibrary } from '$lib/data/starterLibrary';
+import { clearSession } from '$lib/utils/session-storage';
 
 describe('App Component', () => {
 	beforeEach(() => {
+		// Clear any autosaved session to prevent interference
+		clearSession();
 		resetLayoutStore();
 		resetSelectionStore();
 		resetUIStore();
@@ -198,11 +201,17 @@ describe('App Component', () => {
 
 		render(App);
 
-		// Wait for component to fully mount and effects to settle
-		await waitFor(() => {
-			// Component should be rendered
-			expect(screen.getByRole('button', { name: /new rack/i })).toBeInTheDocument();
-		});
+		// Wait for component to fully mount and onMount effects to complete
+		await waitFor(
+			() => {
+				// Component should be rendered
+				expect(screen.getByRole('button', { name: /new rack/i })).toBeInTheDocument();
+			},
+			{ timeout: 1000 }
+		);
+
+		// Give extra time for onMount and any async effects to complete
+		await new Promise((resolve) => setTimeout(resolve, 100));
 
 		// No changes made, should not be dirty
 		expect(layoutStore.isDirty).toBe(false);
@@ -220,35 +229,51 @@ describe('App Component', () => {
 	});
 
 	describe('Welcome Screen / Fresh Start', () => {
-		it('fresh start shows new rack form directly (not replace dialog)', async () => {
-			// Don't call markStarted - simulating fresh start
-			resetLayoutStore();
-			const layoutStore = getLayoutStore();
+	it('fresh start shows new rack form directly (not replace dialog)', async () => {
+		// Don't call markStarted - simulating fresh start
+		clearSession(); // Ensure no autosaved session
+		resetLayoutStore();
+		const layoutStore = getLayoutStore();
 
-			// Before user starts, rackCount is 0
-			expect(layoutStore.rackCount).toBe(0);
-			expect(layoutStore.hasStarted).toBe(false);
+		// Before user starts, rackCount is 0
+		expect(layoutStore.rackCount).toBe(0);
+		expect(layoutStore.hasStarted).toBe(false);
 
-			render(App);
+		render(App);
 
-			// Click the "New Rack" button in toolbar
-			const newRackBtn = screen.getByRole('button', { name: /new rack/i });
-			await fireEvent.click(newRackBtn);
+		// Wait for component to mount
+		await waitFor(
+			() => {
+				expect(screen.getByRole('button', { name: /new rack/i })).toBeInTheDocument();
+			},
+			{ timeout: 1000 }
+		);
 
-			// Should open NewRackForm directly, NOT replace dialog
-			const dialog = screen.getByRole('dialog');
-			expect(dialog).toBeInTheDocument();
+		// Click the "New Rack" button in toolbar
+		const newRackBtn = screen.getByRole('button', { name: /new rack/i });
+		await fireEvent.click(newRackBtn);
 
-			// NewRackForm has title "New Rack" and name input
-			expect(dialog.querySelector('.dialog-title')).toHaveTextContent('New Rack');
-			expect(screen.getByLabelText(/rack name/i)).toBeInTheDocument();
+		// Should open NewRackForm directly, NOT replace dialog
+		await waitFor(
+			() => {
+				const dialog = screen.getByRole('dialog');
+				expect(dialog).toBeInTheDocument();
+				// NewRackForm has title "New Rack" and name input
+				expect(dialog.querySelector('.dialog-title')).toHaveTextContent('New Rack');
+			},
+			{ timeout: 1000 }
+		);
 
-			// Replace dialog has "Replace Current Rack?" - should NOT be present
-			expect(dialog.textContent).not.toMatch(/replace current rack/i);
-		});
+		expect(screen.getByLabelText(/rack name/i)).toBeInTheDocument();
+
+		// Replace dialog has "Replace Current Rack?" - should NOT be present
+		const dialog = screen.getByRole('dialog');
+		expect(dialog.textContent).not.toMatch(/replace current rack/i);
+	});
 
 	it('auto-opens NewRackForm dialog on first load when no racks exist', async () => {
 		// Don't call markStarted - simulating fresh start
+		clearSession(); // Ensure no autosaved session
 		resetLayoutStore();
 		const layoutStore = getLayoutStore();
 
@@ -270,6 +295,7 @@ describe('App Component', () => {
 
 	it('shows WelcomeScreen behind auto-opened dialog', async () => {
 		// Don't call markStarted - simulating fresh start
+		clearSession(); // Ensure no autosaved session
 		resetLayoutStore();
 
 		const { container } = render(App);
@@ -289,6 +315,7 @@ describe('App Component', () => {
 
 	it('returns to WelcomeScreen when dialog is dismissed without creating rack', async () => {
 		// Don't call markStarted - simulating fresh start
+		clearSession(); // Ensure no autosaved session
 		resetLayoutStore();
 
 		const { container } = render(App);
@@ -316,6 +343,7 @@ describe('App Component', () => {
 
 	it('can re-open dialog by clicking WelcomeScreen after dismissing', async () => {
 		// Don't call markStarted - simulating fresh start
+		clearSession(); // Ensure no autosaved session
 		resetLayoutStore();
 
 		const { container } = render(App);
