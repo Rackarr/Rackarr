@@ -137,6 +137,9 @@
 	--ease-out: cubic-bezier(0, 0, 0.2, 1);
 	--ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
 	--ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+	/* Responsive Breakpoints */
+	--breakpoint-mobile: 1024px;
 }
 
 /* ============================================================

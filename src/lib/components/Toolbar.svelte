@@ -77,12 +77,12 @@
 	let drawerOpen = $state(false);
 	let brandRef: HTMLElement | null = $state(null);
 
-	// Track if we're in hamburger mode (< 1024px)
+	// Track if we're in hamburger mode (<= 1024px)
 	let isHamburgerMode = $state(false);
 
 	// Set up media query listener on mount
 	$effect(() => {
-		const mediaQuery = window.matchMedia('(max-width: 1023px)');
+		const mediaQuery = window.matchMedia('(max-width: 1024px)');
 		isHamburgerMode = mediaQuery.matches;
 
 		const handleChange = (e: MediaQueryListEvent) => {
@@ -484,7 +484,7 @@
 	}
 
 	/* Responsive: Hamburger mode - hide center toolbar, show hamburger icon */
-	@media (max-width: 1023px) {
+	@media (max-width: 1024px) {
 		.toolbar-center {
 			display: none;
 		}
