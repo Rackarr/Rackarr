@@ -82,7 +82,7 @@
 
 	// Image overflow: how far device images extend past rack rails (Issue #9)
 	// Real equipment extends past the rails; this creates realistic front-mounting appearance
-	const IMAGE_OVERFLOW = 8;
+	const IMAGE_OVERFLOW = 4;
 
 	// Position calculation (SVG y-coordinate, origin at top)
 	// y = (rackHeight - position - device.u_height + 1) * uHeight
@@ -137,7 +137,12 @@
 	// Set up long-press gesture on mobile (reactive to viewport changes)
 	$effect(() => {
 		if (viewportStore.isMobile && dragHandleElement) {
-			console.log('[RackDevice] Setting up long-press for device:', device.slug, 'isMobile:', viewportStore.isMobile);
+			console.log(
+				'[RackDevice] Setting up long-press for device:',
+				device.slug,
+				'isMobile:',
+				viewportStore.isMobile
+			);
 			const cleanup = useLongPress(dragHandleElement, handleLongPress);
 			return cleanup;
 		}
