@@ -57,32 +57,75 @@ describe('HelpPanel', () => {
 		});
 	});
 
-	describe('Links', () => {
-		it('shows GitHub link icon', () => {
+	describe('Quick Links', () => {
+		it('shows Project link with GitHub logo', () => {
 			render(HelpPanel, { props: { open: true } });
 
-			expect(screen.getByRole('link', { name: /github/i })).toBeInTheDocument();
+			const projectLink = screen.getByRole('link', { name: /project/i });
+			expect(projectLink).toBeInTheDocument();
 		});
 
-		it('GitHub link points to correct repository', () => {
+		it('Project link points to GitHub repository', () => {
 			render(HelpPanel, { props: { open: true } });
 
-			const githubLink = screen.getByRole('link', { name: /github/i });
-			expect(githubLink.getAttribute('href')).toBe('https://github.com/rackarr/rackarr');
+			const projectLink = screen.getByRole('link', { name: /project/i });
+			expect(projectLink.getAttribute('href')).toBe('https://github.com/rackarr/rackarr');
 		});
 
-		it('GitHub link opens in new tab', () => {
+		it('shows Report Bug link', () => {
 			render(HelpPanel, { props: { open: true } });
 
-			const githubLink = screen.getByRole('link', { name: /github/i });
-			expect(githubLink.getAttribute('target')).toBe('_blank');
+			const bugLink = screen.getByRole('link', { name: /report bug/i });
+			expect(bugLink).toBeInTheDocument();
 		});
 
-		it('GitHub link has rel="noopener noreferrer" for security', () => {
+		it('Report Bug link pre-fills browser info', () => {
 			render(HelpPanel, { props: { open: true } });
 
-			const githubLink = screen.getByRole('link', { name: /github/i });
-			expect(githubLink.getAttribute('rel')).toContain('noopener');
+			const bugLink = screen.getByRole('link', { name: /report bug/i });
+			const href = bugLink.getAttribute('href');
+			expect(href).toContain('template=bug-report.yml');
+			expect(href).toContain('browser=');
+			// URLSearchParams encodes spaces as + not %20
+			expect(href).toContain(`Rackarr+v${VERSION}`);
+		});
+
+		it('shows Request Feature link', () => {
+			render(HelpPanel, { props: { open: true } });
+
+			const featureLink = screen.getByRole('link', { name: /request feature/i });
+			expect(featureLink).toBeInTheDocument();
+		});
+
+		it('Request Feature link uses correct template', () => {
+			render(HelpPanel, { props: { open: true } });
+
+			const featureLink = screen.getByRole('link', { name: /request feature/i });
+			expect(featureLink.getAttribute('href')).toContain('template=feature-request.yml');
+		});
+
+		it('all quick links open in new tab', () => {
+			render(HelpPanel, { props: { open: true } });
+
+			const projectLink = screen.getByRole('link', { name: /project/i });
+			const bugLink = screen.getByRole('link', { name: /report bug/i });
+			const featureLink = screen.getByRole('link', { name: /request feature/i });
+
+			expect(projectLink.getAttribute('target')).toBe('_blank');
+			expect(bugLink.getAttribute('target')).toBe('_blank');
+			expect(featureLink.getAttribute('target')).toBe('_blank');
+		});
+
+		it('all quick links have rel="noopener noreferrer" for security', () => {
+			render(HelpPanel, { props: { open: true } });
+
+			const projectLink = screen.getByRole('link', { name: /project/i });
+			const bugLink = screen.getByRole('link', { name: /report bug/i });
+			const featureLink = screen.getByRole('link', { name: /request feature/i });
+
+			expect(projectLink.getAttribute('rel')).toContain('noopener');
+			expect(bugLink.getAttribute('rel')).toContain('noopener');
+			expect(featureLink.getAttribute('rel')).toContain('noopener');
 		});
 	});
 
