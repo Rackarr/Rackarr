@@ -127,14 +127,14 @@ describe('ExportDialog', () => {
 		});
 	});
 
-	describe('Background Options', () => {
-		it('shows background dropdown with dark, light options', () => {
+	describe('Theme Options', () => {
+		it('shows theme dropdown with dark, light options', () => {
 			render(ExportDialog, {
 				props: { open: true, racks: mockRacks, deviceTypes: mockDeviceTypes, selectedRackId: null }
 			});
 
-			const bgSelect = screen.getByLabelText(/^background$/i);
-			expect(bgSelect).toBeInTheDocument();
+			const themeSelect = screen.getByLabelText(/^theme$/i);
+			expect(themeSelect).toBeInTheDocument();
 			expect(screen.getByRole('option', { name: /dark/i })).toBeInTheDocument();
 			expect(screen.getByRole('option', { name: /light/i })).toBeInTheDocument();
 		});
@@ -426,6 +426,47 @@ describe('ExportDialog', () => {
 
 			const qrCheckbox = screen.queryByLabelText(/include.*qr/i);
 			expect(qrCheckbox).not.toBeInTheDocument();
+		});
+
+		it('preview updates when QR checkbox is toggled', async () => {
+			const { container } = render(ExportDialog, {
+				props: {
+					open: true,
+					racks: mockRacks,
+					deviceTypes: mockDeviceTypes,
+					selectedRackId: null,
+					qrCodeDataUrl: mockQrCodeDataUrl
+				}
+			});
+
+			// Wait for initial preview to render
+			await waitFor(() => {
+				const preview = container.querySelector('.preview-container svg');
+				expect(preview).toBeInTheDocument();
+			});
+
+			// Initially QR is unchecked, so no QR in preview
+			let preview = container.querySelector('.preview-container svg');
+			expect(preview?.querySelector('.export-qr')).toBeNull();
+
+			// Enable QR code
+			const qrCheckbox = screen.getByLabelText(/include.*qr/i);
+			await fireEvent.click(qrCheckbox);
+
+			// Wait for preview to update with QR code
+			await waitFor(() => {
+				preview = container.querySelector('.preview-container svg');
+				expect(preview?.querySelector('.export-qr')).not.toBeNull();
+			});
+
+			// Disable QR code
+			await fireEvent.click(qrCheckbox);
+
+			// Wait for preview to update without QR code
+			await waitFor(() => {
+				preview = container.querySelector('.preview-container svg');
+				expect(preview?.querySelector('.export-qr')).toBeNull();
+			});
 		});
 
 		// NOTE: happy-dom doesn't properly trigger Svelte select bindings on change events
