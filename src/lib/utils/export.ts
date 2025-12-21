@@ -31,7 +31,6 @@ const VIEW_LABEL_HEIGHT = 15; // Space for FRONT/REAR labels
 // QR Code export constants
 const QR_SIZE = 150; // Size of QR code in pixels for screen exports
 const QR_PADDING = 10; // Padding around QR code
-const QR_MARGIN = 20; // Margin from content to QR area
 const QR_LABEL_HEIGHT = 20; // Height for "Scan to open in Rackarr" label
 
 // Brand colours for QR label
@@ -378,15 +377,22 @@ export function generateExportSVG(
 		? usedDevices.length * LEGEND_ITEM_HEIGHT + LEGEND_PADDING * 2
 		: 0;
 
-	const contentWidth = totalRackWidth + (includeLegend ? LEGEND_PADDING + legendWidth : 0);
-	const contentHeight = Math.max(rackAreaHeight, legendHeight);
-
-	// Calculate QR code space if needed (positioned to the right of content)
+	// Calculate QR code dimensions
 	const qrTotalSize = QR_SIZE + QR_PADDING * 2; // QR size including padding
-	const qrAreaWidth = shouldRenderQR ? qrTotalSize + QR_MARGIN : 0;
 	const qrAreaHeight = qrTotalSize + QR_LABEL_HEIGHT; // QR + label above it
 
-	const svgWidth = contentWidth + EXPORT_PADDING * 2 + qrAreaWidth;
+	// Calculate sidebar (legend + QR column) dimensions
+	// QR code shares the same column as legend, positioned at the bottom
+	const hasSidebar = includeLegend || shouldRenderQR;
+	const sidebarWidth = Math.max(
+		includeLegend ? legendWidth : 0,
+		shouldRenderQR ? qrTotalSize : 0
+	);
+
+	const contentWidth = totalRackWidth + (hasSidebar ? LEGEND_PADDING + sidebarWidth : 0);
+	const contentHeight = Math.max(rackAreaHeight, legendHeight);
+
+	const svgWidth = contentWidth + EXPORT_PADDING * 2;
 	const svgHeight = Math.max(contentHeight, shouldRenderQR ? qrAreaHeight : 0) + EXPORT_PADDING * 2;
 
 	// Determine colours based on background
@@ -787,15 +793,15 @@ export function generateExportSVG(
 		svg.appendChild(legendGroup);
 	}
 
-	// QR Code (to the right of content, vertically centered)
+	// QR Code (in sidebar column, at bottom)
 	if (shouldRenderQR && qrCodeDataUrl) {
 		const qrGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
 		qrGroup.setAttribute('class', 'export-qr');
 
-		// Position QR area to the right of content, vertically centered
-		const qrX = contentWidth + EXPORT_PADDING + QR_MARGIN;
-		const qrY = EXPORT_PADDING + (contentHeight - qrAreaHeight) / 2;
-		qrGroup.setAttribute('transform', `translate(${qrX}, ${Math.max(qrY, EXPORT_PADDING)})`);
+		// Position QR in sidebar column (same X as legend), at bottom of content area
+		const sidebarX = EXPORT_PADDING + totalRackWidth + LEGEND_PADDING;
+		const qrY = EXPORT_PADDING + contentHeight - qrAreaHeight;
+		qrGroup.setAttribute('transform', `translate(${sidebarX}, ${Math.max(qrY, EXPORT_PADDING)})`);
 
 		// Label: "Scan to open in Rackarr" with Rackarr in brand purple
 		const labelGroup = document.createElementNS('http://www.w3.org/2000/svg', 'text');
