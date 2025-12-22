@@ -384,10 +384,7 @@ export function generateExportSVG(
 	// Calculate sidebar (legend + QR column) dimensions
 	// QR code shares the same column as legend, positioned at the bottom
 	const hasSidebar = includeLegend || shouldRenderQR;
-	const sidebarWidth = Math.max(
-		includeLegend ? legendWidth : 0,
-		shouldRenderQR ? qrTotalSize : 0
-	);
+	const sidebarWidth = Math.max(includeLegend ? legendWidth : 0, shouldRenderQR ? qrTotalSize : 0);
 
 	const contentWidth = totalRackWidth + (hasSidebar ? LEGEND_PADDING + sidebarWidth : 0);
 	const contentHeight = Math.max(rackAreaHeight, legendHeight);
@@ -508,7 +505,7 @@ export function generateExportSVG(
 		const holeColor = isDark ? '#505050' : '#a0a0a0';
 		for (let i = 0; i < rack.height; i++) {
 			const baseY = i * U_HEIGHT + RACK_PADDING + RAIL_WIDTH + 4;
-			const holeX = RACK_WIDTH - RAIL_WIDTH / 2;
+			const holeX = RACK_WIDTH - RAIL_WIDTH + 2.5;
 
 			for (const offsetY of [0, 7, 14]) {
 				const hole = document.createElementNS('http://www.w3.org/2000/svg', 'circle');

@@ -9,7 +9,7 @@ describe('RackDevice SVG Component', () => {
 	const U_HEIGHT = 22;
 	const RACK_WIDTH = 220;
 	const RAIL_WIDTH = 17;
-	const IMAGE_OVERFLOW = 8; // Images extend past rails for realistic appearance
+	const IMAGE_OVERFLOW = 4; // Images extend past rails for realistic appearance
 
 	const mockDevice: DeviceType = {
 		slug: 'device-1',
