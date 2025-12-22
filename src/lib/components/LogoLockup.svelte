@@ -16,10 +16,13 @@
 
 	let { size = 36, celebrate = false, partyMode = false, showcase = false }: Props = $props();
 
+	// Hover state for rainbow animation
+	let hovering = $state(false);
+
 	// Calculate proportional title height (logo should be slightly taller)
 	const titleHeight = $derived(size * 1.2);
 
-	// Determine which gradient to use based on state
+	// Determine which gradient to use based on state (priority order)
 	const gradientId = $derived(
 		partyMode
 			? 'url(#lockup-party)'
@@ -27,11 +30,18 @@
 				? 'url(#lockup-celebrate)'
 				: showcase
 					? 'url(#lockup-showcase)'
-					: null
+					: hovering
+						? 'url(#lockup-rainbow)'
+						: null
 	);
 </script>
 
-<div class="logo-lockup">
+<div
+	class="logo-lockup"
+	onmouseenter={() => (hovering = true)}
+	onmouseleave={() => (hovering = false)}
+	role="presentation"
+>
 	<!-- Hidden SVG for gradient definitions -->
 	<svg width="0" height="0" style="position: absolute;" aria-hidden="true">
 		<defs>
@@ -178,6 +188,7 @@
 		class:logo-mark--celebrate={celebrate}
 		class:logo-mark--party={partyMode}
 		class:logo-mark--showcase={showcase}
+		class:logo-mark--hover={hovering && !partyMode && !celebrate && !showcase}
 		viewBox="0 0 32 32"
 		width={size}
 		height={size}
@@ -194,6 +205,7 @@
 		class:logo-title--celebrate={celebrate}
 		class:logo-title--party={partyMode}
 		class:logo-title--showcase={showcase}
+		class:logo-title--hover={hovering && !partyMode && !celebrate && !showcase}
 		viewBox="0 0 200 50"
 		height={titleHeight}
 		role="img"
@@ -269,6 +281,17 @@
 	.logo-mark--showcase,
 	.logo-title--showcase {
 		filter: drop-shadow(0 0 16px rgba(189, 147, 249, 0.4));
+	}
+
+	/* Hover state: 6s rainbow cycle */
+	.logo-mark--hover,
+	.logo-title--hover text {
+		fill: var(--active-gradient, url(#lockup-rainbow)) !important;
+	}
+
+	.logo-mark--hover,
+	.logo-title--hover {
+		filter: drop-shadow(0 0 12px rgba(189, 147, 249, 0.4));
 	}
 
 	/* Respect reduced motion preference */

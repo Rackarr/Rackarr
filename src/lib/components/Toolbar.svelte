@@ -314,8 +314,7 @@
 	</div>
 
 	<!-- Right section: Empty (previously held theme toggle) -->
-	<div class="toolbar-section toolbar-right">
-	</div>
+	<div class="toolbar-section toolbar-right"></div>
 </header>
 
 <!-- Toolbar Drawer (hamburger menu) -->
@@ -406,10 +405,12 @@
 	/* Clickable brand (opens About in non-hamburger mode) */
 	.toolbar-brand--clickable {
 		cursor: pointer;
+		border: 1px solid var(--colour-border);
 	}
 
 	.toolbar-brand--clickable:hover {
 		background: var(--colour-surface-hover);
+		border-color: var(--colour-border-hover, var(--colour-border));
 	}
 
 	.toolbar-brand--clickable:focus-visible {

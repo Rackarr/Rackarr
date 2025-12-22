@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { render } from '@testing-library/svelte';
+import { render, fireEvent } from '@testing-library/svelte';
 import LogoLockup from '$lib/components/LogoLockup.svelte';
 
 describe('LogoLockup', () => {
@@ -142,6 +142,76 @@ describe('LogoLockup', () => {
 
 			expect(logoMark).toHaveStyle('--active-gradient: url(#lockup-party)');
 			expect(logoMark).toHaveClass('logo-mark--party');
+		});
+	});
+
+	describe('Hover State', () => {
+		it('applies hover class on mouseenter', async () => {
+			const { container } = render(LogoLockup);
+			const lockup = container.querySelector('.logo-lockup')!;
+			const logoMark = container.querySelector('.logo-mark');
+
+			await fireEvent.mouseEnter(lockup);
+
+			expect(logoMark).toHaveClass('logo-mark--hover');
+		});
+
+		it('removes hover class on mouseleave', async () => {
+			const { container } = render(LogoLockup);
+			const lockup = container.querySelector('.logo-lockup')!;
+			const logoMark = container.querySelector('.logo-mark');
+
+			await fireEvent.mouseEnter(lockup);
+			expect(logoMark).toHaveClass('logo-mark--hover');
+
+			await fireEvent.mouseLeave(lockup);
+			expect(logoMark).not.toHaveClass('logo-mark--hover');
+		});
+
+		it('sets rainbow gradient on hover', async () => {
+			const { container } = render(LogoLockup);
+			const lockup = container.querySelector('.logo-lockup')!;
+			const logoMark = container.querySelector('.logo-mark');
+
+			await fireEvent.mouseEnter(lockup);
+
+			expect(logoMark).toHaveStyle('--active-gradient: url(#lockup-rainbow)');
+		});
+
+		it('hover does not apply when partyMode is active', async () => {
+			const { container } = render(LogoLockup, { props: { partyMode: true } });
+			const lockup = container.querySelector('.logo-lockup')!;
+			const logoMark = container.querySelector('.logo-mark');
+
+			await fireEvent.mouseEnter(lockup);
+
+			// Party mode takes precedence, hover class should not be applied
+			expect(logoMark).not.toHaveClass('logo-mark--hover');
+			expect(logoMark).toHaveClass('logo-mark--party');
+		});
+
+		it('hover does not apply when celebrate is active', async () => {
+			const { container } = render(LogoLockup, { props: { celebrate: true } });
+			const lockup = container.querySelector('.logo-lockup')!;
+			const logoMark = container.querySelector('.logo-mark');
+
+			await fireEvent.mouseEnter(lockup);
+
+			// Celebrate takes precedence, hover class should not be applied
+			expect(logoMark).not.toHaveClass('logo-mark--hover');
+			expect(logoMark).toHaveClass('logo-mark--celebrate');
+		});
+
+		it('hover does not apply when showcase is active', async () => {
+			const { container } = render(LogoLockup, { props: { showcase: true } });
+			const lockup = container.querySelector('.logo-lockup')!;
+			const logoMark = container.querySelector('.logo-mark');
+
+			await fireEvent.mouseEnter(lockup);
+
+			// Showcase takes precedence, hover class should not be applied
+			expect(logoMark).not.toHaveClass('logo-mark--hover');
+			expect(logoMark).toHaveClass('logo-mark--showcase');
 		});
 	});
 
