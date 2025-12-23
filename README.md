@@ -1,7 +1,7 @@
 # Rackarr
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-0.5.8-blue.svg)](https://github.com/Rackarr/Rackarr/releases)
+[![Version](https://img.shields.io/badge/version-0.5.9-blue.svg)](https://github.com/Rackarr/Rackarr/releases)
 [![Tests](https://img.shields.io/badge/tests-1800%2B-brightgreen.svg)](https://github.com/Rackarr/Rackarr/actions)
 [![Demo](https://img.shields.io/badge/demo-app.rackarr.com-blue.svg)](https://app.rackarr.com/)
 

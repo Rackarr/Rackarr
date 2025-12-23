@@ -87,32 +87,32 @@
 				zoomDoubleClickSpeed: 1,
 				// Allow panning only when not interacting with drag targets
 				beforeMouseDown: (e: MouseEvent) => {
-					// Allow drag-and-drop to work - don't initiate pan on draggable elements
 					const target = e.target as HTMLElement;
 
-					// Check if target or any parent is draggable
+					// Priority 1: Check if target or any parent is draggable (device drag-drop)
 					// For SVGElements, we need to check the draggable attribute differently
 					const isDraggableElement =
 						(target as HTMLElement).draggable === true ||
 						target.getAttribute?.('draggable') === 'true' ||
 						target.closest?.('[draggable="true"]') !== null;
 
-					debug.log('beforeMouseDown:', {
-						target: target.tagName,
-						className: target.className,
-						draggable: (target as HTMLElement).draggable,
-						draggableAttr: target.getAttribute?.('draggable'),
-						closestDraggable: target.closest?.('[draggable="true"]'),
-						isDraggableElement,
-						willPan: !isDraggableElement
-					});
-
-					// Don't pan if on a draggable element
 					if (isDraggableElement) {
+						debug.log('beforeMouseDown: blocking pan for draggable element');
 						return true; // Block panning, let drag-drop work
 					}
 
-					// Allow panning on empty space and non-interactive elements
+					// Priority 2: Check if target is within a rack area
+					// This includes: rack-dual-view, rack-container, rack-svg, and all children
+					// Clicking anywhere in rack should select it, not pan
+					const isWithinRack = target.closest?.('.rack-dual-view') !== null;
+
+					if (isWithinRack) {
+						debug.log('beforeMouseDown: blocking pan for rack area element');
+						return true; // Block panning, let rack selection work
+					}
+
+					// Priority 3: Allow panning only on canvas background outside racks
+					debug.log('beforeMouseDown: allowing pan on canvas background');
 					return false;
 				},
 				// Filter out drag events from panzoom handling
