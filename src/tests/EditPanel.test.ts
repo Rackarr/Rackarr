@@ -171,30 +171,6 @@ describe('EditPanel Component', () => {
 			expect(screen.getByRole('button', { name: /delete rack/i })).toBeInTheDocument();
 		});
 
-		it('shows device count for rack', () => {
-			const layoutStore = getLayoutStore();
-			const selectionStore = getSelectionStore();
-			const RACK_ID = 'rack-0';
-
-			layoutStore.addRack('My Rack', 24);
-			const device = layoutStore.addDeviceType({
-				name: 'Server',
-				u_height: 2,
-				category: 'server',
-				colour: '#4A90D9'
-			});
-			layoutStore.placeDevice(RACK_ID, device.slug, 1);
-			selectionStore.selectRack(RACK_ID);
-
-			const { container } = render(EditPanel);
-
-			// Find the info row with "Devices" label and verify it shows 1
-			expect(screen.getByText('Devices')).toBeInTheDocument();
-			// Look for the Devices row specifically
-			const infoRows = container.querySelectorAll('.info-row');
-			const devicesRow = Array.from(infoRows).find((row) => row.textContent?.includes('Devices'));
-			expect(devicesRow?.textContent).toContain('1');
-		});
 	});
 
 	describe('Device Display', () => {

@@ -59,24 +59,6 @@ describe('EditPanel Visual Hierarchy', () => {
 			expect(screen.getByLabelText(/height/i)).toBeInTheDocument();
 		});
 
-		it('has information section with stats', () => {
-			const layoutStore = getLayoutStore();
-			const selectionStore = getSelectionStore();
-			const RACK_ID = 'rack-0';
-
-			layoutStore.addRack('Test Rack', 42);
-			selectionStore.selectRack(RACK_ID);
-
-			const { container } = render(EditPanel);
-
-			// Should have info section
-			const infoSection = container.querySelector('.info-section');
-			expect(infoSection).toBeInTheDocument();
-
-			// Should show Devices label
-			expect(screen.getByText('Devices')).toBeInTheDocument();
-		});
-
 		it('has actions section with delete button', () => {
 			const layoutStore = getLayoutStore();
 			const selectionStore = getSelectionStore();
@@ -257,23 +239,5 @@ describe('EditPanel Visual Hierarchy', () => {
 			expect(deleteButton).toBeInTheDocument();
 		});
 
-		it('info section has appropriate styling class', () => {
-			const layoutStore = getLayoutStore();
-			const selectionStore = getSelectionStore();
-			const RACK_ID = 'rack-0';
-
-			layoutStore.addRack('Test Rack', 42);
-			selectionStore.selectRack(RACK_ID);
-
-			const { container } = render(EditPanel);
-
-			// Info section should exist
-			const infoSection = container.querySelector('.info-section');
-			expect(infoSection).toBeInTheDocument();
-
-			// Info rows should exist
-			const infoRows = container.querySelectorAll('.info-row');
-			expect(infoRows.length).toBeGreaterThanOrEqual(1);
-		});
 	});
 });

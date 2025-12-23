@@ -306,13 +306,6 @@
 				</div>
 			</div>
 
-			<div class="info-section">
-				<div class="info-row">
-					<span class="info-label">Devices</span>
-					<span class="info-value">{selectedRack.devices.length}</span>
-				</div>
-			</div>
-
 			<div class="form-group">
 				<label for="rack-notes">Notes</label>
 				<textarea
