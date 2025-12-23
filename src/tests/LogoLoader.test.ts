@@ -33,6 +33,19 @@ describe('LogoLoader', () => {
 
 			expect(svg).toHaveAttribute('viewBox', '0 0 32 32');
 		});
+
+		it('viewBox has exactly 4 values (#166)', () => {
+			const { container } = render(LogoLoader);
+			const svg = container.querySelector('svg.logo-mark');
+			const viewBox = svg?.getAttribute('viewBox');
+
+			// Validate format: exactly 4 space-separated numeric values
+			const values = viewBox?.split(' ');
+			expect(values).toHaveLength(4);
+			values?.forEach((val) => {
+				expect(Number.isNaN(parseFloat(val))).toBe(false);
+			});
+		});
 	});
 
 	describe('Logo Structure', () => {
