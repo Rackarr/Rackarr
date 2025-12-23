@@ -54,6 +54,7 @@
 	/* Dracula Accents */
 	--dracula-purple: #bd93f9;
 	--dracula-pink: #ff79c6;
+	--dracula-pink-muted: #c45b9a; /* Softer pink for button backgrounds */
 	--dracula-cyan: #8be9fd;
 	--dracula-green: #50fa7b;
 	--dracula-orange: #ffb86c;
@@ -175,6 +176,13 @@
 	--colour-selection: var(--dracula-pink); /* BRAND.md v0.6.0: pink (not purple) */
 	--colour-selection-hover: var(--dracula-pink);
 	--colour-focus-ring: var(--dracula-pink); /* BRAND.md v0.6.0: pink for focus */
+
+	/* Buttons */
+	--colour-button-bg: var(--dracula-bg-light);
+	--colour-button-hover: var(--dracula-bg-lighter);
+	--colour-button-primary: var(--dracula-pink-muted); /* Softer pink for CTA background */
+	--colour-button-primary-hover: var(--dracula-pink); /* Bright pink on hover */
+	--colour-text-on-primary: #ffffff;
 
 	/* Feedback States */
 	--colour-success: var(--dracula-green);
@@ -326,6 +334,7 @@
 	/* Alucard Accents - darker for light background contrast */
 	--alucard-purple: #644ac9;
 	--alucard-pink: #a3144d;
+	--alucard-pink-muted: #8a4a60; /* Softer pink for button backgrounds */
 	--alucard-cyan: #036a96;
 	--alucard-green: #14710a;
 	--alucard-orange: #a34d14;
@@ -363,6 +372,13 @@
 	--colour-selection: var(--alucard-pink); /* BRAND.md v0.6.0: pink (not purple) */
 	--colour-selection-hover: var(--alucard-pink);
 	--colour-focus-ring: var(--alucard-pink); /* BRAND.md v0.6.0: pink for focus */
+
+	/* Buttons */
+	--colour-button-bg: var(--alucard-bg-lighter);
+	--colour-button-hover: var(--alucard-bg-light);
+	--colour-button-primary: var(--alucard-pink-muted); /* Softer pink for CTA background */
+	--colour-button-primary-hover: var(--alucard-pink); /* Darker pink on hover */
+	--colour-text-on-primary: #ffffff;
 
 	/* Feedback States */
 	--colour-success: var(--alucard-green);

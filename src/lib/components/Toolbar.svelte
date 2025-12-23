@@ -364,7 +364,7 @@
 
 	.toolbar-left {
 		flex: 0 0 var(--sidebar-width);
-		justify-content: center;
+		justify-content: flex-start;
 	}
 
 	/* Mobile: make toolbar-left full width in hamburger mode */
@@ -406,16 +406,29 @@
 	.toolbar-brand--clickable {
 		cursor: pointer;
 		border: 1px solid var(--colour-border);
+		padding: 0 var(--space-2); /* Tight vertical, modest horizontal for button-like appearance */
+		transition:
+			background-color var(--duration-fast) var(--ease-out),
+			border-color var(--duration-fast) var(--ease-out),
+			transform var(--duration-fast) var(--ease-out);
 	}
 
 	.toolbar-brand--clickable:hover {
 		background: var(--colour-surface-hover);
 		border-color: var(--colour-border-hover, var(--colour-border));
+		transform: scale(1.02);
+	}
+
+	.toolbar-brand--clickable:active {
+		transform: scale(0.98);
+		background: var(--colour-selection);
 	}
 
 	.toolbar-brand--clickable:focus-visible {
 		outline: none;
-		box-shadow: 0 0 0 2px var(--colour-focus-ring);
+		box-shadow:
+			0 0 0 2px var(--colour-bg),
+			0 0 0 4px var(--colour-focus-ring);
 	}
 
 	/* Hamburger icon next to logo */

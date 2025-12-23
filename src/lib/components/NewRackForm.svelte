@@ -359,11 +359,11 @@
 	}
 
 	.btn-primary {
-		background: var(--colour-selection);
-		color: white;
+		background: var(--colour-button-primary);
+		color: var(--colour-text-on-primary);
 	}
 
 	.btn-primary:hover {
-		background: var(--colour-selection-hover);
+		background: var(--colour-button-primary-hover);
 	}
 </style>
