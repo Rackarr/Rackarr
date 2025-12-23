@@ -230,4 +230,59 @@ describe('LogoLockup', () => {
 			expect(defsSvg).toHaveAttribute('aria-hidden', 'true');
 		});
 	});
+
+	describe('SVG viewBox Validation (#166)', () => {
+		// Regression tests for malformed viewBox attributes
+		// viewBox format must be: "minX minY width height" (4 space-separated values)
+
+		it('logo-mark has valid viewBox with 4 values', () => {
+			const { container } = render(LogoLockup);
+			const logoMark = container.querySelector('.logo-mark');
+			const viewBox = logoMark?.getAttribute('viewBox');
+
+			expect(viewBox).toBe('0 0 32 32');
+
+			// Validate format: exactly 4 space-separated numeric values
+			const values = viewBox?.split(' ');
+			expect(values).toHaveLength(4);
+			values?.forEach((val) => {
+				expect(Number.isNaN(parseFloat(val))).toBe(false);
+			});
+		});
+
+		it('logo-title has valid viewBox with 4 values', () => {
+			const { container } = render(LogoLockup);
+			const logoTitle = container.querySelector('.logo-title');
+			const viewBox = logoTitle?.getAttribute('viewBox');
+
+			expect(viewBox).toBe('0 0 160 50');
+
+			// Validate format: exactly 4 space-separated numeric values
+			const values = viewBox?.split(' ');
+			expect(values).toHaveLength(4);
+			values?.forEach((val) => {
+				expect(Number.isNaN(parseFloat(val))).toBe(false);
+			});
+		});
+
+		it('logo-mark viewBox starts at origin (0 0)', () => {
+			const { container } = render(LogoLockup);
+			const logoMark = container.querySelector('.logo-mark');
+			const viewBox = logoMark?.getAttribute('viewBox');
+			const [minX, minY] = viewBox?.split(' ').map(Number) ?? [];
+
+			expect(minX).toBe(0);
+			expect(minY).toBe(0);
+		});
+
+		it('logo-title viewBox starts at origin (0 0)', () => {
+			const { container } = render(LogoLockup);
+			const logoTitle = container.querySelector('.logo-title');
+			const viewBox = logoTitle?.getAttribute('viewBox');
+			const [minX, minY] = viewBox?.split(' ').map(Number) ?? [];
+
+			expect(minX).toBe(0);
+			expect(minY).toBe(0);
+		});
+	});
 });

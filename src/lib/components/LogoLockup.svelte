@@ -206,7 +206,7 @@
 		class:logo-title--party={partyMode}
 		class:logo-title--showcase={showcase}
 		class:logo-title--hover={hovering && !partyMode && !celebrate && !showcase}
-		viewBox="0 0 200 50"
+		viewBox="0 0 160 50"
 		height={titleHeight}
 		role="img"
 		aria-label="Rackarr"
