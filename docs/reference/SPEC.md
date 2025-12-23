@@ -268,6 +268,17 @@ Two devices collide if **both** conditions are true:
 
 This allows placing a rear half-depth device at the same U position as a front half-depth device (useful for blanks and cable management).
 
+**Interaction Consistency:**
+
+Both drag-and-drop and keyboard movement use face-aware validation:
+
+| Operation       | Validation Parameters                                        |
+| --------------- | ------------------------------------------------------------ |
+| Drag-and-drop   | Target face from `faceFilter` prop, depth from `is_full_depth` |
+| Keyboard (↑/↓)  | Face from `placedDevice.face`, depth from device type         |
+
+The `getDropFeedback()` function passes `targetFace` and `isFullDepth` to `canPlaceDevice()`, ensuring drag-and-drop preview feedback (valid/blocked) matches actual placement behavior.
+
 ---
 
 ## 4. File Format
