@@ -35,6 +35,8 @@
 		viewLabel?: string;
 		/** Hide the rack name (useful when container shows it instead) */
 		hideRackName?: boolean;
+		/** Party mode visual effects active */
+		partyMode?: boolean;
 		onselect?: (event: CustomEvent<{ rackId: string }>) => void;
 		ondeviceselect?: (event: CustomEvent<{ slug: string; position: number }>) => void;
 		ondevicedrop?: (event: CustomEvent<{ rackId: string; slug: string; position: number }>) => void;
@@ -61,6 +63,7 @@
 		faceFilter,
 		viewLabel,
 		hideRackName = false,
+		partyMode = false,
 		onselect,
 		ondeviceselect,
 		ondevicedrop,
@@ -340,6 +343,7 @@
 <div
 	class="rack-container"
 	class:selected
+	class:party-mode={partyMode}
 	tabindex="0"
 	aria-selected={selected}
 	role="option"
@@ -706,5 +710,36 @@
 
 	.blocked-slot-stripes {
 		pointer-events: none;
+	}
+
+	/* Party mode: rainbow glow animation */
+	@keyframes party-glow {
+		0% {
+			filter: drop-shadow(0 0 8px hsl(0, 100%, 50%));
+		}
+		25% {
+			filter: drop-shadow(0 0 8px hsl(90, 100%, 50%));
+		}
+		50% {
+			filter: drop-shadow(0 0 8px hsl(180, 100%, 50%));
+		}
+		75% {
+			filter: drop-shadow(0 0 8px hsl(270, 100%, 50%));
+		}
+		100% {
+			filter: drop-shadow(0 0 8px hsl(360, 100%, 50%));
+		}
+	}
+
+	.rack-container.party-mode .rack-svg {
+		animation: party-glow 3s linear infinite;
+	}
+
+	/* Respect reduced motion preference */
+	@media (prefers-reduced-motion: reduce) {
+		.rack-container.party-mode .rack-svg {
+			animation: none;
+			filter: drop-shadow(0 0 8px hsl(300, 100%, 50%));
+		}
 	}
 </style>

@@ -19,6 +19,7 @@
 	const RACK_ID = 'rack-0';
 
 	interface Props {
+		partyMode?: boolean;
 		onnewrack?: () => void;
 		onload?: () => void;
 		onrackselect?: (event: CustomEvent<{ rackId: string }>) => void;
@@ -45,6 +46,7 @@
 	}
 
 	let {
+		partyMode = false,
 		onnewrack,
 		onload: _onload,
 		onrackselect,
@@ -205,6 +207,7 @@
 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <div
 	class="canvas"
+	class:party-mode={partyMode}
 	role="application"
 	aria-label="Rack layout canvas"
 	bind:this={canvasContainer}
@@ -224,6 +227,7 @@
 						: null}
 					displayMode={uiStore.displayMode}
 					showLabelsOnImages={uiStore.showLabelsOnImages}
+					{partyMode}
 					onselect={(e) => handleRackSelect(e)}
 					ondeviceselect={(e) => handleDeviceSelect(e)}
 					ondevicedrop={(e) => handleDeviceDrop(e)}
@@ -265,5 +269,32 @@
 		/* Note: fitAll() in canvas store handles centering via pan calculations */
 		display: inline-block;
 		padding: var(--space-4);
+	}
+
+	/* Party mode: animated gradient background */
+	@keyframes party-bg {
+		0% {
+			background-color: hsl(0, 30%, 12%);
+		}
+		33% {
+			background-color: hsl(120, 30%, 12%);
+		}
+		66% {
+			background-color: hsl(240, 30%, 12%);
+		}
+		100% {
+			background-color: hsl(360, 30%, 12%);
+		}
+	}
+
+	.canvas.party-mode {
+		animation: party-bg 4s linear infinite;
+	}
+
+	/* Respect reduced motion preference */
+	@media (prefers-reduced-motion: reduce) {
+		.canvas.party-mode {
+			animation: none;
+		}
 	}
 </style>

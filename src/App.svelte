@@ -105,11 +105,11 @@ import { getLayoutStore } from '$lib/stores/layout.svelte';
 		partyMode = true;
 		toastStore.showToast('Party Mode!', 'info', 3000);
 
-		// Auto-disable after 5 seconds
+		// Auto-disable after 10 seconds
 		partyModeTimeout = setTimeout(() => {
 			partyMode = false;
 			partyModeTimeout = null;
-		}, 5000);
+		}, 10_000);
 	}
 
 	// Auto-open new rack dialog when no racks exist (first-load experience)
@@ -646,7 +646,7 @@ import { getLayoutStore } from '$lib/stores/layout.svelte';
 			</Sidebar>
 		{/if}
 
-		<Canvas onnewrack={handleNewRack} onload={handleLoad} />
+		<Canvas onnewrack={handleNewRack} onload={handleLoad} {partyMode} />
 
 		{#if !viewportStore.isMobile}
 			<EditPanel />

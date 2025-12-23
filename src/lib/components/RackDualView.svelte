@@ -18,6 +18,8 @@
 		selectedDeviceIndex?: number | null;
 		displayMode?: DisplayMode;
 		showLabelsOnImages?: boolean;
+		/** Party mode visual effects active */
+		partyMode?: boolean;
 		onselect?: (event: CustomEvent<{ rackId: string }>) => void;
 		ondeviceselect?: (event: CustomEvent<{ slug: string; position: number }>) => void;
 		ondevicedrop?: (
@@ -48,6 +50,7 @@
 		selectedDeviceIndex = null,
 		displayMode = 'label',
 		showLabelsOnImages = false,
+		partyMode = false,
 		onselect,
 		ondeviceselect,
 		ondevicedrop,
@@ -122,6 +125,7 @@
 				{selectedDeviceIndex}
 				{displayMode}
 				{showLabelsOnImages}
+				{partyMode}
 				faceFilter="front"
 				hideRackName={true}
 				viewLabel="FRONT"
@@ -142,6 +146,7 @@
 				{selectedDeviceIndex}
 				{displayMode}
 				{showLabelsOnImages}
+				{partyMode}
 				faceFilter="rear"
 				hideRackName={true}
 				viewLabel="REAR"
