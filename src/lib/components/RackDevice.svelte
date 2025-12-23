@@ -212,7 +212,8 @@
 				height={deviceHeight}
 				class="label-overlay-wrapper"
 			>
-				<div class="label-overlay">{displayName}</div>
+				<!-- xmlns required for foreignObject HTML content on mobile browsers -->
+				<div xmlns="http://www.w3.org/1999/xhtml" class="label-overlay">{displayName}</div>
 			</foreignObject>
 		{/if}
 	{:else}
@@ -230,7 +231,8 @@
 		<!-- Category icon (vertically centered) -->
 		{#if deviceHeight >= 22}
 			<foreignObject x="8" y="0" width="16" height={deviceHeight} class="category-icon-wrapper">
-				<div class="icon-container">
+				<!-- xmlns required for foreignObject HTML content on mobile browsers -->
+				<div xmlns="http://www.w3.org/1999/xhtml" class="icon-container">
 					<CategoryIcon category={device.category} size={14} />
 				</div>
 			</foreignObject>
@@ -239,7 +241,9 @@
 
 	<!-- Invisible HTML overlay for drag-and-drop (rendered last to be on top for click events) -->
 	<foreignObject x="0" y="0" width={deviceWidth} height={deviceHeight} class="drag-overlay">
+		<!-- xmlns required for foreignObject HTML content on mobile browsers -->
 		<div
+			xmlns="http://www.w3.org/1999/xhtml"
 			bind:this={dragHandleElement}
 			class="drag-handle"
 			role="button"
