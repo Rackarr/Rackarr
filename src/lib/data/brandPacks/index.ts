@@ -10,6 +10,7 @@ import { synologyDevices } from './synology';
 import { apcDevices } from './apc';
 import { dellDevices } from './dell';
 import { supermicroDevices } from './supermicro';
+import { hpeDevices } from './hpe';
 
 export {
 	ubiquitiDevices,
@@ -17,7 +18,8 @@ export {
 	synologyDevices,
 	apcDevices,
 	dellDevices,
-	supermicroDevices
+	supermicroDevices,
+	hpeDevices
 };
 
 /**
@@ -82,6 +84,13 @@ export function getBrandPacks(): BrandSection[] {
 			devices: supermicroDevices,
 			defaultExpanded: false,
 			icon: 'supermicro'
+		},
+		{
+			id: 'hpe',
+			title: 'HPE',
+			devices: hpeDevices,
+			defaultExpanded: false,
+			icon: 'hp'
 		}
 	];
 }
@@ -103,6 +112,8 @@ export function getBrandDevices(brandId: string): DeviceType[] {
 			return dellDevices;
 		case 'supermicro':
 			return supermicroDevices;
+		case 'hpe':
+			return hpeDevices;
 		default:
 			return [];
 	}
@@ -120,7 +131,8 @@ export function findBrandDevice(slug: string): DeviceType | undefined {
 		...synologyDevices,
 		...apcDevices,
 		...dellDevices,
-		...supermicroDevices
+		...supermicroDevices,
+		...hpeDevices
 	];
 
 	return allDevices.find((d) => d.slug === slug);
@@ -141,7 +153,8 @@ export function getBrandSlugs(): Set<string> {
 			...synologyDevices,
 			...apcDevices,
 			...dellDevices,
-			...supermicroDevices
+			...supermicroDevices,
+			...hpeDevices
 		];
 		brandSlugsCache = new Set(allDevices.map((d) => d.slug));
 	}

@@ -295,15 +295,25 @@ async function importDevice(
 	const vendorLower = vendor.toLowerCase();
 	const destDir = join(ASSETS_SOURCE_DIR, vendorLower);
 
+	// Use the device.slug from YAML (already lowercase with vendor prefix)
+	// e.g., device.slug = 'hpe-proliant-dl360-gen10'
+	const imageSlug = device.slug;
+
 	let frontImage = false;
 	let rearImage = false;
 
-	// Try to download front image
-	const frontUrl = `${NETBOX_RAW_BASE}/elevation-images/${vendor}/${slug}.front.png`;
-	const frontDest = join(destDir, `${slug}.front.png`);
-
-	if (!existsSync(frontDest)) {
+	// Try to download front image (try .png first, then .jpg)
+	const frontDest = join(destDir, `${imageSlug}.front.png`);
+	const frontDestJpg = join(destDir, `${imageSlug}.front.jpg`);
+	if (!existsSync(frontDest) && !existsSync(frontDestJpg)) {
+		// Try PNG first
+		let frontUrl = `${NETBOX_RAW_BASE}/elevation-images/${vendor}/${imageSlug}.front.png`;
 		frontImage = await downloadImage(frontUrl, frontDest);
+		if (!frontImage) {
+			// Try JPG
+			frontUrl = `${NETBOX_RAW_BASE}/elevation-images/${vendor}/${imageSlug}.front.jpg`;
+			frontImage = await downloadImage(frontUrl, frontDestJpg);
+		}
 		if (frontImage) {
 			console.log(`  ✅ Downloaded front image`);
 		}
@@ -312,12 +322,18 @@ async function importDevice(
 		console.log(`  ⏭️  Front image already exists`);
 	}
 
-	// Try to download rear image
-	const rearUrl = `${NETBOX_RAW_BASE}/elevation-images/${vendor}/${slug}.rear.png`;
-	const rearDest = join(destDir, `${slug}.rear.png`);
-
-	if (!existsSync(rearDest)) {
+	// Try to download rear image (try .png first, then .jpg)
+	const rearDest = join(destDir, `${imageSlug}.rear.png`);
+	const rearDestJpg = join(destDir, `${imageSlug}.rear.jpg`);
+	if (!existsSync(rearDest) && !existsSync(rearDestJpg)) {
+		// Try PNG first
+		let rearUrl = `${NETBOX_RAW_BASE}/elevation-images/${vendor}/${imageSlug}.rear.png`;
 		rearImage = await downloadImage(rearUrl, rearDest);
+		if (!rearImage) {
+			// Try JPG
+			rearUrl = `${NETBOX_RAW_BASE}/elevation-images/${vendor}/${imageSlug}.rear.jpg`;
+			rearImage = await downloadImage(rearUrl, rearDestJpg);
+		}
 		if (rearImage) {
 			console.log(`  ✅ Downloaded rear image`);
 		}
