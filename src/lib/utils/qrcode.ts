@@ -1,9 +1,10 @@
 /**
  * QR Code Generation Utilities
  * Fixed spec per Issue #88: Version 24, Error Correction L
+ *
+ * Note: QRCode library is dynamically imported to reduce initial bundle size.
+ * The library is only loaded when generateQRCode() is first called.
  */
-
-import QRCode from 'qrcode';
 
 // =============================================================================
 // Constants
@@ -48,6 +49,9 @@ export interface QRCodeOptions {
  */
 export async function generateQRCode(data: string, options: QRCodeOptions = {}): Promise<string> {
 	const { width = 444 } = options;
+
+	// Dynamic import to avoid loading QRCode library on app startup
+	const QRCode = await import('qrcode');
 
 	return QRCode.toDataURL(data, {
 		errorCorrectionLevel: QR_ERROR_CORRECTION,

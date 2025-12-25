@@ -3,11 +3,20 @@
   Brand logos from simple-icons for device library sections
 -->
 <script lang="ts">
-	import { siUbiquiti, siMikrotik, siSynology, siDell, siSupermicro } from 'simple-icons';
+	import {
+		siUbiquiti,
+		siMikrotik,
+		siSynology,
+		siDell,
+		siSupermicro,
+		siTplink,
+		siHp,
+		siSchneiderelectric
+	} from 'simple-icons';
 	import { Zap } from '@lucide/svelte';
 
 	interface Props {
-		/** simple-icons slug or 'apc' for fallback */
+		/** simple-icons slug */
 		slug?: string;
 		size?: number;
 	}
@@ -20,7 +29,10 @@
 		mikrotik: siMikrotik,
 		synology: siSynology,
 		dell: siDell,
-		supermicro: siSupermicro
+		supermicro: siSupermicro,
+		tplink: siTplink,
+		hp: siHp,
+		schneiderelectric: siSchneiderelectric
 	};
 
 	const icon = $derived(slug ? iconMap[slug] : undefined);
