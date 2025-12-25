@@ -51,6 +51,11 @@
 	function handleBlur() {
 		hideTooltip();
 	}
+
+	function handleMouseDown() {
+		// Hide tooltip immediately on click (before dialog opens)
+		hideTooltip();
+	}
 </script>
 
 <div class="tooltip-wrapper">
@@ -59,6 +64,7 @@
 		class="tooltip-trigger"
 		onmouseenter={handleMouseEnter}
 		onmouseleave={handleMouseLeave}
+		onmousedown={handleMouseDown}
 		onfocusin={handleFocus}
 		onfocusout={handleBlur}
 	>
