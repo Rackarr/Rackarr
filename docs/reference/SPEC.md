@@ -1190,17 +1190,19 @@ Production (nginx) includes these security headers:
 
 ```
 default-src 'self';
-script-src 'self';
+script-src 'self' 'unsafe-inline' https://analytics.rackarr.com https://static.cloudflareinsights.com;
 style-src 'self' 'unsafe-inline';
 img-src 'self' data: blob:;
 font-src 'self';
-connect-src 'self' https://analytics.rackarr.com;
+connect-src 'self' https://analytics.rackarr.com https://static.cloudflareinsights.com;
 frame-ancestors 'self';
 ```
 
 Notes:
 
 - `'unsafe-inline'` for styles required for Svelte scoped styles
+- `'unsafe-inline'` for scripts required for Cloudflare Web Analytics
+- Analytics domains whitelisted: Umami (analytics.rackarr.com) and Cloudflare Web Analytics
 - `data:` and `blob:` for images support export previews and device images
 - GitHub Pages (dev) does not support custom headers
 
