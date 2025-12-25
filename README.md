@@ -12,7 +12,9 @@
   <strong>Drag and drop rack visualizer</strong>
 </p>
 
-// insert hero images here
+<p align="center">
+  <img src="assets/rackarr.gif" alt="Rackarr demo" width="600">
+</p>
 
 ---
 
