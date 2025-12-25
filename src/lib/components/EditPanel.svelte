@@ -5,6 +5,7 @@
 <script lang="ts">
 	import Drawer from './Drawer.svelte';
 	import ColourSwatch from './ColourSwatch.svelte';
+	import BrandIcon from './BrandIcon.svelte';
 	import ImageUpload from './ImageUpload.svelte';
 	import { getLayoutStore } from '$lib/stores/layout.svelte';
 	import { getSelectionStore } from '$lib/stores/selection.svelte';
@@ -24,6 +25,23 @@
 
 	// Synthetic rack ID for single-rack mode
 	const RACK_ID = 'rack-0';
+
+	// Map manufacturer names to simple-icons slugs
+	const manufacturerIconMap: Record<string, string> = {
+		Ubiquiti: 'ubiquiti',
+		MikroTik: 'mikrotik',
+		'TP-Link': 'tplink',
+		Synology: 'synology',
+		APC: 'schneiderelectric',
+		Dell: 'dell',
+		Supermicro: 'supermicro',
+		HPE: 'hp'
+	};
+
+	function getManufacturerIconSlug(manufacturer?: string): string | undefined {
+		if (!manufacturer) return undefined;
+		return manufacturerIconMap[manufacturer];
+	}
 
 	const layoutStore = getLayoutStore();
 	const selectionStore = getSelectionStore();
@@ -432,6 +450,13 @@
 						{selectedDeviceInfo.device.model ?? selectedDeviceInfo.device.slug}
 					</span>
 				</div>
+				<div class="info-row">
+					<span class="info-label">Brand</span>
+					<span class="info-value brand-info">
+						<BrandIcon slug={getManufacturerIconSlug(selectedDeviceInfo.device.manufacturer)} size={16} />
+						{selectedDeviceInfo.device.manufacturer ?? 'Generic'}
+					</span>
+				</div>
 			</div>
 
 			<div class="info-section">
@@ -705,6 +730,11 @@
 		gap: var(--space-2);
 	}
 
+	.brand-info {
+		display: flex;
+		align-items: center;
+		gap: var(--space-2);
+	}
 
 	.display-name-display {
 		display: flex;

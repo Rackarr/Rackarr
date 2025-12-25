@@ -248,6 +248,56 @@ describe('EditPanel Component', () => {
 
 			expect(screen.getByRole('button', { name: /remove from rack/i })).toBeInTheDocument();
 		});
+
+		it('shows brand label for device with manufacturer', () => {
+			const layoutStore = getLayoutStore();
+			const selectionStore = getSelectionStore();
+			const RACK_ID = 'rack-0';
+
+			layoutStore.addRack('My Rack', 24);
+			const device = layoutStore.addDeviceType({
+				name: 'ProLiant DL380',
+				u_height: 2,
+				category: 'server',
+				colour: '#4A90D9',
+				manufacturer: 'HPE'
+			});
+			layoutStore.placeDevice(RACK_ID, device.slug, 1);
+			const deviceId = layoutStore.rack!.devices[0]!.id;
+			selectionStore.selectDevice(RACK_ID, deviceId);
+
+			render(EditPanel);
+
+			// Should show Brand label
+			expect(screen.getByText('Brand')).toBeInTheDocument();
+			// Should show manufacturer name
+			expect(screen.getByText('HPE')).toBeInTheDocument();
+		});
+
+		it('shows Generic brand for device without manufacturer', () => {
+			const layoutStore = getLayoutStore();
+			const selectionStore = getSelectionStore();
+			const RACK_ID = 'rack-0';
+
+			layoutStore.addRack('My Rack', 24);
+			const device = layoutStore.addDeviceType({
+				name: 'Custom Server',
+				u_height: 2,
+				category: 'server',
+				colour: '#4A90D9'
+				// No manufacturer field
+			});
+			layoutStore.placeDevice(RACK_ID, device.slug, 1);
+			const deviceId = layoutStore.rack!.devices[0]!.id;
+			selectionStore.selectDevice(RACK_ID, deviceId);
+
+			render(EditPanel);
+
+			// Should show Brand label
+			expect(screen.getByText('Brand')).toBeInTheDocument();
+			// Should show Generic as fallback
+			expect(screen.getByText('Generic')).toBeInTheDocument();
+		});
 	});
 
 	describe('Power device properties', () => {
