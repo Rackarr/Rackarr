@@ -26,5 +26,24 @@ export default defineConfig(() => ({
 		alias: {
 			$lib: '/src/lib'
 		}
+	},
+	build: {
+		rollupOptions: {
+			output: {
+				// Manual chunks to reduce main bundle size
+				manualChunks: {
+					// Zod validation library
+					zod: ['zod'],
+					// UI component library
+					'bits-ui': ['bits-ui'],
+					// Pan/zoom functionality
+					panzoom: ['panzoom'],
+					// Archive handling (save/load)
+					archive: ['jszip', 'js-yaml'],
+					// Icon libraries
+					icons: ['@lucide/svelte', 'simple-icons']
+				}
+			}
+		}
 	}
 }));
