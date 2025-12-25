@@ -34,18 +34,22 @@ describe('Canvas Overflow Handling', () => {
 			expect(canvasElement).toHaveClass('canvas');
 		});
 
-		it('canvas has application role for accessibility', () => {
+		it('canvas has region role for accessibility (allows normal screen reader navigation)', () => {
 			const { container } = render(Canvas);
 
 			const canvasElement = container.querySelector('.canvas');
-			expect(canvasElement).toHaveAttribute('role', 'application');
+			expect(canvasElement).toHaveAttribute('role', 'region');
 		});
 
-		it('canvas has aria-label for accessibility', () => {
+		it('canvas has dynamic aria-label describing rack state', () => {
 			const { container } = render(Canvas);
 
 			const canvasElement = container.querySelector('.canvas');
-			expect(canvasElement).toHaveAttribute('aria-label', 'Rack layout canvas');
+			// Default layout has "Racky McRackface" 42U rack with 0 devices
+			expect(canvasElement).toHaveAttribute(
+				'aria-label',
+				'Racky McRackface, 42U rack with 0 devices placed'
+			);
 		});
 	});
 });

@@ -139,19 +139,22 @@ describe('ARIA Labels Audit', () => {
 	});
 
 	describe('Canvas accessibility', () => {
-		it('canvas has role="application"', () => {
+		it('canvas has role="region" for proper screen reader navigation', () => {
 			const { container } = render(Canvas);
 
 			const canvas = container.querySelector('.canvas');
-			expect(canvas).toHaveAttribute('role', 'application');
+			// Changed from role="application" to role="region" in #145
+			// role="application" breaks standard screen reader navigation
+			expect(canvas).toHaveAttribute('role', 'region');
 		});
 
-		it('canvas has aria-label', () => {
+		it('canvas has dynamic aria-label describing rack state', () => {
 			const { container } = render(Canvas);
 
 			const canvas = container.querySelector('.canvas');
 			expect(canvas).toHaveAttribute('aria-label');
-			expect(canvas?.getAttribute('aria-label')).toBe('Rack layout canvas');
+			// Dynamic label includes rack name, height, and device count
+			expect(canvas?.getAttribute('aria-label')).toContain('rack');
 		});
 	});
 
