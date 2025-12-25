@@ -26,6 +26,8 @@
 		showLabelsOnImages?: boolean;
 		placedDeviceName?: string;
 		placedDeviceId?: string;
+		/** Custom colour override for this placement (overrides device type colour) */
+		colourOverride?: string;
 		onselect?: (event: CustomEvent<{ slug: string; position: number }>) => void;
 		ondragstart?: (event: CustomEvent<{ rackId: string; deviceIndex: number }>) => void;
 		ondragend?: () => void;
@@ -45,6 +47,7 @@
 		showLabelsOnImages = false,
 		placedDeviceName,
 		placedDeviceId,
+		colourOverride,
 		onselect,
 		ondragstart: ondragstartProp,
 		ondragend: ondragendProp
@@ -55,6 +58,9 @@
 
 	// Display name: custom name if set, otherwise device type name
 	const displayName = $derived(placedDeviceName ?? deviceName);
+
+	// Effective colour: placement override or device type colour
+	const effectiveColour = $derived(colourOverride ?? device.colour);
 
 	const imageStore = getImageStore();
 
@@ -175,7 +181,7 @@
 		y="0"
 		width={deviceWidth}
 		height={deviceHeight}
-		fill={device.colour}
+		fill={effectiveColour}
 		rx="2"
 		ry="2"
 	/>

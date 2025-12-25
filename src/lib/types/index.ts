@@ -251,6 +251,10 @@ export interface PlacedDevice {
 	/** Custom rear image for this specific placement (overrides device type image) */
 	rear_image?: string;
 
+	// --- Placement Colour Override ---
+	/** Custom colour for this specific placement (overrides device type colour) */
+	colour_override?: string;
+
 	// --- Subdevice Placement (schema-only) ---
 	/** Parent placement ID (for child devices in bays) */
 	parent_device?: string;

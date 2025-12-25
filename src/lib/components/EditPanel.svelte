@@ -5,6 +5,7 @@
 <script lang="ts">
 	import Drawer from './Drawer.svelte';
 	import ColourSwatch from './ColourSwatch.svelte';
+	import ColourPicker from './ColourPicker.svelte';
 	import BrandIcon from './BrandIcon.svelte';
 	import ImageUpload from './ImageUpload.svelte';
 	import { getLayoutStore } from '$lib/stores/layout.svelte';
@@ -61,6 +62,9 @@
 	let editingDeviceName = $state(false);
 	let deviceNameInput = $state('');
 	let deviceNotes = $state('');
+
+	// State for colour picker visibility
+	let showColourPicker = $state(false);
 
 	// Get the selected rack if any (single-rack mode)
 	const selectedRack = $derived.by(() => {
@@ -474,13 +478,52 @@
 					<span class="info-label">Position</span>
 					<span class="info-value">U{selectedDeviceInfo.placedDevice.position}</span>
 				</div>
-				<div class="info-row">
+				<!-- Colour row - clickable to open picker -->
+				<button
+					type="button"
+					class="info-row colour-row-btn"
+					onclick={() => (showColourPicker = !showColourPicker)}
+					aria-expanded={showColourPicker}
+					aria-label="Edit device colour"
+				>
 					<span class="info-label">Colour</span>
 					<span class="info-value colour-info">
-						<ColourSwatch colour={selectedDeviceInfo.device.colour} size={16} />
-						{selectedDeviceInfo.device.colour}
+						<ColourSwatch
+							colour={selectedDeviceInfo.placedDevice.colour_override ?? selectedDeviceInfo.device.colour}
+							size={16}
+						/>
+						{#if selectedDeviceInfo.placedDevice.colour_override}
+							{selectedDeviceInfo.placedDevice.colour_override}
+							<span class="colour-badge">custom</span>
+						{:else}
+							{selectedDeviceInfo.device.colour}
+						{/if}
 					</span>
-				</div>
+				</button>
+				{#if showColourPicker && selectedDeviceInfo}
+					<div class="colour-picker-container">
+						<ColourPicker
+							value={selectedDeviceInfo.placedDevice.colour_override ?? selectedDeviceInfo.device.colour}
+							defaultValue={selectedDeviceInfo.device.colour}
+							onchange={(colour) => {
+								const deviceIndex = layoutStore.rack?.devices.findIndex(
+									(d) => d.id === selectedDeviceInfo.placedDevice.id
+								);
+								if (deviceIndex !== undefined && deviceIndex >= 0) {
+									layoutStore.updateDeviceColour(RACK_ID, deviceIndex, colour);
+								}
+							}}
+							onreset={() => {
+								const deviceIndex = layoutStore.rack?.devices.findIndex(
+									(d) => d.id === selectedDeviceInfo.placedDevice.id
+								);
+								if (deviceIndex !== undefined && deviceIndex >= 0) {
+									layoutStore.updateDeviceColour(RACK_ID, deviceIndex, undefined);
+								}
+							}}
+						/>
+					</div>
+				{/if}
 			</div>
 
 			<!-- Face selector (dropdown) -->
@@ -722,6 +765,41 @@
 		align-items: center;
 		gap: var(--space-2);
 		font-family: monospace;
+	}
+
+	.colour-row-btn {
+		width: 100%;
+		background: transparent;
+		border: none;
+		cursor: pointer;
+		text-align: left;
+		padding: var(--space-1) 0;
+		border-radius: var(--radius-sm);
+		transition: background-color var(--duration-fast);
+	}
+
+	.colour-row-btn:hover {
+		background: var(--colour-surface-hover);
+	}
+
+	.colour-row-btn:focus-visible {
+		outline: 2px solid var(--colour-selection);
+		outline-offset: 2px;
+	}
+
+	.colour-badge {
+		font-size: var(--font-size-xs);
+		padding: 0 var(--space-1);
+		background: var(--dracula-purple);
+		color: var(--dracula-bg);
+		border-radius: var(--radius-xs);
+		text-transform: uppercase;
+		font-weight: var(--font-weight-medium);
+	}
+
+	.colour-picker-container {
+		margin-top: var(--space-2);
+		margin-bottom: var(--space-2);
 	}
 
 	.device-type {

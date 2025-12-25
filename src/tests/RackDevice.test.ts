@@ -127,6 +127,24 @@ describe('RackDevice SVG Component', () => {
 			expect(rect?.getAttribute('fill')).toBe('#DC143C');
 		});
 
+		it('uses colourOverride when provided', () => {
+			const { container } = render(RackDevice, {
+				props: { ...defaultProps, colourOverride: '#FF5555' }
+			});
+
+			const rect = container.querySelector('rect.device-rect');
+			expect(rect?.getAttribute('fill')).toBe('#FF5555');
+		});
+
+		it('falls back to device.colour when colourOverride is undefined', () => {
+			const { container } = render(RackDevice, {
+				props: { ...defaultProps, colourOverride: undefined }
+			});
+
+			const rect = container.querySelector('rect.device-rect');
+			expect(rect?.getAttribute('fill')).toBe('#4A90D9');
+		});
+
 		it('displays category icon for devices', () => {
 			const { container } = render(RackDevice, { props: defaultProps });
 

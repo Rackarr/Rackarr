@@ -528,6 +528,7 @@
 						{showLabelsOnImages}
 						placedDeviceName={placedDevice.name}
 						placedDeviceId={placedDevice.id}
+						colourOverride={placedDevice.colour_override}
 						onselect={ondeviceselect}
 						ondragstart={() => handleDeviceDragStart(originalIndex)}
 						ondragend={handleDeviceDragEnd}

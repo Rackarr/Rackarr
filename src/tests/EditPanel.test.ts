@@ -300,6 +300,89 @@ describe('EditPanel Component', () => {
 		});
 	});
 
+	describe('Device colour picker', () => {
+		it('shows colour row with device type colour', () => {
+			const layoutStore = getLayoutStore();
+			const selectionStore = getSelectionStore();
+			const RACK_ID = 'rack-0';
+
+			layoutStore.addRack('My Rack', 24);
+			const device = layoutStore.addDeviceType({
+				name: 'Test Server',
+				u_height: 2,
+				category: 'server',
+				colour: '#4A90D9'
+			});
+			layoutStore.placeDevice(RACK_ID, device.slug, 1);
+			const deviceId = layoutStore.rack!.devices[0]!.id;
+			selectionStore.selectDevice(RACK_ID, deviceId);
+
+			render(EditPanel);
+
+			// Should show Colour label
+			expect(screen.getByText('Colour')).toBeInTheDocument();
+			// Should show the colour value
+			expect(screen.getByText('#4A90D9')).toBeInTheDocument();
+		});
+
+		it('toggles colour picker when colour row is clicked', async () => {
+			const layoutStore = getLayoutStore();
+			const selectionStore = getSelectionStore();
+			const RACK_ID = 'rack-0';
+
+			layoutStore.addRack('My Rack', 24);
+			const device = layoutStore.addDeviceType({
+				name: 'Test Server',
+				u_height: 2,
+				category: 'server',
+				colour: '#4A90D9'
+			});
+			layoutStore.placeDevice(RACK_ID, device.slug, 1);
+			const deviceId = layoutStore.rack!.devices[0]!.id;
+			selectionStore.selectDevice(RACK_ID, deviceId);
+
+			render(EditPanel);
+
+			// Colour picker should not be visible initially
+			expect(screen.queryByLabelText(/custom hex colour/i)).not.toBeInTheDocument();
+
+			// Click the colour row button
+			const colourButton = screen.getByRole('button', { name: /edit device colour/i });
+			await fireEvent.click(colourButton);
+
+			// Colour picker should now be visible
+			expect(screen.getByLabelText(/custom hex colour/i)).toBeInTheDocument();
+		});
+
+		it('shows custom badge when colour override is set', () => {
+			const layoutStore = getLayoutStore();
+			const selectionStore = getSelectionStore();
+			const RACK_ID = 'rack-0';
+
+			layoutStore.addRack('My Rack', 24);
+			const device = layoutStore.addDeviceType({
+				name: 'Test Server',
+				u_height: 2,
+				category: 'server',
+				colour: '#4A90D9'
+			});
+			layoutStore.placeDevice(RACK_ID, device.slug, 1);
+
+			// Set a colour override on the placed device
+			layoutStore.updateDeviceColour(RACK_ID, 0, '#FF5555');
+
+			const deviceId = layoutStore.rack!.devices[0]!.id;
+			selectionStore.selectDevice(RACK_ID, deviceId);
+
+			render(EditPanel);
+
+			// Should show the override colour
+			expect(screen.getByText('#FF5555')).toBeInTheDocument();
+			// Should show custom badge
+			expect(screen.getByText('custom')).toBeInTheDocument();
+		});
+	});
+
 	describe('Power device properties', () => {
 		it('does not show power section for non-power devices', () => {
 			const layoutStore = getLayoutStore();

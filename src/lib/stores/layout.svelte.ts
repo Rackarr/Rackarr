@@ -153,6 +153,7 @@ export function getLayoutStore() {
 		updateDeviceFace,
 		updateDeviceName,
 		updateDevicePlacementImage,
+		updateDeviceColour,
 
 		// Settings actions
 		updateDisplayMode,
@@ -175,6 +176,7 @@ export function getLayoutStore() {
 		updateDeviceFaceRaw,
 		updateDeviceNameRaw,
 		updateDevicePlacementImageRaw,
+		updateDeviceColourRaw,
 		getDeviceAtIndex,
 		getPlacedDevicesForType,
 		updateRackRaw,
@@ -493,6 +495,21 @@ function updateDevicePlacementImage(
 }
 
 /**
+ * Update a device's colour override
+ * @param _rackId - Rack ID (ignored in v0.2)
+ * @param deviceIndex - Index of device in rack's devices array
+ * @param colour - Hex colour string (undefined to clear and use device type colour)
+ */
+function updateDeviceColour(
+	_rackId: string,
+	deviceIndex: number,
+	colour: string | undefined
+): void {
+	updateDeviceColourRaw(deviceIndex, colour);
+	isDirty = true;
+}
+
+/**
  * Mark the layout as having unsaved changes
  */
 function markDirty(): void {
@@ -718,6 +735,25 @@ function updateDevicePlacementImageRaw(
 }
 
 /**
+ * Update a device's colour override directly (raw)
+ * @param index - Device index
+ * @param colour - Hex colour string (undefined to clear and use device type colour)
+ */
+function updateDeviceColourRaw(index: number, colour: string | undefined): void {
+	if (index < 0 || index >= layout.rack.devices.length) return;
+
+	layout = {
+		...layout,
+		rack: {
+			...layout.rack,
+			devices: layout.rack.devices.map((d, i) =>
+				i === index ? { ...d, colour_override: colour } : d
+			)
+		}
+	};
+}
+
+/**
  * Get a device at a specific index
  * @param index - Device index
  * @returns The device or undefined
@@ -835,6 +871,7 @@ function getCommandStoreAdapter(): DeviceTypeCommandStore & DeviceCommandStore &
 		updateDeviceFaceRaw,
 		updateDeviceNameRaw,
 		updateDevicePlacementImageRaw,
+		updateDeviceColourRaw,
 		getDeviceAtIndex,
 
 		// RackCommandStore

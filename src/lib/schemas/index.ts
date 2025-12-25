@@ -265,6 +265,12 @@ export const PlacedDeviceSchema = z
 		front_image: z.string().optional(),
 		rear_image: z.string().optional(),
 
+		// --- Placement Colour Override ---
+		colour_override: z
+			.string()
+			.regex(/^#[0-9A-Fa-f]{6}$/, 'Colour must be a valid hex colour (e.g., #FF5555)')
+			.optional(),
+
 		// --- Subdevice Placement ---
 		parent_device: z.string().optional(),
 		device_bay: z.string().optional(),
