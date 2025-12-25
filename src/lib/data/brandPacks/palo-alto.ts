@@ -1,0 +1,153 @@
+/**
+ * Palo Alto Brand Pack
+ * Pre-defined device types for Palo Alto rack-mountable devices
+ * Source: NetBox community devicetype-library
+ */
+
+import type { DeviceType } from '$lib/types';
+import { CATEGORY_COLOURS } from '$lib/types/constants';
+
+/**
+ * Palo Alto device definitions (15 devices)
+ */
+export const paloaltoDevices: DeviceType[] = [
+	{
+		slug: 'palo-alto-pa-1410',
+		u_height: 1,
+		manufacturer: 'Palo Alto',
+		model: 'PA-1410',
+		is_full_depth: false,
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'palo-alto-pa-1420',
+		u_height: 1,
+		manufacturer: 'Palo Alto',
+		model: 'PA-1420',
+		is_full_depth: false,
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'palo-alto-pa-200',
+		u_height: 1,
+		manufacturer: 'Palo Alto',
+		model: 'PA-200',
+		is_full_depth: false,
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'palo-alto-pa-220-rack-kit',
+		u_height: 1,
+		manufacturer: 'Palo Alto',
+		model: 'PA-220 Rack Kit',
+		is_full_depth: false,
+		airflow: 'passive',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'palo-alto-pa-220-rack-tray-kit',
+		u_height: 1,
+		manufacturer: 'Palo Alto',
+		model: 'PA-220 Rack Tray Kit',
+		is_full_depth: false,
+		airflow: 'passive',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'palo-alto-pa-3020',
+		u_height: 1,
+		manufacturer: 'Palo Alto',
+		model: 'PA-3020',
+		is_full_depth: false,
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'palo-alto-pa-3050',
+		u_height: 1,
+		manufacturer: 'Palo Alto',
+		model: 'PA-3050',
+		is_full_depth: false,
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'palo-alto-pa-3060',
+		u_height: 2,
+		manufacturer: 'Palo Alto',
+		model: 'PA-3060',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'palo-alto-pa-3220',
+		u_height: 2,
+		manufacturer: 'Palo Alto',
+		model: 'PA-3220',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'palo-alto-pa-3250',
+		u_height: 2,
+		manufacturer: 'Palo Alto',
+		model: 'PA-3250',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'palo-alto-pa-3260',
+		u_height: 2,
+		manufacturer: 'Palo Alto',
+		model: 'PA-3260',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'palo-alto-pa-3410',
+		u_height: 1,
+		manufacturer: 'Palo Alto',
+		model: 'PA-3410',
+		is_full_depth: false,
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'palo-alto-pa-3420',
+		u_height: 1,
+		manufacturer: 'Palo Alto',
+		model: 'PA-3420',
+		is_full_depth: false,
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'palo-alto-pa-3430',
+		u_height: 1,
+		manufacturer: 'Palo Alto',
+		model: 'PA-3430',
+		is_full_depth: false,
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'palo-alto-pa-3440',
+		u_height: 1,
+		manufacturer: 'Palo Alto',
+		model: 'PA-3440',
+		is_full_depth: false,
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	}
+];

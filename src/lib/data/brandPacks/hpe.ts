@@ -187,5 +187,291 @@ export const hpeDevices: DeviceType[] = [
 		category: 'network',
 		front_image: true,
 		rear_image: true
+	},
+
+	// Additional devices from NetBox library
+	{
+		slug: 'hpe-proliant-dl180-gen6',
+		u_height: 2,
+		manufacturer: 'HPE',
+		model: 'ProLiant DL180 Gen6',
+		colour: CATEGORY_COLOURS.server,
+		category: 'server'
+	},
+	{
+		slug: 'hpe-proliant-dl20-gen10',
+		u_height: 1,
+		manufacturer: 'HPE',
+		model: 'ProLiant DL20 Gen10',
+		colour: CATEGORY_COLOURS.server,
+		category: 'server'
+	},
+	{
+		slug: 'hpe-proliant-dl325-gen10',
+		u_height: 1,
+		manufacturer: 'HPE',
+		model: 'ProLiant DL325 Gen10',
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.server,
+		category: 'server'
+	},
+	{
+		slug: 'hpe-proliant-dl325-gen10-plus',
+		u_height: 1,
+		manufacturer: 'HPE',
+		model: 'ProLiant DL325 Gen10 Plus',
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.server,
+		category: 'server'
+	},
+	{
+		slug: 'hpe-proliant-dl325-gen10-plus-v2',
+		u_height: 1,
+		manufacturer: 'HPE',
+		model: 'ProLiant DL325 Gen10 Plus v2',
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.server,
+		category: 'server'
+	},
+	{
+		slug: 'hpe-proliant-dl325-gen11',
+		u_height: 1,
+		manufacturer: 'HPE',
+		model: 'ProLiant DL325 Gen11',
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.server,
+		category: 'server'
+	},
+	{
+		slug: 'hpe-proliant-dl345-gen11',
+		u_height: 2,
+		manufacturer: 'HPE',
+		model: 'ProLiant DL345 Gen11',
+		colour: CATEGORY_COLOURS.server,
+		category: 'server'
+	},
+	{
+		slug: 'hpe-proliant-dl360-gen10-plus',
+		u_height: 1,
+		manufacturer: 'HPE',
+		model: 'ProLiant DL360 Gen10 Plus',
+		colour: CATEGORY_COLOURS.server,
+		category: 'server'
+	},
+	{
+		slug: 'hpe-proliant-dl360-gen7',
+		u_height: 1,
+		manufacturer: 'HPE',
+		model: 'ProLiant DL360 Gen7',
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.server,
+		category: 'server'
+	},
+	{
+		slug: 'hpe-proliant-dl360e-gen8',
+		u_height: 1,
+		manufacturer: 'HPE',
+		model: 'ProLiant DL360e Gen8',
+		colour: CATEGORY_COLOURS.server,
+		category: 'server'
+	},
+	{
+		slug: 'hpe-proliant-dl360p-gen8',
+		u_height: 1,
+		manufacturer: 'HPE',
+		model: 'ProLiant DL360p Gen8',
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.server,
+		category: 'server'
+	},
+	{
+		slug: 'hpe-proliant-dl365-gen11',
+		u_height: 1,
+		manufacturer: 'HPE',
+		model: 'ProLiant DL365 Gen11',
+		colour: CATEGORY_COLOURS.server,
+		category: 'server'
+	},
+	{
+		slug: 'hpe-proliant-dl380-gen10-plus',
+		u_height: 2,
+		manufacturer: 'HPE',
+		model: 'ProLiant DL380 Gen10 Plus',
+		colour: CATEGORY_COLOURS.server,
+		category: 'server'
+	},
+	{
+		slug: 'hpe-proliant-dl380-gen5',
+		u_height: 2,
+		manufacturer: 'HPE',
+		model: 'ProLiant DL380 Gen5',
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.server,
+		category: 'server'
+	},
+	{
+		slug: 'hpe-proliant-dl380e-gen8',
+		u_height: 2,
+		manufacturer: 'HPE',
+		model: 'ProLiant DL380e Gen8',
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.server,
+		category: 'server'
+	},
+	{
+		slug: 'hpe-proliant-dl385-gen10-plus-v2',
+		u_height: 2,
+		manufacturer: 'HPE',
+		model: 'ProLiant DL385 Gen10 Plus v2',
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.server,
+		category: 'server'
+	},
+	{
+		slug: 'hpe-proliant-dl385-gen11',
+		u_height: 2,
+		manufacturer: 'HPE',
+		model: 'ProLiant DL385 Gen11',
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.server,
+		category: 'server'
+	},
+	{
+		slug: 'hpe-proliant-dl385p-gen8',
+		u_height: 2,
+		manufacturer: 'HPE',
+		model: 'ProLiant DL385p Gen8',
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.server,
+		category: 'server'
+	},
+	{
+		slug: 'hpe-proliant-dl560-gen10',
+		u_height: 2,
+		manufacturer: 'HPE',
+		model: 'ProLiant DL560 Gen10',
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.server,
+		category: 'server'
+	},
+	{
+		slug: 'hpe-proliant-dl580-gen10',
+		u_height: 4,
+		manufacturer: 'HPE',
+		model: 'ProLiant DL580 Gen10',
+		colour: CATEGORY_COLOURS.server,
+		category: 'server'
+	},
+	{
+		slug: 'hpe-proliant-dl580-gen9',
+		u_height: 4,
+		manufacturer: 'HPE',
+		model: 'ProLiant DL580 Gen9',
+		colour: CATEGORY_COLOURS.server,
+		category: 'server'
+	},
+	{
+		slug: 'hpe-proliant-dx360-gen10',
+		u_height: 1,
+		manufacturer: 'HPE',
+		model: 'ProLiant DX360 Gen10',
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.server,
+		category: 'server'
+	},
+	{
+		slug: 'hpe-proliant-dx385-gen10-plus',
+		u_height: 2,
+		manufacturer: 'HPE',
+		model: 'ProLiant DX385 Gen10 Plus',
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.server,
+		category: 'server'
+	},
+	{
+		slug: 'hpe-proliant-dx385-gen10-plus-v2',
+		u_height: 2,
+		manufacturer: 'HPE',
+		model: 'ProLiant DX385 Gen10 Plus V2',
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.server,
+		category: 'server'
+	},
+	{
+		slug: 'hpe-proliant-ml110-gen10',
+		u_height: 3,
+		manufacturer: 'HPE',
+		model: 'ProLiant ML110 Gen10',
+		colour: CATEGORY_COLOURS.server,
+		category: 'server'
+	},
+	{
+		slug: 'hpe-proliant-ml110-gen9',
+		u_height: 3,
+		manufacturer: 'HPE',
+		model: 'ProLiant ML110 Gen9',
+		colour: CATEGORY_COLOURS.server,
+		category: 'server'
+	},
+	{
+		slug: 'hpe-proliant-ml30-gen10-plus',
+		u_height: 4,
+		manufacturer: 'HPE',
+		model: 'ProLiant ML30 Gen10 Plus',
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.server,
+		category: 'server'
+	},
+	{
+		slug: 'hpe-proliant-ml350-gen10',
+		u_height: 4,
+		manufacturer: 'HPE',
+		model: 'ProLiant ML350 Gen10',
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.server,
+		category: 'server'
+	},
+	{
+		slug: 'hpe-proliant-ml350-gen9',
+		u_height: 4,
+		manufacturer: 'HPE',
+		model: 'ProLiant ML350 Gen9',
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.server,
+		category: 'server'
+	},
+	{
+		slug: 'hpe-proliant-ml350p-gen8',
+		u_height: 4,
+		manufacturer: 'HPE',
+		model: 'ProLiant ML350p Gen8',
+		colour: CATEGORY_COLOURS.server,
+		category: 'server'
+	},
+	{
+		slug: 'hpe-proliant-xl420-gen9',
+		u_height: 2,
+		manufacturer: 'HPE',
+		model: 'ProLiant XL420 Gen9',
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.server,
+		category: 'server'
+	},
+	{
+		slug: 'hpe-proliant-dl120-gen7',
+		u_height: 1,
+		manufacturer: 'HPE',
+		model: 'ProLiant-DL120-Gen7',
+		colour: CATEGORY_COLOURS.server,
+		category: 'server'
+	},
+	{
+		slug: 'hpe-proliant-dl320-gen6',
+		u_height: 1,
+		manufacturer: 'HPE',
+		model: 'ProLiant-DL320-Gen6',
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.server,
+		category: 'server'
 	}
 ];

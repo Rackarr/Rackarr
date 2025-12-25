@@ -578,5 +578,401 @@ export const ubiquitiDevices: DeviceType[] = [
 		category: 'power',
 		front_image: true,
 		rear_image: true
+	},
+
+	// Additional devices from NetBox library
+	{
+		slug: 'ubiquiti-uacc-rack-panel-patch-blank-24',
+		u_height: 1,
+		manufacturer: 'Ubiquiti',
+		model: '24-Port Blank Keystone Patch Panel',
+		is_full_depth: false,
+		airflow: 'passive',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'ubiquiti-uf-olt',
+		u_height: 1,
+		manufacturer: 'Ubiquiti',
+		model: '8-Port GPON Optical Line Terminal',
+		is_full_depth: false,
+		airflow: 'side-to-rear',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'ubiquiti-uacc-ai-port-rm',
+		u_height: 1,
+		manufacturer: 'Ubiquiti',
+		model: 'AI Port Rack Mount',
+		is_full_depth: false,
+		airflow: 'passive',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'ubiquiti-ckg2-rm',
+		u_height: 1,
+		manufacturer: 'Ubiquiti',
+		model: 'CloudKey Rack Mount',
+		is_full_depth: false,
+		airflow: 'passive',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'ubiquiti-er-10x',
+		u_height: 1,
+		manufacturer: 'Ubiquiti',
+		model: 'EdgeRouter 10X',
+		is_full_depth: false,
+		airflow: 'passive',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'ubiquiti-er-12',
+		u_height: 1,
+		manufacturer: 'Ubiquiti',
+		model: 'EdgeRouter 12',
+		is_full_depth: false,
+		airflow: 'passive',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'ubiquiti-er-12p',
+		u_height: 1,
+		manufacturer: 'Ubiquiti',
+		model: 'EdgeRouter 12P',
+		is_full_depth: false,
+		airflow: 'passive',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'ubiquiti-er-4',
+		u_height: 1,
+		manufacturer: 'Ubiquiti',
+		model: 'EdgeRouter 4',
+		is_full_depth: false,
+		airflow: 'passive',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'ubiquiti-er-6p',
+		u_height: 1,
+		manufacturer: 'Ubiquiti',
+		model: 'EdgeRouter 6P',
+		is_full_depth: false,
+		airflow: 'passive',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'ubiquiti-er-8',
+		u_height: 1,
+		manufacturer: 'Ubiquiti',
+		model: 'EdgeRouter 8',
+		is_full_depth: false,
+		airflow: 'side-to-rear',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'ubiquiti-edgerouter-infinity',
+		u_height: 1,
+		manufacturer: 'Ubiquiti',
+		model: 'EdgeRouter Infinity',
+		is_full_depth: false,
+		airflow: 'side-to-rear',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'ubiquiti-erlite-3',
+		u_height: 1,
+		manufacturer: 'Ubiquiti',
+		model: 'EdgeRouter Lite',
+		is_full_depth: false,
+		airflow: 'passive',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'ubiquiti-erpoe-5',
+		u_height: 1,
+		manufacturer: 'Ubiquiti',
+		model: 'EdgeRouter PoE 5-Port',
+		is_full_depth: false,
+		airflow: 'passive',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'ubiquiti-edgerouter-pro',
+		u_height: 1,
+		manufacturer: 'Ubiquiti',
+		model: 'EdgeRouter Pro',
+		is_full_depth: false,
+		airflow: 'side-to-rear',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'ubiquiti-es-16-150w',
+		u_height: 1,
+		manufacturer: 'Ubiquiti',
+		model: 'EdgeSwitch 16 150W',
+		is_full_depth: false,
+		airflow: 'side-to-rear',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'ubiquiti-es-16-xg',
+		u_height: 1,
+		manufacturer: 'Ubiquiti',
+		model: 'EdgeSwitch 16 XG',
+		is_full_depth: false,
+		airflow: 'side-to-rear',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'ubiquiti-es-24-250w',
+		u_height: 1,
+		manufacturer: 'Ubiquiti',
+		model: 'EdgeSwitch 24 250W',
+		is_full_depth: false,
+		airflow: 'left-to-right',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'ubiquiti-es-24-500w',
+		u_height: 1,
+		manufacturer: 'Ubiquiti',
+		model: 'EdgeSwitch 24 500W',
+		is_full_depth: false,
+		airflow: 'left-to-right',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'ubiquiti-es-24-lite',
+		u_height: 1,
+		manufacturer: 'Ubiquiti',
+		model: 'EdgeSwitch 24 Lite',
+		is_full_depth: false,
+		airflow: 'side-to-rear',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'ubiquiti-es-48-500w',
+		u_height: 1,
+		manufacturer: 'Ubiquiti',
+		model: 'EdgeSwitch 48 500W',
+		is_full_depth: false,
+		airflow: 'left-to-right',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'ubiquiti-es-48-750w',
+		u_height: 1,
+		manufacturer: 'Ubiquiti',
+		model: 'EdgeSwitch 48 750W',
+		is_full_depth: false,
+		airflow: 'left-to-right',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'ubiquiti-es-48-lite',
+		u_height: 1,
+		manufacturer: 'Ubiquiti',
+		model: 'EdgeSwitch 48 Lite',
+		is_full_depth: false,
+		airflow: 'side-to-rear',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'ubiquiti-enterprise-campus-aggregation',
+		u_height: 1,
+		manufacturer: 'Ubiquiti',
+		model: 'Enterprise Campus Aggregation',
+		is_full_depth: false,
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'ubiquiti-enterprise-campus-switch-24-port-poe',
+		u_height: 1,
+		manufacturer: 'Ubiquiti',
+		model: 'Enterprise Campus Switch 24-Port PoE',
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'ubiquiti-enterprise-fortress-gateway',
+		u_height: 1,
+		manufacturer: 'Ubiquiti',
+		model: 'Enterprise Fortress Gateway',
+		is_full_depth: false,
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'ubiquiti-er-x',
+		u_height: 1,
+		manufacturer: 'Ubiquiti',
+		model: 'ER-X',
+		is_full_depth: false,
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'ubiquiti-er-x-sfp',
+		u_height: 1,
+		manufacturer: 'Ubiquiti',
+		model: 'ER-X-SFP',
+		is_full_depth: false,
+		airflow: 'passive',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'ubiquiti-es-10x',
+		u_height: 1,
+		manufacturer: 'Ubiquiti',
+		model: 'ES-10X',
+		is_full_depth: false,
+		airflow: 'passive',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'ubiquiti-es-10xp',
+		u_height: 1,
+		manufacturer: 'Ubiquiti',
+		model: 'ES-10XP',
+		is_full_depth: false,
+		airflow: 'passive',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'ubiquiti-es-12f',
+		u_height: 1,
+		manufacturer: 'Ubiquiti',
+		model: 'ES-12F',
+		is_full_depth: false,
+		airflow: 'passive',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'ubiquiti-unifi-application-server',
+		u_height: 1,
+		manufacturer: 'Ubiquiti',
+		model: 'UniFi Application Server',
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'ubiquiti-uc-ck',
+		u_height: 1,
+		manufacturer: 'Ubiquiti',
+		model: 'UniFi Cloud Key',
+		is_full_depth: false,
+		airflow: 'passive',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'ubiquiti-unifi-switch-16-poe-150w-gen1',
+		u_height: 1,
+		manufacturer: 'Ubiquiti',
+		model: 'UniFi Switch 16 PoE 150W Gen1',
+		is_full_depth: false,
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'ubiquiti-unifi-switch-24-gen1',
+		u_height: 1,
+		manufacturer: 'Ubiquiti',
+		model: 'UniFi Switch 24 Gen1',
+		is_full_depth: false,
+		airflow: 'side-to-rear',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'ubiquiti-unifi-switch-24-poe-250w-gen1',
+		u_height: 1,
+		manufacturer: 'Ubiquiti',
+		model: 'UniFi Switch 24 PoE 250W Gen1',
+		is_full_depth: false,
+		airflow: 'side-to-rear',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'ubiquiti-unifi-switch-24-poe-500w-gen1',
+		u_height: 1,
+		manufacturer: 'Ubiquiti',
+		model: 'UniFi Switch 24 PoE 500W Gen1',
+		airflow: 'side-to-rear',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'ubiquiti-unifi-switch-48-poe-500w-gen1',
+		u_height: 1,
+		manufacturer: 'Ubiquiti',
+		model: 'UniFi Switch 48 PoE 500W Gen1',
+		airflow: 'side-to-rear',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'ubiquiti-unifi-switch-48-poe-750w-gen1',
+		u_height: 1,
+		manufacturer: 'Ubiquiti',
+		model: 'UniFi Switch 48 PoE 750W Gen1',
+		airflow: 'side-to-rear',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'ubiquiti-usg',
+		u_height: 1,
+		manufacturer: 'Ubiquiti',
+		model: 'USG',
+		is_full_depth: false,
+		airflow: 'passive',
+		colour: CATEGORY_COLOURS.network,
+		category: 'network'
+	},
+	{
+		slug: 'ubiquiti-unas-pro',
+		u_height: 2,
+		manufacturer: 'Ubiquiti',
+		model: 'UNAS Pro',
+		is_full_depth: false,
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.storage,
+		category: 'storage'
 	}
 ];

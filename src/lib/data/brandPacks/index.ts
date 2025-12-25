@@ -12,6 +12,16 @@ import { apcDevices } from './apc';
 import { dellDevices } from './dell';
 import { supermicroDevices } from './supermicro';
 import { hpeDevices } from './hpe';
+// New brand packs
+import { fortinetDevices } from './fortinet';
+import { eatonDevices } from './eaton';
+import { netgearDevices } from './netgear';
+import { paloaltoDevices } from './palo-alto';
+import { qnapDevices } from './qnap';
+import { lenovoDevices } from './lenovo';
+import { cyberpowerDevices } from './cyberpower';
+import { netgateDevices } from './netgate';
+import { blackmagicdesignDevices } from './blackmagicdesign';
 
 export {
 	ubiquitiDevices,
@@ -21,7 +31,17 @@ export {
 	apcDevices,
 	dellDevices,
 	supermicroDevices,
-	hpeDevices
+	hpeDevices,
+	// New brand packs
+	fortinetDevices,
+	eatonDevices,
+	netgearDevices,
+	paloaltoDevices,
+	qnapDevices,
+	lenovoDevices,
+	cyberpowerDevices,
+	netgateDevices,
+	blackmagicdesignDevices
 };
 
 /**
@@ -64,6 +84,33 @@ export function getBrandPacks(): BrandSection[] {
 			defaultExpanded: false,
 			icon: 'tplink'
 		},
+		{
+			id: 'fortinet',
+			title: 'Fortinet',
+			devices: fortinetDevices,
+			defaultExpanded: false,
+			icon: 'fortinet'
+		},
+		{
+			id: 'netgear',
+			title: 'Netgear',
+			devices: netgearDevices,
+			defaultExpanded: false,
+			icon: 'netgear'
+		},
+		{
+			id: 'palo-alto',
+			title: 'Palo Alto',
+			devices: paloaltoDevices,
+			defaultExpanded: false,
+			icon: 'paloaltonetworks'
+		},
+		{
+			id: 'netgate',
+			title: 'Netgate',
+			devices: netgateDevices,
+			defaultExpanded: false
+		},
 		// Storage
 		{
 			id: 'synology',
@@ -72,13 +119,33 @@ export function getBrandPacks(): BrandSection[] {
 			defaultExpanded: false,
 			icon: 'synology'
 		},
-		// Power (APC is owned by Schneider Electric)
+		{
+			id: 'qnap',
+			title: 'QNAP',
+			devices: qnapDevices,
+			defaultExpanded: false,
+			icon: 'qnap'
+		},
+		// Power
 		{
 			id: 'apc',
 			title: 'APC',
 			devices: apcDevices,
 			defaultExpanded: false,
 			icon: 'schneiderelectric'
+		},
+		{
+			id: 'eaton',
+			title: 'Eaton',
+			devices: eatonDevices,
+			defaultExpanded: false,
+			icon: 'eaton'
+		},
+		{
+			id: 'cyberpower',
+			title: 'CyberPower',
+			devices: cyberpowerDevices,
+			defaultExpanded: false
 		},
 		// Servers
 		{
@@ -101,6 +168,21 @@ export function getBrandPacks(): BrandSection[] {
 			devices: hpeDevices,
 			defaultExpanded: false,
 			icon: 'hp'
+		},
+		{
+			id: 'lenovo',
+			title: 'Lenovo',
+			devices: lenovoDevices,
+			defaultExpanded: false,
+			icon: 'lenovo'
+		},
+		// AV/Media
+		{
+			id: 'blackmagicdesign',
+			title: 'Blackmagic Design',
+			devices: blackmagicdesignDevices,
+			defaultExpanded: false,
+			icon: 'blackmagicdesign'
 		}
 	];
 }
@@ -126,6 +208,24 @@ export function getBrandDevices(brandId: string): DeviceType[] {
 			return supermicroDevices;
 		case 'hpe':
 			return hpeDevices;
+		case 'fortinet':
+			return fortinetDevices;
+		case 'eaton':
+			return eatonDevices;
+		case 'netgear':
+			return netgearDevices;
+		case 'palo-alto':
+			return paloaltoDevices;
+		case 'qnap':
+			return qnapDevices;
+		case 'lenovo':
+			return lenovoDevices;
+		case 'cyberpower':
+			return cyberpowerDevices;
+		case 'netgate':
+			return netgateDevices;
+		case 'blackmagicdesign':
+			return blackmagicdesignDevices;
 		default:
 			return [];
 	}
@@ -145,7 +245,16 @@ export function findBrandDevice(slug: string): DeviceType | undefined {
 		...apcDevices,
 		...dellDevices,
 		...supermicroDevices,
-		...hpeDevices
+		...hpeDevices,
+		...fortinetDevices,
+		...eatonDevices,
+		...netgearDevices,
+		...paloaltoDevices,
+		...qnapDevices,
+		...lenovoDevices,
+		...cyberpowerDevices,
+		...netgateDevices,
+		...blackmagicdesignDevices
 	];
 
 	return allDevices.find((d) => d.slug === slug);
@@ -168,7 +277,16 @@ export function getBrandSlugs(): Set<string> {
 			...apcDevices,
 			...dellDevices,
 			...supermicroDevices,
-			...hpeDevices
+			...hpeDevices,
+			...fortinetDevices,
+			...eatonDevices,
+			...netgearDevices,
+			...paloaltoDevices,
+			...qnapDevices,
+			...lenovoDevices,
+			...cyberpowerDevices,
+			...netgateDevices,
+			...blackmagicdesignDevices
 		];
 		brandSlugsCache = new Set(allDevices.map((d) => d.slug));
 	}

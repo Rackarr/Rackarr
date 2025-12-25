@@ -129,5 +129,189 @@ export const synologyDevices: DeviceType[] = [
 		is_full_depth: true,
 		colour: CATEGORY_COLOURS.storage,
 		category: 'storage'
+	},
+
+	// Additional devices from NetBox library
+	{
+		slug: 'synology-ds1517-plus',
+		u_height: 4,
+		manufacturer: 'Synology',
+		model: 'DS1517+',
+		is_full_depth: false,
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.storage,
+		category: 'storage'
+	},
+	{
+		slug: 'synology-fs6400',
+		u_height: 2,
+		manufacturer: 'Synology',
+		model: 'FS6400',
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.storage,
+		category: 'storage'
+	},
+	{
+		slug: 'synology-rs1219-plus',
+		u_height: 2,
+		manufacturer: 'Synology',
+		model: 'RS1219+',
+		colour: CATEGORY_COLOURS.storage,
+		category: 'storage'
+	},
+	{
+		slug: 'synology-rs1221-plus',
+		u_height: 2,
+		manufacturer: 'Synology',
+		model: 'RS1221+',
+		colour: CATEGORY_COLOURS.storage,
+		category: 'storage'
+	},
+	{
+		slug: 'synology-rs1221rp-plus',
+		u_height: 2,
+		manufacturer: 'Synology',
+		model: 'RS1221RP+',
+		colour: CATEGORY_COLOURS.storage,
+		category: 'storage'
+	},
+	{
+		slug: 'synology-rs1619xs-plus',
+		u_height: 1,
+		manufacturer: 'Synology',
+		model: 'RS1619xs+',
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.storage,
+		category: 'storage'
+	},
+	{
+		slug: 'synology-rs2416rp-plus',
+		u_height: 2,
+		manufacturer: 'Synology',
+		model: 'RS2416RP+',
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.storage,
+		category: 'storage'
+	},
+	{
+		slug: 'synology-rs2418-plus',
+		u_height: 2,
+		manufacturer: 'Synology',
+		model: 'RS2418+',
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.storage,
+		category: 'storage'
+	},
+	{
+		slug: 'synology-rs2418rp-plus',
+		u_height: 2,
+		manufacturer: 'Synology',
+		model: 'RS2418RP+',
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.storage,
+		category: 'storage'
+	},
+	{
+		slug: 'synology-rs2421-plus',
+		u_height: 2,
+		manufacturer: 'Synology',
+		model: 'RS2421+',
+		colour: CATEGORY_COLOURS.storage,
+		category: 'storage'
+	},
+	{
+		slug: 'synology-rs2421rp-plus',
+		u_height: 2,
+		manufacturer: 'Synology',
+		model: 'RS2421RP+',
+		colour: CATEGORY_COLOURS.storage,
+		category: 'storage'
+	},
+	{
+		slug: 'synology-rs3614xs-plus',
+		u_height: 2,
+		manufacturer: 'Synology',
+		model: 'RS3614xs+',
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.storage,
+		category: 'storage'
+	},
+	{
+		slug: 'synology-rs3617rpxs',
+		u_height: 2,
+		manufacturer: 'Synology',
+		model: 'RS3617RPxs',
+		colour: CATEGORY_COLOURS.storage,
+		category: 'storage'
+	},
+	{
+		slug: 'synology-rs3621xs-plus',
+		u_height: 2,
+		manufacturer: 'Synology',
+		model: 'RS3621xs+',
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.storage,
+		category: 'storage'
+	},
+	{
+		slug: 'synology-rs422-plus',
+		u_height: 1,
+		manufacturer: 'Synology',
+		model: 'RS422+',
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.storage,
+		category: 'storage'
+	},
+	{
+		slug: 'synology-rs815-plus',
+		u_height: 1,
+		manufacturer: 'Synology',
+		model: 'RS815+',
+		colour: CATEGORY_COLOURS.storage,
+		category: 'storage'
+	},
+	{
+		slug: 'synology-rs816',
+		u_height: 1,
+		manufacturer: 'Synology',
+		model: 'RS816',
+		colour: CATEGORY_COLOURS.storage,
+		category: 'storage'
+	},
+	{
+		slug: 'synology-rs819',
+		u_height: 1,
+		manufacturer: 'Synology',
+		model: 'RS819',
+		is_full_depth: false,
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.storage,
+		category: 'storage'
+	},
+	{
+		slug: 'synology-rs820-plus',
+		u_height: 1,
+		manufacturer: 'Synology',
+		model: 'RS820+',
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.storage,
+		category: 'storage'
+	},
+	{
+		slug: 'synology-rs820rp-plus',
+		u_height: 1,
+		manufacturer: 'Synology',
+		model: 'RS820RP+',
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.storage,
+		category: 'storage'
+	},
+	{
+		slug: 'synology-rx1217',
+		u_height: 1,
+		manufacturer: 'Synology',
+		model: 'RX1217',
+		colour: CATEGORY_COLOURS.storage,
+		category: 'storage'
 	}
 ];

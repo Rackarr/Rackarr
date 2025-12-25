@@ -107,5 +107,351 @@ export const apcDevices: DeviceType[] = [
 		is_full_depth: false,
 		colour: CATEGORY_COLOURS.power,
 		category: 'power'
+	},
+
+	// Additional devices from NetBox library
+	{
+		slug: 'apc-ap4421',
+		u_height: 1,
+		manufacturer: 'APC',
+		model: 'AP4421',
+		is_full_depth: false,
+		airflow: 'passive',
+		colour: CATEGORY_COLOURS.power,
+		category: 'power'
+	},
+	{
+		slug: 'apc-ap4421a',
+		u_height: 1,
+		manufacturer: 'APC',
+		model: 'AP4421A',
+		is_full_depth: false,
+		airflow: 'passive',
+		colour: CATEGORY_COLOURS.power,
+		category: 'power'
+	},
+	{
+		slug: 'apc-ap4422a',
+		u_height: 1,
+		manufacturer: 'APC',
+		model: 'AP4422A',
+		is_full_depth: false,
+		airflow: 'passive',
+		colour: CATEGORY_COLOURS.power,
+		category: 'power'
+	},
+	{
+		slug: 'apc-ap4423',
+		u_height: 1,
+		manufacturer: 'APC',
+		model: 'AP4423',
+		is_full_depth: false,
+		airflow: 'passive',
+		colour: CATEGORY_COLOURS.power,
+		category: 'power'
+	},
+	{
+		slug: 'apc-ap4423a',
+		u_height: 1,
+		manufacturer: 'APC',
+		model: 'AP4423A',
+		is_full_depth: false,
+		airflow: 'passive',
+		colour: CATEGORY_COLOURS.power,
+		category: 'power'
+	},
+	{
+		slug: 'apc-srt72rmbp',
+		u_height: 2,
+		manufacturer: 'APC',
+		model: 'APC Smart-UPS SRT, 72 V, 2,2 kVA, Rackmount Battery Module',
+		colour: CATEGORY_COLOURS.power,
+		category: 'power'
+	},
+	{
+		slug: 'apc-smt1500rm2u',
+		u_height: 2,
+		manufacturer: 'APC',
+		model: 'Smart-UPS SMT1500RM2U',
+		colour: CATEGORY_COLOURS.power,
+		category: 'power'
+	},
+	{
+		slug: 'apc-smart-ups-srt-2200va-rm',
+		u_height: 2,
+		manufacturer: 'APC',
+		model: 'Smart-UPS SRT 2200VA RM',
+		colour: CATEGORY_COLOURS.power,
+		category: 'power'
+	},
+	{
+		slug: 'apc-smart-ups-srt-2200va-rm-nc',
+		u_height: 2,
+		manufacturer: 'APC',
+		model: 'Smart-UPS SRT 2200VA RM NC',
+		colour: CATEGORY_COLOURS.power,
+		category: 'power'
+	},
+	{
+		slug: 'apc-smart-ups-srt-5000va-200v',
+		u_height: 3,
+		manufacturer: 'APC',
+		model: 'Smart-UPS SRT 5000VA 200V',
+		colour: CATEGORY_COLOURS.power,
+		category: 'power'
+	},
+	{
+		slug: 'apc-smart-ups-srt-5000va-rm-208-230v-hw',
+		u_height: 3,
+		manufacturer: 'APC',
+		model: 'Smart-UPS SRT 5000VA RM 208/230V HW',
+		colour: CATEGORY_COLOURS.power,
+		category: 'power'
+	},
+	{
+		slug: 'apc-smart-ups-srt-5000va-rm-208v-iec',
+		u_height: 3,
+		manufacturer: 'APC',
+		model: 'Smart-UPS SRT 5000VA RM 208V IEC',
+		colour: CATEGORY_COLOURS.power,
+		category: 'power'
+	},
+	{
+		slug: 'apc-smart-ups-srt-5000va-rm-230v',
+		u_height: 3,
+		manufacturer: 'APC',
+		model: 'Smart-UPS SRT 5000VA RM 230V',
+		colour: CATEGORY_COLOURS.power,
+		category: 'power'
+	},
+	{
+		slug: 'apc-smart-ups-srt-6000va-rm-230v',
+		u_height: 4,
+		manufacturer: 'APC',
+		model: 'Smart-UPS SRT 6000VA RM 230V',
+		colour: CATEGORY_COLOURS.power,
+		category: 'power'
+	},
+	{
+		slug: 'apc-smart-ups-srt-8000va-rm-208v',
+		u_height: 6,
+		manufacturer: 'APC',
+		model: 'Smart-UPS SRT 8000VA RM 208V',
+		colour: CATEGORY_COLOURS.power,
+		category: 'power'
+	},
+	{
+		slug: 'apc-srt1000uxi-ncli',
+		u_height: 2,
+		manufacturer: 'APC',
+		model: 'Smart-UPS SRT1000UXI-NCLI',
+		colour: CATEGORY_COLOURS.power,
+		category: 'power'
+	},
+	{
+		slug: 'apc-srt1500rmxli-nc',
+		u_height: 2,
+		manufacturer: 'APC',
+		model: 'Smart-UPS SRT1500RMXLI-NC',
+		colour: CATEGORY_COLOURS.power,
+		category: 'power'
+	},
+	{
+		slug: 'apc-srt1500uxi-ncli',
+		u_height: 2,
+		manufacturer: 'APC',
+		model: 'Smart-UPS SRT1500UXI-NCLI',
+		colour: CATEGORY_COLOURS.power,
+		category: 'power'
+	},
+	{
+		slug: 'apc-srt3000rmxlt',
+		u_height: 2,
+		manufacturer: 'APC',
+		model: 'Smart-UPS SRT3000RMXLT',
+		colour: CATEGORY_COLOURS.power,
+		category: 'power'
+	},
+	{
+		slug: 'apc-srt3000uxi-ncli',
+		u_height: 2,
+		manufacturer: 'APC',
+		model: 'Smart-UPS SRT3000UXI-NCLI',
+		colour: CATEGORY_COLOURS.power,
+		category: 'power'
+	},
+	{
+		slug: 'apc-srt5krmxlt',
+		u_height: 3,
+		manufacturer: 'APC',
+		model: 'Smart-UPS SRT5KRMXLT',
+		colour: CATEGORY_COLOURS.power,
+		category: 'power'
+	},
+	{
+		slug: 'apc-srtg6kxli-ncli',
+		u_height: 4,
+		manufacturer: 'APC',
+		model: 'Smart-UPS SRTG6KXLI-NCLI',
+		airflow: 'passive',
+		colour: CATEGORY_COLOURS.power,
+		category: 'power'
+	},
+	{
+		slug: 'apc-smt1000rmi2uc',
+		u_height: 2,
+		manufacturer: 'APC',
+		model: 'SMT1000RMI2UC',
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.power,
+		category: 'power'
+	},
+	{
+		slug: 'apc-smt1500rmi1u',
+		u_height: 1,
+		manufacturer: 'APC',
+		model: 'SMT1500RMI1U',
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.power,
+		category: 'power'
+	},
+	{
+		slug: 'apc-smt1500rmi2u',
+		u_height: 2,
+		manufacturer: 'APC',
+		model: 'SMT1500RMI2U',
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.power,
+		category: 'power'
+	},
+	{
+		slug: 'apc-smt1500rmi2uc',
+		u_height: 2,
+		manufacturer: 'APC',
+		model: 'SMT1500RMI2UC',
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.power,
+		category: 'power'
+	},
+	{
+		slug: 'apc-smt1500rmi2unc',
+		u_height: 2,
+		manufacturer: 'APC',
+		model: 'SMT1500RMI2UNC',
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.power,
+		category: 'power'
+	},
+	{
+		slug: 'apc-smt2200rm2unc',
+		u_height: 2,
+		manufacturer: 'APC',
+		model: 'SMT2200RM2UNC',
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.power,
+		category: 'power'
+	},
+	{
+		slug: 'apc-smt2200rmi2unc',
+		u_height: 2,
+		manufacturer: 'APC',
+		model: 'SMT2200RMI2UNC',
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.power,
+		category: 'power'
+	},
+	{
+		slug: 'apc-smt3000rmi2u',
+		u_height: 2,
+		manufacturer: 'APC',
+		model: 'SMT3000RMI2U',
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.power,
+		category: 'power'
+	},
+	{
+		slug: 'apc-smt3000rmi2uc',
+		u_height: 2,
+		manufacturer: 'APC',
+		model: 'SMT3000RMI2UC',
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.power,
+		category: 'power'
+	},
+	{
+		slug: 'apc-smt3000rmi2unc',
+		u_height: 2,
+		manufacturer: 'APC',
+		model: 'SMT3000RMI2UNC',
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.power,
+		category: 'power'
+	},
+	{
+		slug: 'apc-smx120bp',
+		u_height: 4,
+		manufacturer: 'APC',
+		model: 'SMX120BP',
+		colour: CATEGORY_COLOURS.power,
+		category: 'power'
+	},
+	{
+		slug: 'apc-smx1500rm2unc',
+		u_height: 2,
+		manufacturer: 'APC',
+		model: 'SMX1500RM2UNC',
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.power,
+		category: 'power'
+	},
+	{
+		slug: 'apc-smx1500rmi2u',
+		u_height: 2,
+		manufacturer: 'APC',
+		model: 'SMX1500RMI2U',
+		colour: CATEGORY_COLOURS.power,
+		category: 'power'
+	},
+	{
+		slug: 'apc-smx2200hv',
+		u_height: 4,
+		manufacturer: 'APC',
+		model: 'SMX2200HV',
+		colour: CATEGORY_COLOURS.power,
+		category: 'power'
+	},
+	{
+		slug: 'apc-smx3000hvnc',
+		u_height: 4,
+		manufacturer: 'APC',
+		model: 'SMX3000HVNC',
+		colour: CATEGORY_COLOURS.power,
+		category: 'power'
+	},
+	{
+		slug: 'apc-smx3000rmhv2unc',
+		u_height: 2,
+		manufacturer: 'APC',
+		model: 'SMX3000RMHV2UNC',
+		colour: CATEGORY_COLOURS.power,
+		category: 'power'
+	},
+	{
+		slug: 'apc-smx3000rmlv2u',
+		u_height: 2,
+		manufacturer: 'APC',
+		model: 'SMX3000RMLV2U',
+		airflow: 'front-to-rear',
+		colour: CATEGORY_COLOURS.power,
+		category: 'power'
+	},
+	{
+		slug: 'apc-smx48rmbp2u',
+		u_height: 2,
+		manufacturer: 'APC',
+		model: 'SMX48RMBP2U',
+		airflow: 'passive',
+		colour: CATEGORY_COLOURS.power,
+		category: 'power'
 	}
 ];

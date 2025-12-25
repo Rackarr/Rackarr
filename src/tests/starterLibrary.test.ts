@@ -5,18 +5,25 @@ import { createLayout } from '$lib/utils/serialization';
 
 describe('Starter Device Type Library', () => {
 	describe('getStarterLibrary', () => {
-		it('returns 26 device types', () => {
+		it('returns 43 generic device types', () => {
 			const deviceTypes = getStarterLibrary();
-			expect(deviceTypes).toHaveLength(26);
+			expect(deviceTypes).toHaveLength(43);
 		});
 
-		it('most categories have at least one starter device type', () => {
+		it('all categories have at least one starter device type', () => {
 			const deviceTypes = getStarterLibrary();
 			const categoriesWithDevices = new Set(deviceTypes.map((d) => d.category));
 
-			// At minimum, these core categories must have devices
+			// All categories should be represented
 			expect(categoriesWithDevices.has('server')).toBe(true);
 			expect(categoriesWithDevices.has('network')).toBe(true);
+			expect(categoriesWithDevices.has('storage')).toBe(true);
+			expect(categoriesWithDevices.has('power')).toBe(true);
+			expect(categoriesWithDevices.has('patch-panel')).toBe(true);
+			expect(categoriesWithDevices.has('kvm')).toBe(true);
+			expect(categoriesWithDevices.has('av-media')).toBe(true);
+			expect(categoriesWithDevices.has('cooling')).toBe(true);
+			expect(categoriesWithDevices.has('shelf')).toBe(true);
 			expect(categoriesWithDevices.has('blank')).toBe(true);
 			expect(categoriesWithDevices.has('cable-management')).toBe(true);
 		});
@@ -56,9 +63,17 @@ describe('Starter Device Type Library', () => {
 				expect(deviceType.slug).toMatch(/^[a-z0-9]+(-[a-z0-9]+)*$/);
 			});
 		});
+
+		it('no devices have manufacturer (all generic)', () => {
+			const deviceTypes = getStarterLibrary();
+
+			deviceTypes.forEach((deviceType) => {
+				expect(deviceType.manufacturer).toBeUndefined();
+			});
+		});
 	});
 
-	describe('server category (3 items)', () => {
+	describe('server category (4 items)', () => {
 		it('includes Server (1U)', () => {
 			const library = getStarterLibrary();
 			const device = library.find((d) => d.model === 'Server' && d.u_height === 1);
@@ -73,6 +88,13 @@ describe('Starter Device Type Library', () => {
 			expect(device?.category).toBe('server');
 		});
 
+		it('includes Server (3U)', () => {
+			const library = getStarterLibrary();
+			const device = library.find((d) => d.model === 'Server' && d.u_height === 3);
+			expect(device).toBeDefined();
+			expect(device?.category).toBe('server');
+		});
+
 		it('includes Server (4U)', () => {
 			const library = getStarterLibrary();
 			const device = library.find((d) => d.model === 'Server' && d.u_height === 4);
@@ -81,7 +103,7 @@ describe('Starter Device Type Library', () => {
 		});
 	});
 
-	describe('network category (3 items)', () => {
+	describe('network category (4 items)', () => {
 		it('includes Switch (24-Port)', () => {
 			const library = getStarterLibrary();
 			const device = library.find((d) => d.model === 'Switch (24-Port)');
@@ -98,16 +120,90 @@ describe('Starter Device Type Library', () => {
 			expect(device?.category).toBe('network');
 		});
 
-		it('includes Router/Firewall', () => {
+		it('includes Router/Firewall (1U)', () => {
 			const library = getStarterLibrary();
-			const device = library.find((d) => d.model === 'Router/Firewall');
+			const device = library.find((d) => d.model === 'Router/Firewall' && d.u_height === 1);
 			expect(device).toBeDefined();
-			expect(device?.u_height).toBe(1);
+			expect(device?.category).toBe('network');
+		});
+
+		it('includes Router/Firewall (2U)', () => {
+			const library = getStarterLibrary();
+			const device = library.find((d) => d.model === 'Router/Firewall' && d.u_height === 2);
+			expect(device).toBeDefined();
 			expect(device?.category).toBe('network');
 		});
 	});
 
-	describe('patch-panel category (2 items)', () => {
+	describe('storage category (4 items)', () => {
+		it('includes Storage (1U)', () => {
+			const library = getStarterLibrary();
+			const device = library.find((d) => d.model === 'Storage' && d.u_height === 1);
+			expect(device).toBeDefined();
+			expect(device?.category).toBe('storage');
+		});
+
+		it('includes Storage (2U)', () => {
+			const library = getStarterLibrary();
+			const device = library.find((d) => d.model === 'Storage' && d.u_height === 2);
+			expect(device).toBeDefined();
+			expect(device?.category).toBe('storage');
+		});
+
+		it('includes Storage (3U)', () => {
+			const library = getStarterLibrary();
+			const device = library.find((d) => d.model === 'Storage' && d.u_height === 3);
+			expect(device).toBeDefined();
+			expect(device?.category).toBe('storage');
+		});
+
+		it('includes Storage (4U)', () => {
+			const library = getStarterLibrary();
+			const device = library.find((d) => d.model === 'Storage' && d.u_height === 4);
+			expect(device).toBeDefined();
+			expect(device?.category).toBe('storage');
+		});
+	});
+
+	describe('power category (4 items)', () => {
+		it('includes PDU (1U)', () => {
+			const library = getStarterLibrary();
+			const device = library.find((d) => d.model === 'PDU' && d.u_height === 1);
+			expect(device).toBeDefined();
+			expect(device?.category).toBe('power');
+		});
+
+		it('includes PDU (2U)', () => {
+			const library = getStarterLibrary();
+			const device = library.find((d) => d.model === 'PDU' && d.u_height === 2);
+			expect(device).toBeDefined();
+			expect(device?.category).toBe('power');
+		});
+
+		it('includes UPS (2U)', () => {
+			const library = getStarterLibrary();
+			const device = library.find((d) => d.model === 'UPS' && d.u_height === 2);
+			expect(device).toBeDefined();
+			expect(device?.category).toBe('power');
+		});
+
+		it('includes UPS (4U)', () => {
+			const library = getStarterLibrary();
+			const device = library.find((d) => d.model === 'UPS' && d.u_height === 4);
+			expect(device).toBeDefined();
+			expect(device?.category).toBe('power');
+		});
+	});
+
+	describe('patch-panel category (3 items)', () => {
+		it('includes Fiber Patch Panel', () => {
+			const library = getStarterLibrary();
+			const device = library.find((d) => d.model === 'Fiber Patch Panel');
+			expect(device).toBeDefined();
+			expect(device?.u_height).toBe(1);
+			expect(device?.category).toBe('patch-panel');
+		});
+
 		it('includes Patch Panel (24-Port)', () => {
 			const library = getStarterLibrary();
 			const device = library.find((d) => d.model === 'Patch Panel (24-Port)');
@@ -125,59 +221,10 @@ describe('Starter Device Type Library', () => {
 		});
 	});
 
-	describe('storage category (3 items)', () => {
-		it('includes Storage (1U)', () => {
-			const library = getStarterLibrary();
-			const device = library.find((d) => d.model === 'Storage' && d.u_height === 1);
-			expect(device).toBeDefined();
-			expect(device?.category).toBe('storage');
-		});
-
-		it('includes Storage (2U)', () => {
-			const library = getStarterLibrary();
-			const device = library.find((d) => d.model === 'Storage' && d.u_height === 2);
-			expect(device).toBeDefined();
-			expect(device?.category).toBe('storage');
-		});
-
-		it('includes Storage (4U)', () => {
-			const library = getStarterLibrary();
-			const device = library.find((d) => d.model === 'Storage' && d.u_height === 4);
-			expect(device).toBeDefined();
-			expect(device?.category).toBe('storage');
-		});
-	});
-
-	describe('power category (3 items)', () => {
-		it('includes PDU', () => {
-			const library = getStarterLibrary();
-			const device = library.find((d) => d.model === 'PDU');
-			expect(device).toBeDefined();
-			expect(device?.u_height).toBe(1);
-			expect(device?.category).toBe('power');
-		});
-
-		it('includes UPS (2U) with va_rating', () => {
-			const library = getStarterLibrary();
-			const device = library.find((d) => d.model === 'UPS' && d.u_height === 2);
-			expect(device).toBeDefined();
-			expect(device?.category).toBe('power');
-			expect(device?.va_rating).toBe(1500);
-		});
-
-		it('includes UPS (4U) with va_rating', () => {
-			const library = getStarterLibrary();
-			const device = library.find((d) => d.model === 'UPS' && d.u_height === 4);
-			expect(device).toBeDefined();
-			expect(device?.category).toBe('power');
-			expect(device?.va_rating).toBe(3000);
-		});
-	});
-
 	describe('kvm category (2 items)', () => {
-		it('includes KVM', () => {
+		it('includes KVM Switch', () => {
 			const library = getStarterLibrary();
-			const device = library.find((d) => d.model === 'KVM');
+			const device = library.find((d) => d.model === 'KVM Switch');
 			expect(device).toBeDefined();
 			expect(device?.category).toBe('kvm');
 		});
@@ -190,61 +237,68 @@ describe('Starter Device Type Library', () => {
 		});
 	});
 
-	describe('av-media category (2 items)', () => {
-		it('includes Receiver', () => {
+	describe('av-media category (8 items)', () => {
+		it('includes Amplifier (1U)', () => {
 			const library = getStarterLibrary();
-			const device = library.find((d) => d.model === 'Receiver');
+			const device = library.find((d) => d.model === 'Amplifier' && d.u_height === 1);
 			expect(device).toBeDefined();
 			expect(device?.category).toBe('av-media');
 		});
 
-		it('includes Amplifier', () => {
+		it('includes Amplifier (2U)', () => {
 			const library = getStarterLibrary();
-			const device = library.find((d) => d.model === 'Amplifier');
+			const device = library.find((d) => d.model === 'Amplifier' && d.u_height === 2);
 			expect(device).toBeDefined();
 			expect(device?.category).toBe('av-media');
+		});
+
+		it('includes AV Receiver (1U)', () => {
+			const library = getStarterLibrary();
+			const device = library.find((d) => d.model === 'AV Receiver' && d.u_height === 1);
+			expect(device).toBeDefined();
+			expect(device?.category).toBe('av-media');
+		});
+
+		it('includes Power Amplifier (3U)', () => {
+			const library = getStarterLibrary();
+			const device = library.find((d) => d.model === 'Power Amplifier');
+			expect(device).toBeDefined();
+			expect(device?.u_height).toBe(3);
+			expect(device?.category).toBe('av-media');
+		});
+
+		it('has 8 av-media devices total', () => {
+			const library = getStarterLibrary();
+			const avDevices = library.filter((d) => d.category === 'av-media');
+			expect(avDevices).toHaveLength(8);
 		});
 	});
 
-	describe('cooling category (1 item)', () => {
-		it('includes Fan Panel', () => {
+	describe('cooling category (2 items)', () => {
+		it('includes Fan Panel (1U)', () => {
 			const library = getStarterLibrary();
-			const device = library.find((d) => d.model === 'Fan Panel');
+			const device = library.find((d) => d.model === 'Fan Panel' && d.u_height === 1);
 			expect(device).toBeDefined();
 			expect(device?.category).toBe('cooling');
 		});
 
-		it('does NOT include Blanking Fan (removed)', () => {
+		it('includes Fan Panel (2U)', () => {
 			const library = getStarterLibrary();
-			const device = library.find((d) => d.model === 'Blanking Fan');
-			expect(device).toBeUndefined();
+			const device = library.find((d) => d.model === 'Fan Panel' && d.u_height === 2);
+			expect(device).toBeDefined();
+			expect(device?.category).toBe('cooling');
 		});
 	});
 
-	describe('blank category (3 items)', () => {
-		it('includes Blank (0.5U)', () => {
+	describe('shelf category (4 items)', () => {
+		it('includes Cantilever Shelf', () => {
 			const library = getStarterLibrary();
-			const device = library.find((d) => d.model === 'Blank' && d.u_height === 0.5);
+			const device = library.find((d) => d.model === 'Cantilever Shelf');
 			expect(device).toBeDefined();
-			expect(device?.category).toBe('blank');
+			expect(device?.u_height).toBe(1);
+			expect(device?.category).toBe('shelf');
 		});
 
-		it('includes Blank (1U)', () => {
-			const library = getStarterLibrary();
-			const device = library.find((d) => d.model === 'Blank' && d.u_height === 1);
-			expect(device).toBeDefined();
-			expect(device?.category).toBe('blank');
-		});
-
-		it('includes Blank (2U)', () => {
-			const library = getStarterLibrary();
-			const device = library.find((d) => d.model === 'Blank' && d.u_height === 2);
-			expect(device).toBeDefined();
-			expect(device?.category).toBe('blank');
-		});
-	});
-
-	describe('shelf category (2 items)', () => {
 		it('includes Shelf (1U)', () => {
 			const library = getStarterLibrary();
 			const device = library.find((d) => d.model === 'Shelf' && d.u_height === 1);
@@ -259,10 +313,11 @@ describe('Starter Device Type Library', () => {
 			expect(device?.category).toBe('shelf');
 		});
 
-		it('does NOT include Shelf (4U) (removed)', () => {
+		it('includes Vented Shelf', () => {
 			const library = getStarterLibrary();
-			const device = library.find((d) => d.model === 'Shelf' && d.u_height === 4);
-			expect(device).toBeUndefined();
+			const device = library.find((d) => d.model === 'Vented Shelf');
+			expect(device).toBeDefined();
+			expect(device?.category).toBe('shelf');
 		});
 
 		it('shelf device types have Dracula comment colour', () => {
@@ -275,7 +330,44 @@ describe('Starter Device Type Library', () => {
 		});
 	});
 
-	describe('cable-management category (2 items)', () => {
+	describe('blank category (5 items)', () => {
+		it('includes Blank Panel (0.5U)', () => {
+			const library = getStarterLibrary();
+			const device = library.find((d) => d.model === 'Blank Panel' && d.u_height === 0.5);
+			expect(device).toBeDefined();
+			expect(device?.category).toBe('blank');
+		});
+
+		it('includes Blank Panel (1U)', () => {
+			const library = getStarterLibrary();
+			const device = library.find((d) => d.model === 'Blank Panel' && d.u_height === 1);
+			expect(device).toBeDefined();
+			expect(device?.category).toBe('blank');
+		});
+
+		it('includes Blank Panel (2U)', () => {
+			const library = getStarterLibrary();
+			const device = library.find((d) => d.model === 'Blank Panel' && d.u_height === 2);
+			expect(device).toBeDefined();
+			expect(device?.category).toBe('blank');
+		});
+
+		it('includes Blank Panel (3U)', () => {
+			const library = getStarterLibrary();
+			const device = library.find((d) => d.model === 'Blank Panel' && d.u_height === 3);
+			expect(device).toBeDefined();
+			expect(device?.category).toBe('blank');
+		});
+
+		it('includes Blank Panel (4U)', () => {
+			const library = getStarterLibrary();
+			const device = library.find((d) => d.model === 'Blank Panel' && d.u_height === 4);
+			expect(device).toBeDefined();
+			expect(device?.category).toBe('blank');
+		});
+	});
+
+	describe('cable-management category (3 items)', () => {
 		it('includes Brush Panel', () => {
 			const library = getStarterLibrary();
 			const device = library.find((d) => d.model === 'Brush Panel');
@@ -284,11 +376,17 @@ describe('Starter Device Type Library', () => {
 			expect(device?.category).toBe('cable-management');
 		});
 
-		it('includes Cable Management', () => {
+		it('includes Cable Manager (1U)', () => {
 			const library = getStarterLibrary();
-			const device = library.find((d) => d.model === 'Cable Management');
+			const device = library.find((d) => d.model === 'Cable Manager' && d.u_height === 1);
 			expect(device).toBeDefined();
-			expect(device?.u_height).toBe(1);
+			expect(device?.category).toBe('cable-management');
+		});
+
+		it('includes Cable Manager (2U)', () => {
+			const library = getStarterLibrary();
+			const device = library.find((d) => d.model === 'Cable Manager' && d.u_height === 2);
+			expect(device).toBeDefined();
 			expect(device?.category).toBe('cable-management');
 		});
 
@@ -296,43 +394,17 @@ describe('Starter Device Type Library', () => {
 			const library = getStarterLibrary();
 			const cableDevices = library.filter((d) => d.category === 'cable-management');
 
-			expect(cableDevices).toHaveLength(2);
+			expect(cableDevices).toHaveLength(3);
 			cableDevices.forEach((device) => {
 				expect(device.colour).toBe('#6272A4');
 			});
 		});
 	});
 
-	describe('removed items', () => {
-		it('does NOT include Generic (removed)', () => {
-			const library = getStarterLibrary();
-			const device = library.find((d) => d.model === 'Generic');
-			expect(device).toBeUndefined();
-		});
-
-		it('does NOT include Router (merged into Router/Firewall)', () => {
-			const library = getStarterLibrary();
-			const device = library.find((d) => d.model === 'Router');
-			expect(device).toBeUndefined();
-		});
-
-		it('does NOT include Firewall (merged into Router/Firewall)', () => {
-			const library = getStarterLibrary();
-			const device = library.find((d) => d.model === 'Firewall');
-			expect(device).toBeUndefined();
-		});
-
-		it('does NOT include Switch without port count (renamed to specific port counts)', () => {
-			const library = getStarterLibrary();
-			const device = library.find((d) => d.model === 'Switch');
-			expect(device).toBeUndefined();
-		});
-	});
-
 	describe('slug generation', () => {
-		it('generates correct slug for Router/Firewall', () => {
+		it('generates correct slug for Router/Firewall (1U)', () => {
 			const library = getStarterLibrary();
-			const device = library.find((d) => d.model === 'Router/Firewall');
+			const device = library.find((d) => d.model === 'Router/Firewall' && d.u_height === 1);
 			expect(device?.slug).toBe('1u-router-firewall');
 		});
 
@@ -342,16 +414,16 @@ describe('Starter Device Type Library', () => {
 			expect(device?.slug).toBe('24-port-switch');
 		});
 
-		it('generates correct slug for Blank (0.5U)', () => {
+		it('generates correct slug for Blank Panel (0.5U)', () => {
 			const library = getStarterLibrary();
-			const device = library.find((d) => d.model === 'Blank' && d.u_height === 0.5);
+			const device = library.find((d) => d.model === 'Blank Panel' && d.u_height === 0.5);
 			expect(device?.slug).toBe('0-5u-blank');
 		});
 
-		it('generates correct slug for Cable Management', () => {
+		it('generates correct slug for Cable Manager (1U)', () => {
 			const library = getStarterLibrary();
-			const device = library.find((d) => d.model === 'Cable Management');
-			expect(device?.slug).toBe('1u-cable-management');
+			const device = library.find((d) => d.model === 'Cable Manager' && d.u_height === 1);
+			expect(device?.slug).toBe('1u-cable-manager');
 		});
 	});
 
@@ -388,11 +460,11 @@ describe('Starter Device Type Library', () => {
 			expect(layout.device_types.length).toBe(0);
 		});
 
-		it('starter library is available as a constant', () => {
+		it('starter library contains only generic devices', () => {
 			const starterLibrary = getStarterLibrary();
 
-			// Library should have a substantial number of devices (generic + branded)
-			expect(starterLibrary.length).toBeGreaterThanOrEqual(400);
+			// Library should have 43 generic devices
+			expect(starterLibrary.length).toBe(43);
 			expect(starterLibrary[0]?.slug).toBeTruthy();
 		});
 
